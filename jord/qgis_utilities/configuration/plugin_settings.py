@@ -15,7 +15,9 @@ from typing import Any
 from jord import PROJECT_NAME
 
 
-def store_plugin_setting(key: str, value: Any, *, project_name: str = PROJECT_NAME):
+def store_plugin_setting(
+    key: str, value: Any, *, project_name: str = PROJECT_NAME
+) -> None:
     """
 
     :param key:
@@ -31,7 +33,7 @@ def store_plugin_setting(key: str, value: Any, *, project_name: str = PROJECT_NA
 
 def read_plugin_setting(
     key: str, *, default_value: Any = None, project_name: str = PROJECT_NAME
-):
+) -> Any:
     """
 
     :param key:

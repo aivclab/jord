@@ -75,8 +75,8 @@ def project_point_to_line_points(
 
     :return: a shapely Point that lies on the straight line closest to point
 
-
     """
+
     line_magnitude = line_start.distance(line_end)
 
     u = (
@@ -86,6 +86,7 @@ def project_point_to_line_points(
 
     # closest point does not fall within the line segment,
     # take the shorter distance to an endpoint
+
     if u < 0.00001 or u > 1:
         ix = point.distance(line_start)
         iy = point.distance(line_end)
@@ -98,6 +99,7 @@ def project_point_to_line_points(
 
     ix = line_start.x + u * (line_end.x - line_start.x)
     iy = line_start.y + u * (line_end.y - line_start.y)
+
     return Point([ix, iy])
 
 

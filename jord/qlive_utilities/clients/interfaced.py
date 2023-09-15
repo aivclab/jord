@@ -8,7 +8,7 @@ __all__ = ["InterfacedQliveClient"]
 
 class InterfacedQliveClient(QliveClient):
     """
-    Useful for making client side validation of data
+    Useful for making client-side validation of data
     """
 
     def __init__(self, *args, **kwargs):

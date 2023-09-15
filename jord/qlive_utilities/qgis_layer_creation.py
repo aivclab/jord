@@ -15,7 +15,6 @@ DEFAULT_LAYER_NAME = "TemporaryLayer"
 DEFAULT_LAYER_CRS = "EPSG:4326"
 VERBOSE = False
 
-
 __all__ = [
     "add_qgis_single_feature_layer",
     "add_qgis_single_geometry_layers",
@@ -55,6 +54,8 @@ def add_qgis_single_feature_layer(
 
     geom_type = json.loads(geom.asJson())["type"]
     uri = geom_type  # TODO: URI MIGHT BE NONE?
+    if uri is None:
+        raise Exception(f"Could not load {geom.asJson()} as json")
 
     if name is None:
         name = DEFAULT_LAYER_NAME
@@ -66,13 +67,18 @@ def add_qgis_single_feature_layer(
     if APPEND_TIMESTAMP:
         layer_name += f"_{time.time()}"
 
-    fields = {k: solve_type(v) for k, v in columns}
+    if columns:
+        fields = {k: solve_type(v) for k, v in columns}
+    else:
+        fields = None
 
     if geom_type == GeoJsonGeometryTypesEnum.geometry_collection.value.__name__:
         gm_group = qgis_instance_handle.temporary_group.addGroup(layer_name)
 
         for g in geom.asGeometryCollection():  # TODO: Look into recursion?
             uri = json.loads(g.asJson())["type"]
+            if uri is None:
+                raise Exception(f"Could not load {g.asJson()} as json")
             sub_type = uri  # TODO: URI MIGHT BE NONE?
 
             uri += "?"
@@ -91,13 +97,15 @@ def add_qgis_single_feature_layer(
 
             feat = QgsFeature()
             feat.setGeometry(g)
-            feat.initAttributes(len(columns))
 
-            if False:
-                for field_idx, attr in enumerate(columns.values()):
-                    feat.setAttribute(field_idx, attr)
-            else:
-                feat.setAttributes(list(columns.values()))
+            if columns:
+                feat.initAttributes(len(columns))
+
+                if False:
+                    for field_idx, attr in enumerate(columns.values()):
+                        feat.setAttribute(field_idx, attr)
+                else:
+                    feat.setAttributes(list(columns.values()))
 
             sub_layer = QgsVectorLayer(uri, f"{layer_name}_{sub_type}", "memory")
             sub_layer.dataProvider().addFeatures([feat])
@@ -125,13 +133,14 @@ def add_qgis_single_feature_layer(
         feat = QgsFeature()
         feat.setGeometry(geom)
 
-        feat.initAttributes(len(columns))
+        if columns:
+            feat.initAttributes(len(columns))
 
-        if False:
-            for field_idx, attr in enumerate(columns.values()):
-                feat.setAttribute(field_idx, attr)
-        else:
-            feat.setAttributes(list(columns.values()))
+            if False:
+                for field_idx, attr in enumerate(columns.values()):
+                    feat.setAttribute(field_idx, attr)
+            else:
+                feat.setAttributes(list(columns.values()))
 
         layer = QgsVectorLayer(uri, layer_name, "memory")
         layer.dataProvider().addFeatures([feat])
@@ -239,21 +248,33 @@ def add_qgis_multi_feature_layer(
         fields = {k: solve_type(v) for k, v in sample_row.items()}
         num_cols = len(sample_row)
 
+    if not geoms:
+        return  # No geometry
+
     for geom in geoms:
         geom_type_ = json.loads(geom.asJson())["type"]
 
+        assert geom_type_ is not None, f"could not read {geom_type_=} as json"
+
+        if geom_type_ is None:
+            raise Exception(f"Could not load {geom.asJson()} as json")
+
         if geom_type is None:
             geom_type = geom_type_
-            uri = geom_type  # TODO: URI MIGHT BE NONE?
 
-        if geom_type != geom_type_:
-            print(geom_type_, " is the not the same geometry type as ", geom_type)
-            # assert geom_type_ == geom_type, 'not the same geometry types'
-            return
+        if uri is None:
+            uri = geom_type_  # TODO: URI MIGHT BE NONE?
+
+        assert (
+            geom_type == geom_type_
+        ), f"{geom_type_} is the not the same geometry type as {geom_type}"
 
         if geom_type == GeoJsonGeometryTypesEnum.geometry_collection.value.__name__:
             for g in geom.asGeometryCollection():  # TODO: Look into recursion?
                 sub_type = json.loads(g.asJson())["type"]
+                if sub_type is None:
+                    raise Exception(f"Could not load {g.asJson()} as json")
+
                 add_qgis_multi_feature_layer(
                     qgis_instance_handle, g, f"{name}_{sub_type}"
                 )
@@ -261,12 +282,16 @@ def add_qgis_multi_feature_layer(
         else:
             feat = QgsFeature()
 
-            if sample_row:
-                feat.initAttributes(num_cols)
-                feat.setAttributes(list(next(attr_generator).values()))
+            if attr_generator:
+                if sample_row:
+                    feat.initAttributes(num_cols)
+                    feat.setAttributes(list(next(attr_generator).values()))
 
             feat.setGeometry(geom)
             features.append(feat)
+
+    if uri is None:
+        raise Exception("uri is None")
 
     uri += "?"
 

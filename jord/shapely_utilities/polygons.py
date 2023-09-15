@@ -133,6 +133,7 @@ def prune_area(geom: BaseGeometry, eps: float = 1e-7) -> BaseGeometry:
     poly_areas = []
     if isinstance(geom, Polygon):
         poly_areas.append(geom.area)
+
     elif isinstance(geom, MultiPolygon):
         for po in geom.geoms:
             poly_areas.append(po.area)
