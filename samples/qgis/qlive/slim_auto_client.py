@@ -15,8 +15,8 @@ example_wkt_gm = (
     "1024 0, 0 0)))"
 )
 
-# server_address = "tcp://localhost:5555"
-server_address = "tcp://10.0.2.81:5555"
+server_address = "tcp://localhost:5555"
+# server_address = "tcp://10.0.2.81:5555"
 
 with AutoQliveClient(server_address) as qlive:
     if True:

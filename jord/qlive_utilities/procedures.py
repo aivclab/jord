@@ -22,7 +22,7 @@ SKIP_MEMORY_LAYER_CHECK_AT_CLOSE = True
 PIXEL_SIZE = 1
 DEFAULT_NUMBER = 0
 CONTRAST_ENHANCE = True
-DEFAULT_LAYER_NAME = "TemporaryLayer"
+DEFAULT_LAYER_NAME = "QliveLayer"
 DEFAULT_LAYER_CRS = "EPSG:4326"
 VERBOSE = False
 
@@ -173,7 +173,12 @@ def add_shapely_layer(
 
 
 @passes_kws_to(add_wkb)  # OR add_wkt
-def add_dataframe(qgis_instance_handle: Any, dataframe: DataFrame, **kwargs) -> None:
+def add_dataframe(
+    qgis_instance_handle: Any,
+    dataframe: DataFrame,
+    geometry_column="geometry",
+    **kwargs,
+) -> None:
     """
 
     :param qgis_instance_handle:
@@ -185,18 +190,19 @@ def add_dataframe(qgis_instance_handle: Any, dataframe: DataFrame, **kwargs) -> 
     from jord.geopandas_utilities import split_on_geom_type
 
     if isinstance(dataframe, GeoDataFrame):
-        columns_to_include = ("layer",)
         geom_dict = split_on_geom_type(dataframe)
         for df in geom_dict.values():
             if False:
                 for w in df.geometry.to_wkt():
                     add_wkt(qgis_instance_handle, w, **kwargs)
             else:
-                for w in df.geometry.to_wkb():
-                    add_wkb(qgis_instance_handle, w, **kwargs)
+                for columns, w in zip(
+                    df.iterrows(), df.geometry.to_wkb()
+                ):  # TODO: ITERROWS may not work
+                    add_wkb(qgis_instance_handle, w, columns, **kwargs)
 
-    elif isinstance(dataframe, DataFrame) and False:
-        geometry_column = "geometry"
+    elif isinstance(dataframe, DataFrame):
+        raise NotImplemented
         if isinstance(
             dataframe[geometry_column][0], shapely.geometry.base.BaseGeometry
         ):
@@ -212,21 +218,73 @@ def add_dataframe(qgis_instance_handle: Any, dataframe: DataFrame, **kwargs) -> 
         for row in wkts:
             add_wkt(qgis_instance_handle, row, **kwargs)
     else:
-        if VERBOSE:
-            print("SKIP!")
+        raise NotImplemented
 
 
-@passes_kws_to(add_qgis_single_feature_layer)
+@passes_kws_to(add_dataframe)
 def add_dataframes(
     qgis_instance_handle: Any, dataframes: Mapping[str, DataFrame], **kwargs
 ) -> None:
-    ...
+    for layer_name, geometry in dataframes.items():
+        add_dataframe(qgis_instance_handle, geometry, name=layer_name, **kwargs)
 
 
+@passes_kws_to(add_wkt_layer)
 def add_dataframe_layer(
-    qgis_instance_handle: Any, geoms: Iterable[DataFrame], **kwargs
+    qgis_instance_handle: Any,
+    dataframe: DataFrame,
+    name: str = None,
+    geometry_column="geometry",
+    **kwargs,
 ) -> None:
-    ...
+    from geopandas import GeoDataFrame
+    from jord.geopandas_utilities import split_on_geom_type
+
+    if isinstance(dataframe, GeoDataFrame):
+        geom_dict = split_on_geom_type(dataframe)
+
+        append_type_name = False
+
+        if len(geom_dict) > 1:  # Must be split
+            append_type_name = True
+            if (
+                name is None
+            ):  # if No name give one to have some commoness of new layers in names
+                name = DEFAULT_LAYER_NAME
+                if APPEND_TIMESTAMP and False:
+                    name += f"_{time.time()}"
+
+        for k, df in geom_dict.items():  # each geom type
+            geoms = []
+            columns = []
+            for (i, c), w in zip(df.iterrows(), df.geometry.to_wkt()):
+                c.pop(geometry_column)
+                geoms.append(w)
+                columns.append({**c})
+
+            if append_type_name:
+                layer_name = f"{name}_{k.name}"
+            else:
+                layer_name = name
+
+            add_wkt_layer(
+                qgis_instance_handle, geoms, name=layer_name, columns=columns, **kwargs
+            )
+    elif isinstance(dataframe, DataFrame):
+        raise NotImplemented
+        geom_dict = split_on_geom_type(dataframe)
+        for df in geom_dict.values():  # each geom type
+            geoms = []
+            columns = []
+            for (i, c), w in zip(df.iterrows(), df.geometry.to_wkt()):
+                c.pop(geometry_column)
+                geoms.append(w)
+                columns.append({**c})
+
+            add_wkt_layer(qgis_instance_handle, geoms, columns=columns, **kwargs)
+
+    else:
+        raise NotImplemented
 
 
 @passes_kws_to(add_shapely_geometry)

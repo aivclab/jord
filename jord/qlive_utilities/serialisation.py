@@ -2,7 +2,7 @@ import base64
 import json
 import pickle
 from enum import Enum
-from typing import Tuple, Sequence, Any
+from typing import Tuple, Sequence, Any, Callable, Mapping, Union
 
 __all__ = ["build_package", "read_package"]
 
@@ -19,7 +19,9 @@ SERIALISATION_METHOD = SerialisationMethodEnum.pickle
 VERBOSE = False
 
 
-def build_package(method: QliveRPCMethodEnum, *args: Any, **kwargs) -> bytes:
+def build_package(
+    method: QliveRPCMethodEnum, *args: Any, **kwargs
+) -> Union[bytes, str]:
     """
 
     :param method:
@@ -39,16 +41,18 @@ def build_package(method: QliveRPCMethodEnum, *args: Any, **kwargs) -> bytes:
 
     if SERIALISATION_METHOD == SerialisationMethodEnum.pickle:
         return pickle.dumps({"method": method.value, "args": args, "kwargs": kwargs})
-    elif SERIALISATION_METHOD == SERIALISATION_METHOD.json:
-        return json.dump(
+    elif SERIALISATION_METHOD == SerialisationMethodEnum.json:
+        return json.dumps(
             {"method": method.value, "args": args, "kwargs": kwargs}
         )  # TODO: ?
+    elif False:
+        ...
         # return base64.b64encode(str({"method": method.value, "args": args}).encode("ascii"))
     else:
         raise NotImplemented
 
 
-def read_package(package: bytes) -> Tuple[QliveRPCMethodEnum, Sequence[str]]:
+def read_package(package: bytes) -> Tuple[Callable, Sequence[Any], Mapping[str, Any]]:
     """
 
     :param package:
@@ -78,3 +82,5 @@ def read_package(package: bytes) -> Tuple[QliveRPCMethodEnum, Sequence[str]]:
 
 if __name__ == "__main__":
     print(read_package(build_package(method=QliveRPCMethodEnum.add_wkt)))
+    print(read_package(build_package(method=QliveRPCMethodEnum.add_wkb)))
+    print(read_package(build_package(method=QliveRPCMethodEnum.add_dataframe_layer)))

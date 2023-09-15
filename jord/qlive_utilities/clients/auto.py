@@ -8,6 +8,8 @@ from jord.qlive_utilities import (
 )
 
 
+__doc__ = r"""Warning this client a no client-side validation, which might result in server-side exceptions"""
+
 __all__ = ["AutoQliveClient"]
 
 from jord.qlive_utilities.clients.arguments import partial_satisfied
