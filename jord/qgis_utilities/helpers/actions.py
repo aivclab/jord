@@ -5,7 +5,6 @@ from PyQt5.QtWidgets import QAction, QWidget
 
 from jord.qgis_utilities.helpers.signals import reconnect_signal
 
-
 __all__ = ["create_action"]
 
 

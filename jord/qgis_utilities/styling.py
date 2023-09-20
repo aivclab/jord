@@ -1,6 +1,5 @@
 from typing import Mapping
 
-
 from PyQt5.Qt import QColor
 
 # noinspection PyUnresolvedReferences

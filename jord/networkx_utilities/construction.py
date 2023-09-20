@@ -17,8 +17,7 @@ def assertive_add_edge(
     assert graph.has_node(v)
 
     if graph.has_edge(u, v, uniqueid):
-        return
-    # assert not graph.has_edge(u,v,uniqueid)
+        assert not graph.has_edge(u, v, uniqueid)
 
     graph.add_edge(u, v, key=uniqueid, uniqueid=uniqueid, **kwargs)
 
@@ -34,6 +33,5 @@ def add_shapely_node(
         lat=point.y,
         x=point.x,
         y=point.y,
-        # altitude=inter_.location.geoLocation.altitude,
         **kwargs,
     )

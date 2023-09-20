@@ -2,7 +2,6 @@ from enum import Enum
 
 from jord.gdal_utilities import GDAL
 
-
 __all__ = ["gdal_error_type_map"]
 
 

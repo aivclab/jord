@@ -2,9 +2,7 @@ from typing import Dict
 
 from geopandas import GeoDataFrame
 
-
 from jord.shapely_utilities import ShapelyGeometryTypesEnum
-
 
 __all__ = ["split_on_geom_type"]
 

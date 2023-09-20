@@ -3,14 +3,14 @@
 
 import datetime
 import os
+from importlib import resources
+from importlib.metadata import PackageNotFoundError
 from pathlib import Path
 from typing import Any
 from warnings import warn
 
-from importlib import resources
-from importlib.metadata import PackageNotFoundError
-from warg import package_is_editable
 from apppath import AppPath
+from warg import package_is_editable
 
 __project__ = "Jord"
 __author__ = "Christian Heider Nielsen"

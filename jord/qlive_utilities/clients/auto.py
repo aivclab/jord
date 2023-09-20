@@ -1,12 +1,12 @@
 from functools import partial
 from typing import Callable
+
 from jord.qlive_utilities import (
     QliveClient,
     QliveRPCMethodEnum,
     QliveRPCMethodMap,
     build_package,
 )
-
 
 __doc__ = r"""Warning this client a no client-side validation, which might result in server-side exceptions"""
 

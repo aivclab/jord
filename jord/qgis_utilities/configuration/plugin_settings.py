@@ -11,7 +11,6 @@ __all__ = ["store_plugin_setting", "read_plugin_setting"]
 
 from typing import Any
 
-
 from jord import PROJECT_NAME
 
 

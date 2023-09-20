@@ -10,7 +10,6 @@ from geojson import (
     GeometryCollection,
 )
 
-
 __all__ = ["GeoJsonGeometryTypesEnum"]
 
 

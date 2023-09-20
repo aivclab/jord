@@ -2,7 +2,6 @@ from typing import Dict
 
 from jord.gdal_utilities import OGR
 
-
 __all__ = ["available_driver_index_name_mapping"]
 
 

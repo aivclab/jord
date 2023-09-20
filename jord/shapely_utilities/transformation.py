@@ -1,8 +1,9 @@
-from typing import List, Sequence, Iterable, Union, Mapping, Tuple
-from shapely.geometry.base import BaseGeometry
-from shapely.ops import transform
+from typing import List, Iterable, Union, Tuple
+
 import numpy
 import pyproj
+from shapely.geometry.base import BaseGeometry
+from shapely.ops import transform
 
 __all__ = [
     "crs_transform_shapely",

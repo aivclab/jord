@@ -1,4 +1,4 @@
-from geopandas import GeoDataFrame, GeoSeries
+from geopandas import GeoSeries
 from pandas import DataFrame
 
 from jord.qlive_utilities.clients.auto import AutoQliveClient

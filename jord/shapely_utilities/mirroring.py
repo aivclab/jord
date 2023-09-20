@@ -1,6 +1,5 @@
 __all__ = ["reflection"]
 
-import numpy
 
 # pts = numpy.array([[0, 0], [1, 1], [1, 2], [0, 1]])
 # display(Polygon(pts.dot([[1,0],[0,-1]])))
@@ -11,8 +10,8 @@ def principal_axis():
 
 
 from shapely.affinity import scale
-from shapely.ops import transform
 from shapely.geometry import Polygon
+from shapely.ops import transform
 
 
 def reflection(x0):
