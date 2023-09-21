@@ -3,7 +3,7 @@ from geopandas import GeoDataFrame, GeoSeries
 
 from jord.qlive_utilities.clients.auto import AutoQliveClient
 
-with AutoQliveClient("tcp://localhost:5555") as qlive:
+with AutoQliveClient() as qlive:
     df = GeoDataFrame(
         {
             "City": ["Buenos Aires", "Brasilia", "Santiago", "Bogota", "Caracas"],
