@@ -80,7 +80,7 @@ def categorise_layer(
         if cat:
             label = str(cat)
         else:
-            label = "None"
+            label = "No Value"
 
         render_categories.append(
             QgsRendererCategory(cat, symbol=sym, label=label, render=True)
