@@ -58,9 +58,11 @@ def categorise_layer(
     """
 
     if isinstance(iterable, Sized):
+        # noinspection PyTypeChecker
         iterable = cycle(iterable)
 
     if isinstance(iterable, Callable) and not isinstance(iterable, Generator):
+        # noinspection PyCallingNonCallable
         iterable = iterable()  # Compat
 
     color_iter = iter(iterable)
@@ -69,6 +71,20 @@ def categorise_layer(
 
     render_categories = []
     for cat in layer.uniqueValues(layer.fields().indexFromName(field_name)):
+        if cat:
+            sym = QgsSymbol.defaultSymbol(layer.geometryType())
+            col = next(color_iter)
+
+            if len(col) == 3:
+                col = (*col, 255)
+
+            sym.setColor(QColor(*col))
+
+            render_categories.append(
+                QgsRendererCategory(cat, symbol=sym, label=str(cat), render=True)
+            )
+
+    if True:  # add default
         sym = QgsSymbol.defaultSymbol(layer.geometryType())
         col = next(color_iter)
 
@@ -77,13 +93,8 @@ def categorise_layer(
 
         sym.setColor(QColor(*col))
 
-        if cat:
-            label = str(cat)
-        else:
-            label = "No Value"
-
         render_categories.append(
-            QgsRendererCategory(cat, symbol=sym, label=label, render=True)
+            QgsRendererCategory("", symbol=sym, label="None", render=True)
         )
 
     layer.setRenderer(QgsCategorizedSymbolRenderer(field_name, render_categories))

@@ -32,6 +32,14 @@ class QliveClient(AlsoDecorator):
 
         self.address = address
 
+        self.blocking = False
+        self.flag = None
+        if not self.blocking:
+            self.poller = zmq.Poller()
+            self.flag = zmq.NOBLOCK
+            self.wait_time = 1000
+            self.poller.register(self.socket, zmq.POLLIN)
+
     def __enter__(self):
         self.socket.connect(self.address)
         return self
@@ -40,5 +48,15 @@ class QliveClient(AlsoDecorator):
         self.socket.close()
 
     def send(self, *args) -> Any:
-        self.socket.send(*args)
-        return self.socket.recv()
+        self.socket.send(*args, self.flag)
+
+        if self.blocking:
+            return self.socket.recv()
+
+        socks = dict(self.poller.poll(self.wait_time))
+        if socks:
+            if socks.get(self.socket) == zmq.POLLIN:
+                return self.socket.recv(self.flag)
+
+        return  # TODO: just ignore for now
+        raise TimeoutError
