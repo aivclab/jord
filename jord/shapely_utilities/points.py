@@ -1,9 +1,9 @@
 from typing import Sequence, List, Optional, Union, Tuple, Iterable, Generator
 
-from shapely.geometry.base import BaseGeometry
-from warg import Number
 import numpy
 from shapely.geometry import LineString, Point, MultiPoint
+from shapely.geometry.base import BaseGeometry
+from warg import Number
 
 __all__ = [
     "unique_line_points",

@@ -23,7 +23,7 @@ def ensure_cw_ring(ring: LinearRing) -> LinearRing:
 
 from typing import Iterable, Union
 
-from shapely import Polygon, MultiLineString, LineString, Point, LinearRing
+from shapely import MultiLineString, LineString, Point, LinearRing
 
 from jord.shapely_utilities.projection import (
     project_point_to_line,

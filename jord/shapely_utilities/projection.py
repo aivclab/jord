@@ -1,10 +1,9 @@
 from typing import Sequence, Tuple, Optional
 
+import numpy
 from shapely.geometry import Polygon, Point, LineString
 from shapely.geometry.base import BaseGeometry
-
-from warg import pairs
-
+from warg import pairs, Number
 
 __all__ = [
     "project_point_to_object",
@@ -63,7 +62,7 @@ def project_point_to_object(point: Point, geometry: BaseGeometry) -> Point:
 
 
 def project_point_to_line_points(
-    point: Point, line_start: Point, line_end: Point
+    point: Point, line_start: Point, line_end: Point, must_be_orthogonal: bool = False
 ) -> Point:
     """Find the nearest point on a straight line, measured from given point.
 
@@ -92,9 +91,13 @@ def project_point_to_line_points(
         iy = point.distance(line_end)
 
         if ix > iy:
+            if must_be_orthogonal:
+                raise Exception
             return line_end
 
         else:
+            if must_be_orthogonal:
+                raise Exception()
             return line_start
 
     ix = line_start.x + u * (line_end.x - line_start.x)
@@ -120,7 +123,7 @@ def line_line_intersection(line: LineString, other: LineString) -> Optional[Poin
     q = p2_start
     s = (p2_end - p2_start)
 
-    t = np.cross(q - p, s) / (np.cross(r, s))
+    t = numpy.cross(q - p, s) / (numpy.cross(r, s))
 
     # This is the intersection point
     i = p + t * r
@@ -144,6 +147,15 @@ def line_line_intersection(line: LineString, other: LineString) -> Optional[Poin
         if isinstance(l1_l2_intersection[0], sympy.geometry.Line2D):  # Same
             return
         return Point(*l1_l2_intersection[0])
+
+
+def get_intersection_linear_functions(
+    a1: Number, b1: Number, a2: Number, b2: Number
+) -> Tuple[Number, Number]:
+    A = numpy.array([[-a1, 1], [-a2, 1]])
+    b = numpy.array([[b1], [b2]])
+    # you have to solve linear System AX = b where X = [x y]'
+    return numpy.squeeze(numpy.linalg.pinv(A) @ b)  # x,y
 
 
 def nearest_geometry(

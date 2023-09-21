@@ -3,18 +3,18 @@
 
 import datetime
 import os
+from importlib import resources
+from importlib.metadata import PackageNotFoundError
 from pathlib import Path
 from typing import Any
 from warnings import warn
 
-from importlib import resources
-from importlib.metadata import PackageNotFoundError
-from warg import package_is_editable
 from apppath import AppPath
+from warg import package_is_editable
 
 __project__ = "Jord"
-__author__ = "Christian Heider Nielsen"
-__version__ = "0.1.6"
+__author__ = "Christian Heider Lindbjerg"
+__version__ = "0.1.7"
 __doc__ = r"""
 .. module:: jord
    :platform: Unix, Windows

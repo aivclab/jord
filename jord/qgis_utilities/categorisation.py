@@ -11,7 +11,6 @@ from qgis.core import (
     QgsRendererCategory,
     QgsCategorizedSymbolRenderer,
 )
-
 from warg import TripleNumber, QuadNumber, n_uint_mix_generator_builder
 
 __all__ = ["categorise_layer"]
@@ -47,20 +46,42 @@ def categorise_layer(
     field_name: str = "layer",
     iterable: Iterable = n_uint_mix_generator_builder(255, 255, 255, 255),
 ) -> None:
+    """
+
+    https://qgis.org/pyqgis/3.0/core/Vector/QgsVectorLayer.html
+    https://qgis.org/pyqgis/3.0/core/other/QgsFields.html
+
+    :param layer:
+    :param field_name:
+    :param iterable:
+    :return:
+    """
+
     if isinstance(iterable, Sized):
         iterable = cycle(iterable)
+
     if isinstance(iterable, Callable) and not isinstance(iterable, Generator):
         iterable = iterable()  # Compat
+
     color_iter = iter(iterable)
+
+    assert field_name in layer.fields().names()
 
     render_categories = []
     for cat in layer.uniqueValues(layer.fields().indexFromName(field_name)):
         sym = QgsSymbol.defaultSymbol(layer.geometryType())
         col = next(color_iter)
+
         if len(col) == 3:
             col = (*col, 255)
+
         sym.setColor(QColor(*col))
-        label = str(cat)
+
+        if cat:
+            label = str(cat)
+        else:
+            label = "None"
+
         render_categories.append(
             QgsRendererCategory(cat, symbol=sym, label=label, render=True)
         )

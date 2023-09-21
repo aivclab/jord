@@ -16,7 +16,6 @@ __all__ = [
 from logging import warning
 from typing import Any, Mapping, Optional
 
-
 from jord import PROJECT_NAME
 
 

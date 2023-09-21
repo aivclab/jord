@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__author__ = "Christian Heider Nielsen"
+__author__ = "Christian Heider Lindbjerg"
 __doc__ = r"""
 
            Created on 02-12-2020
@@ -10,7 +10,6 @@ __doc__ = r"""
 __all__ = ["store_plugin_setting", "read_plugin_setting"]
 
 from typing import Any
-
 
 from jord import PROJECT_NAME
 

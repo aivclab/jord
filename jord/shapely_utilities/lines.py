@@ -36,13 +36,12 @@ from shapely.geometry import (
     MultiPolygon,
     GeometryCollection,
 )
-from shapely.ops import linemerge as shapely_linemerge
 from shapely.geometry import box
 from shapely.geometry.base import BaseGeometry
+from shapely.ops import linemerge as shapely_linemerge
 from sorcery import assigned_names
 from warg import Number, pairs
 
-from jord.shapely_utilities.projection import nearest_geometry
 from jord.shapely_utilities.points import (
     unique_line_points,
     nearest_neighbor_within,
@@ -51,6 +50,9 @@ from jord.shapely_utilities.points import (
     closest_object,
 )
 from jord.shapely_utilities.polygons import explode_polygons
+from jord.shapely_utilities.projection import nearest_geometry
+
+EPSILON = 1e-6
 
 
 def to_single_line(
@@ -508,6 +510,13 @@ def linemerge(
             lines.append(line)
 
     return shapely_linemerge(lines)
+
+
+def are_incident(v1, v2) -> bool:
+    v1 /= numpy.linalg.norm(v1)
+    v2 /= numpy.linalg.norm(v2)
+    angle = numpy.dot(v1, v2)
+    return angle < 1 - EPSILON
 
 
 def one_linestring_per_intersection(
@@ -1068,7 +1077,7 @@ def increase_points_line(line: LineString, spacing: float) -> LineString:
 
 
 def remove_redundant_nodes(
-    lines: Sequence[LineString], tolerance: float = 1e-7
+    lines: Sequence[LineString], tolerance: float = EPSILON
 ) -> List[LineString]:
     """
     remove vertices with length smaller than tolerance
@@ -1124,3 +1133,15 @@ if __name__ == "__main__":
     # ausdh()
     iashdh()
     uahsduhjasd()
+
+    def uhsaduh():
+        v1 = (1, 1)
+        v2 = (1, 1)
+        v3 = (-1, 1)
+        print(are_incident(v1, v1))
+        print(are_incident(v1, v2))
+        print(are_incident(v1, v3))
+        print(are_incident(v2, v3))
+        print(are_incident(v3, v3))
+
+    uhsaduh()

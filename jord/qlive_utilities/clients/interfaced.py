@@ -1,5 +1,3 @@
-from enum import Enum
-
 from jord.qlive_utilities.client import QliveClient
 
 

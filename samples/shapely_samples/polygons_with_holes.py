@@ -1,6 +1,6 @@
-from shapely.geometry import Polygon
-from matplotlib import pyplot
 import geopandas
+from matplotlib import pyplot
+from shapely.geometry import Polygon
 
 # Example polygon with two holes
 inputPolygon = Polygon(

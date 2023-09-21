@@ -1,6 +1,6 @@
-from jord.qlive_utilities.clients.auto import AutoQliveClient
-
 import numpy
+
+from jord.qlive_utilities.clients.auto import AutoQliveClient
 
 DEFAULT_CRS = "EPSG:3857"  # "EPSG:4326"
 crs = DEFAULT_CRS

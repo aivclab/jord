@@ -1,7 +1,8 @@
-import zmq
 import numpy
-from jord.qlive_utilities.serialisation import build_package
+import zmq
+
 from jord.qlive_utilities.procedures import QliveRPCMethodEnum
+from jord.qlive_utilities.serialisation import build_package
 
 context = zmq.Context()
 

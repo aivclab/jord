@@ -23,9 +23,10 @@ with AutoQliveClient("tcp://localhost:5555") as qlive:
                 .exterior.wkt,  # Linestring
                 shapely.from_wkt("POINT(-66.86 10.48)").buffer(1).wkt,  # Polygon
             ],
-        }
+        },
+        geometry="geometry",
     )
 
     df["geometry"] = GeoSeries.from_wkt(df["geometry"])  # Convert to shapely objects
 
-    print(qlive.add_dataframe_layer(GeoDataFrame(df, geometry="geometry")))
+    print(qlive.add_dataframe_layer(df))
