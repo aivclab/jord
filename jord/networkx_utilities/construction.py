@@ -5,9 +5,15 @@ __all__ = ["assertive_add_edge", "add_shapely_node"]
 
 
 def assertive_add_edge(
-    graph: MultiDiGraph, u: int, v: int, uniqueid: int, **kwargs
+    graph: MultiDiGraph,
+    u: int,
+    v: int,
+    uniqueid: int,
+    allow_loops: bool = True,
+    allow_duplicates: bool = False,
+    **kwargs,
 ) -> None:
-    if True:  # disallow_loops: bool
+    if not allow_loops:
         assert u != v, f"{u} == {v}"
 
     assert isinstance(u, int)
@@ -16,7 +22,7 @@ def assertive_add_edge(
     assert graph.has_node(u)
     assert graph.has_node(v)
 
-    if graph.has_edge(u, v, uniqueid):
+    if not allow_duplicates and graph.has_edge(u, v, uniqueid):
         assert not graph.has_edge(u, v, uniqueid)
 
     graph.add_edge(u, v, key=uniqueid, uniqueid=uniqueid, **kwargs)

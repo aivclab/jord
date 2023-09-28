@@ -94,8 +94,20 @@ def categorise_layer(
         sym.setColor(QColor(*col))
 
         render_categories.append(
-            QgsRendererCategory("", symbol=sym, label="None", render=True)
+            QgsRendererCategory("", symbol=sym, label="default", render=True)
         )
+
+        if False:
+            # render_categories.append(QgsRendererCategory()) # crashes qgis
+            render_categories.append(
+                QgsRendererCategory([], symbol=sym, label="EmptyList", render=True)
+            )
+            render_categories.append(
+                QgsRendererCategory("", symbol=sym, label="EmptyString", render=True)
+            )
+            render_categories.append(
+                QgsRendererCategory("None", symbol=sym, label="None", render=True)
+            )
 
     layer.setRenderer(QgsCategorizedSymbolRenderer(field_name, render_categories))
     layer.triggerRepaint()

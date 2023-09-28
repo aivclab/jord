@@ -24,6 +24,9 @@ class QliveClient(AlsoDecorator):
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.REQ)
 
+        if not address:
+            address = default_address()
+
         if str.isnumeric(address):  # only port was given
             address = f"{default_address().split(':')[0]}{address}"
 
