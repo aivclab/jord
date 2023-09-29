@@ -15,6 +15,8 @@ DEFAULT_LAYER_NAME = "TemporaryLayer"
 DEFAULT_LAYER_CRS = "EPSG:4326"
 VERBOSE = False
 
+USE_TEMP_GROUP = False
+
 __all__ = [
     "add_qgis_single_feature_layer",
     "add_qgis_single_geometry_layers",
@@ -108,13 +110,25 @@ def add_qgis_single_feature_layer(
                     feat.setAttributes(list(columns.values()))
 
             sub_layer = QgsVectorLayer(uri, f"{layer_name}_{sub_type}", "memory")
-            sub_layer.dataProvider().addFeatures([feat])
+            layer_data_provider = sub_layer.dataProvider()
+            layer_data_provider.addFeatures([feat])
+            layer_data_provider.updateExtents()
 
             if SKIP_MEMORY_LAYER_CHECK_AT_CLOSE:
                 sub_layer.setCustomProperty("skipMemoryLayersCheck", 1)
 
-            qgis_instance_handle.qgis_project.addMapLayer(sub_layer, False)
-            gm_group.insertLayer(0, sub_layer)
+            sub_layer.commitChanges()
+            sub_layer.updateFields()
+            sub_layer.updateExtents()
+
+            if USE_TEMP_GROUP:
+                qgis_instance_handle.qgis_project.addMapLayer(sub_layer, False)
+                gm_group.insertLayer(0, sub_layer)
+            else:
+                qgis_instance_handle.qgis_project.addMapLayer(sub_layer)
+
+            return  # TODO: REMOVE THIS, is it not needed but for codeflow interpretation this will remain here until
+            # refactored
     else:
         uri += "?"
 
@@ -143,13 +157,22 @@ def add_qgis_single_feature_layer(
                 feat.setAttributes(list(columns.values()))
 
         layer = QgsVectorLayer(uri, layer_name, "memory")
-        layer.dataProvider().addFeatures([feat])
+        layer_data_provider = layer.dataProvider()
+        layer_data_provider.addFeatures([feat])
+        layer_data_provider.updateExtents()
 
         if SKIP_MEMORY_LAYER_CHECK_AT_CLOSE:
             layer.setCustomProperty("skipMemoryLayersCheck", 1)
 
-        qgis_instance_handle.qgis_project.addMapLayer(layer, False)
-        qgis_instance_handle.temporary_group.insertLayer(0, layer)
+        layer.commitChanges()
+        layer.updateFields()
+        layer.updateExtents()
+
+        if USE_TEMP_GROUP:
+            qgis_instance_handle.qgis_project.addMapLayer(layer, False)
+            qgis_instance_handle.temporary_group.insertLayer(0, layer)
+        else:
+            qgis_instance_handle.qgis_project.addMapLayer(layer)
 
 
 @passes_kws_to(add_qgis_single_feature_layer)
@@ -308,10 +331,19 @@ def add_qgis_multi_feature_layer(
     uri.replace("?&", "?")
 
     layer = QgsVectorLayer(uri, layer_name, "memory")
-    layer.dataProvider().addFeatures(features)
+    layer_data_provider = layer.dataProvider()
+    layer_data_provider.addFeatures(features)
+    layer_data_provider.updateExtents()
 
     if SKIP_MEMORY_LAYER_CHECK_AT_CLOSE:
         layer.setCustomProperty("skipMemoryLayersCheck", 1)
 
-    qgis_instance_handle.qgis_project.addMapLayer(layer, False)
-    qgis_instance_handle.temporary_group.insertLayer(0, layer)
+    layer.commitChanges()
+    layer.updateFields()
+    layer.updateExtents()
+
+    if USE_TEMP_GROUP:
+        qgis_instance_handle.qgis_project.addMapLayer(layer, False)
+        qgis_instance_handle.temporary_group.insertLayer(0, layer)
+    else:
+        qgis_instance_handle.qgis_project.addMapLayer(layer)
