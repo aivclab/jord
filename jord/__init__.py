@@ -17,7 +17,7 @@ from warg import package_is_editable, clean_string, get_version
 
 __project__ = "Jord"
 __author__ = "Christian Heider Lindbjerg"
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 __doc__ = r"""
 .. module:: jord
    :platform: Unix, Windows
@@ -48,11 +48,9 @@ try:
 except PackageNotFoundError as e:
     DEVELOP = True
 
-
 __version__ = get_version(__version__, append_time=DEVELOP)
 
 __version_info__ = tuple(int(segment) for segment in __version__.split("."))
-
 
 if __name__ == "__main__":
     print(PROJECT_APP_PATH.user_cache)

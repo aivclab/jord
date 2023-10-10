@@ -1,6 +1,23 @@
-__all__ = ["DockWidgetAreaFlag", "AlignmentFlag"]
+__all__ = [
+    "DockWidgetAreaFlag",
+    "KeyEnum",
+    "AlignmentFlag",
+    "AlignmentFlag",
+    "INT_TO_CHECK_STATE",
+    "CHECK_STATE_TO_INT",
+    "check_state_to_bool",
+    "str_to_check_state",
+    "check_state_to_str",
+    "CheckStateEnum",
+    "EdgeFlag",
+    "DropActionFlag",
+    "FocusPolicyFlag",
+    "FocusReasonEnum",
+    "ColorEnum",
+]
 
 from enum import Flag, Enum
+from typing import Any
 
 from qgis.PyQt.QtCore import Qt
 
@@ -12,6 +29,32 @@ class DockWidgetAreaFlag(Flag):
     bottom = Qt.BottomDockWidgetArea  # 0x8	The bottom dock area of a QMainWindow.
     all = Qt.AllDockWidgetAreas  # DockWidgetArea_Mask	All dock widget areas (default).
     none = Qt.NoDockWidgetArea  # 0	No dock widget areas.
+
+
+class CheckStateEnum(Enum):
+    unchecked = Qt.Unchecked
+    partial = Qt.PartiallyChecked
+    checked = Qt.Checked
+
+
+INT_TO_CHECK_STATE = {
+    0: CheckStateEnum.unchecked,
+    1: CheckStateEnum.partial,
+    2: CheckStateEnum.checked,
+}
+CHECK_STATE_TO_INT = {v: k for k, v in INT_TO_CHECK_STATE.items()}
+
+
+def str_to_check_state(str_: str) -> Any:
+    return INT_TO_CHECK_STATE[int(str_)]
+
+
+def check_state_to_str(CheckStateEnum_: CheckStateEnum) -> Any:
+    return str(CHECK_STATE_TO_INT[CheckStateEnum_])
+
+
+def check_state_to_bool(CheckStateEnum_: CheckStateEnum) -> bool:
+    return CHECK_STATE_TO_INT[CheckStateEnum_] > 0
 
 
 class DropActionFlag(Flag):
