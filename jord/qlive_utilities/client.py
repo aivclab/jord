@@ -6,11 +6,13 @@ from warg import AlsoDecorator
 
 __all__ = ["QliveClient"]
 
+DEFAULT_PORT = "5555"
+
 
 def default_address() -> str:
     if in_docker():
-        return "tcp://host.docker.internal:5555"
-    return "tcp://localhost:5555"
+        return f"tcp://host.docker.internal:{DEFAULT_PORT}"
+    return f"tcp://localhost:{DEFAULT_PORT}"
 
 
 class QliveClient(AlsoDecorator):
@@ -28,9 +30,9 @@ class QliveClient(AlsoDecorator):
             address = default_address()
 
         if str.isnumeric(address):  # only port was given
-            address = f"{default_address().split(':')[0]}{address}"
+            address = f"{default_address().split(f':{DEFAULT_PORT}')[0]}:{address}"
 
-        if "://" not in address:  # protocol is missing
+        if "tcp://" not in address:  # protocol is missing
             address = f"tcp://{address}"
 
         self.address = address
