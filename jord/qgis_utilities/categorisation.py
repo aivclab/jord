@@ -11,6 +11,7 @@ from qgis.core import (
     QgsRendererCategory,
     QgsCategorizedSymbolRenderer,
 )
+import qgis
 from warg import TripleNumber, QuadNumber, n_uint_mix_generator_builder
 
 __all__ = ["categorise_layer"]
@@ -111,3 +112,4 @@ def categorise_layer(
 
     layer.setRenderer(QgsCategorizedSymbolRenderer(field_name, render_categories))
     layer.triggerRepaint()
+    qgis.utils.iface.layerTreeView().refreshLayerSymbology(layer.id())

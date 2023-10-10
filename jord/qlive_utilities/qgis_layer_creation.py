@@ -50,6 +50,9 @@ def add_qgis_single_feature_layer(
     # noinspection PyUnresolvedReferences
     from qgis.core import QgsVectorLayer, QgsFeature
 
+    # noinspection PyUnresolvedReferences
+    import qgis
+
     # uri = geom.type()
     # uri = geom.wkbType()
     # uri = geom.wktTypeStr()
@@ -126,9 +129,6 @@ def add_qgis_single_feature_layer(
                 gm_group.insertLayer(0, sub_layer)
             else:
                 qgis_instance_handle.qgis_project.addMapLayer(sub_layer)
-
-            return  # TODO: REMOVE THIS, is it not needed but for codeflow interpretation this will remain here until
-            # refactored
     else:
         uri += "?"
 
@@ -173,6 +173,10 @@ def add_qgis_single_feature_layer(
             qgis_instance_handle.temporary_group.insertLayer(0, layer)
         else:
             qgis_instance_handle.qgis_project.addMapLayer(layer)
+
+    actions = qgis.utils.iface.layerTreeView().defaultActions()
+    actions.showFeatureCount()
+    actions.showFeatureCount()
 
 
 @passes_kws_to(add_qgis_single_feature_layer)
@@ -227,6 +231,9 @@ def add_qgis_multi_feature_layer(
 
     # noinspection PyUnresolvedReferences
     from qgis.core import QgsVectorLayer, QgsFeature
+
+    # noinspection PyUnresolvedReferences
+    import qgis
 
     # uri = geom.type()
     # uri = geom.wkbType()
@@ -347,3 +354,7 @@ def add_qgis_multi_feature_layer(
         qgis_instance_handle.temporary_group.insertLayer(0, layer)
     else:
         qgis_instance_handle.qgis_project.addMapLayer(layer)
+
+    actions = qgis.utils.iface.layerTreeView().defaultActions()
+    actions.showFeatureCount()
+    actions.showFeatureCount()
