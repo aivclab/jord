@@ -26,7 +26,7 @@ __all__ = [
 
 def add_qgis_single_feature_layer(
     qgis_instance_handle: Any,
-    geom,  #: QgsGeometry,
+    geom: Any,  #: QgsGeometry,
     name: Optional[str] = None,
     crs: Optional[str] = None,
     columns: Optional[Mapping[str, Any]] = None,
@@ -36,7 +36,7 @@ def add_qgis_single_feature_layer(
     """
     An example url is “Point?crs=epsg:4326&field=id:integer&field=name:string(20)&index=yes”
 
-    :param fields: Field=name:type(length,precision) Defines an attribute of the layer. Multiple field parameters can be added to the data provider definition. Type is one of “integer”, “double”, “string”.
+    :param columns: Field=name:type(length,precision) Defines an attribute of the layer. Multiple field parameters can be added to the data provider definition. Type is one of “integer”, “double”, “string”.
     :param index: index=yes Specifies that the layer will be constructed with a spatial index
     :param qgis_instance_handle:
     :param geom:
@@ -187,7 +187,7 @@ def add_qgis_single_geometry_layers(
         add_qgis_single_feature_layer(qgis_instance_handle, geom, name, **kwargs)
 
 
-def solve_type(d) -> str:
+def solve_type(d: Any) -> str:
     """
     Does not support size/length yet...
 
