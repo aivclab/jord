@@ -1,3 +1,5 @@
+from typing import Mapping, Any
+
 import shapely
 from networkx import MultiDiGraph
 
@@ -9,9 +11,10 @@ def assertive_add_edge(
     u: int,
     v: int,
     uniqueid: int,
+    attributes: Mapping[str, Any],
+    *,
     allow_loops: bool = True,
     allow_duplicates: bool = False,
-    **kwargs,
 ) -> None:
     if not allow_loops:
         assert u != v, f"{u} == {v}"
@@ -25,7 +28,7 @@ def assertive_add_edge(
     if not allow_duplicates and graph.has_edge(u, v, uniqueid):
         assert not graph.has_edge(u, v, uniqueid)
 
-    graph.add_edge(u, v, key=uniqueid, uniqueid=uniqueid, **kwargs)
+    graph.add_edge(u, v, key=uniqueid, uniqueid=uniqueid, **attributes)
 
 
 def add_shapely_node(
