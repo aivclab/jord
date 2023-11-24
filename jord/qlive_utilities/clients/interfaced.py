@@ -1,5 +1,7 @@
-from jord.qlive_utilities.client import QliveClient
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
+from jord.qlive_utilities.client import QliveClient
 
 __all__ = ["InterfacedQliveClient"]
 

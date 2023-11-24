@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 import numpy
 import zmq
 
@@ -23,7 +25,6 @@ example_wkt_gm = (
     "GEOMETRYCOLLECTION(POINT(0 0), LINESTRING(0 0, 1440 900), POLYGON((0 0, 0 1024, 1024 1024, "
     "1024 0, 0 0)))"
 )
-
 
 if False:
     socket.send(build_package(QliveRPCMethodEnum.add_wkt, example_wkt_polygon))

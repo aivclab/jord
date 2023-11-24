@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import statistics
 from typing import Union, Tuple, List, Sequence, Generator
 
@@ -38,10 +41,21 @@ def zero_buffer(
 
 
 def polygon_has_interior_rings(polygon: Polygon) -> bool:
+    """
+
+    :param polygon:
+    :return:
+    """
     return len(polygon.interiors) > 0
 
 
 def deflimmer(geom: BaseGeometry, eps: float = 1e-7) -> BaseGeometry:
+    """
+
+    :param geom:
+    :param eps:
+    :return:
+    """
     return opening(closing(geom, eps), eps)
 
 
@@ -49,6 +63,11 @@ clean_geometry = unflimmer = deflimmer
 
 
 def extract_poly_coords(geom: BaseGeometry) -> Tuple[List, List]:
+    """
+
+    :param geom:
+    :return:
+    """
     if geom.type == "Polygon":
         exterior_coords = geom.exterior.coords[:]
         interior_coords = []
@@ -67,6 +86,11 @@ def extract_poly_coords(geom: BaseGeometry) -> Tuple[List, List]:
 
 
 def extract_poly_rings(geom: BaseGeometry) -> Tuple[List, List]:
+    """
+
+    :param geom:
+    :return:
+    """
     interior_rings = []
     exterior_rings = []
     if isinstance(geom, Polygon):
@@ -83,10 +107,20 @@ def extract_poly_rings(geom: BaseGeometry) -> Tuple[List, List]:
 
 
 def segments(curve: Union[LinearRing, LineString]) -> List[LineString]:
+    """
+
+    :param curve:
+    :return:
+    """
     return list(map(LineString, zip(curve.coords[:-1], curve.coords[1:])))
 
 
 def mean_std_dev_line_length(geom: BaseGeometry) -> Tuple[float, float]:
+    """
+
+    :param geom:
+    :return:
+    """
     line_lengths = []
     if isinstance(geom, LineString):
         for segment in segments(geom):
@@ -113,6 +147,11 @@ def mean_std_dev_line_length(geom: BaseGeometry) -> Tuple[float, float]:
 
 
 def mean_std_dev_area(geom: BaseGeometry) -> Tuple[float, float]:
+    """
+
+    :param geom:
+    :return:
+    """
     poly_areas = []
     if isinstance(geom, Polygon):
         poly_areas.append(geom.area)
@@ -129,6 +168,12 @@ def mean_std_dev_area(geom: BaseGeometry) -> Tuple[float, float]:
 
 
 def prune_area(geom: BaseGeometry, eps: float = 1e-7) -> BaseGeometry:
+    """
+
+    :param geom:
+    :param eps:
+    :return:
+    """
     raise NotImplementedError
     poly_areas = []
     if isinstance(geom, Polygon):
@@ -142,6 +187,12 @@ def prune_area(geom: BaseGeometry, eps: float = 1e-7) -> BaseGeometry:
 
 
 def prune_rings(geom: BaseGeometry, eps: float = 1e-7) -> BaseGeometry:
+    """
+
+    :param geom:
+    :param eps:
+    :return:
+    """
     raise NotImplementedError
     poly_areas = []
     if isinstance(geom, Polygon):
@@ -155,9 +206,11 @@ def prune_rings(geom: BaseGeometry, eps: float = 1e-7) -> BaseGeometry:
 
 def sanitise(geom: BaseGeometry, *args: callable) -> BaseGeometry:
     """
+      #A positive distance produces a dilation, a negative distance an erosion. A very small or zero distance may sometimes be used to “tidy” a polygon.
 
-    #A positive distance produces a dilation, a negative distance an erosion. A very small or zero distance may sometimes be used to “tidy” a polygon.
-
+    :param geom:
+    :param args:
+    :return:
     """
 
     if not len(args):
@@ -202,6 +255,11 @@ def ensure_cw_poly(polygon: Polygon) -> Polygon:
 def iter_polygons(
     _input_geometry: BaseGeometry,
 ) -> Union[Generator[Polygon, None, None], Tuple[BaseGeometry]]:
+    """
+
+    :param _input_geometry:
+    :return:
+    """
     if isinstance(_input_geometry, MultiPolygon):
         return (polygon for polygon in _input_geometry.geoms)
 

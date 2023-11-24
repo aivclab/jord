@@ -1,5 +1,8 @@
-from shapely import LinearRing
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
+
+from shapely import LinearRing
 
 __all__ = [
     "ensure_ccw_ring",

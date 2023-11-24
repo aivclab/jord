@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 from shapely.ops import shared_paths
 
 g1 = LineString([(0, 0), (10, 0), (10, 5), (20, 5)])

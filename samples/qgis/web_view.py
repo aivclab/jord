@@ -45,7 +45,7 @@ def get_web_view(parent: Any) -> QWebView:
             </script>
             <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD-9tCzsZ0-ZgK_ZgXZ-_XzQ_XzQ_XzQ_X&callback=initMap"
             async defer></script>
-            </html> 
+            </html>
             """
 
     # self.my_web_view.loadHtml(self.html_template)

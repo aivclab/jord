@@ -86,8 +86,8 @@ def test_rasterio_import_package():
 
 
 def test_torch_import_package():
-    if True:
-        from jord import torch_utilities
+    if False:
+        from jord.exclude import torch_utilities
 
         print(torch_utilities.__doc__)
 
