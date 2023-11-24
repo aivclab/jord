@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 from jord.qlive_utilities.clients.auto import AutoQliveClient
 
 DEFAULT_CRS = "EPSG:3857"  # "EPSG:4326"

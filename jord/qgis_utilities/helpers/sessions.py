@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 from qgis.core import QgsMapLayer, QgsRasterDataProvider
 from warg import AlsoDecorator
 

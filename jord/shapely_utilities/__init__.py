@@ -22,3 +22,4 @@ from .geometry_types import *
 from .projection import *
 from .transformation import *
 from .rings import *
+from .selection import *

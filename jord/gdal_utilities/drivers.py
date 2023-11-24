@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 from typing import Dict
 
 from jord.gdal_utilities import OGR
@@ -6,7 +8,7 @@ __all__ = ["available_driver_index_name_mapping"]
 
 
 def available_driver_index_name_mapping() -> Dict[str, int]:
-    driver_map = dict()
+    driver_map = {}
     for i in range(OGR.GetDriverCount()):
         driver_name = OGR.GetDriver(i).GetName()
         assert driver_name not in driver_map

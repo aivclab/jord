@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+
 from enum import Enum
 
 from shapely.geometry import (
@@ -25,7 +29,7 @@ class ShapelyGeometryTypesEnum(Enum):
 
     linear_ring = LinearRing  # LinearRing([coordinates]) # A geometry type composed of one or more line segments that forms a closed loop.
 
-    polygon = Polygon  #  Polygon([shell, holes]) # A geometry type representing an area that is enclosed by a linear ring.
+    polygon = Polygon  # Polygon([shell, holes]) # A geometry type representing an area that is enclosed by a linear ring.
 
     multi_point = (
         MultiPoint  # MultiPoint([points]) # A collection of one or more Points.

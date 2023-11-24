@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 from typing import Mapping
 
 from PyQt5.Qt import QColor
@@ -37,7 +40,7 @@ def style_layer_from_mapping(
             if "color" in style:
                 cat_color = (
                     int(n) for n in style["color"]
-                )  #  TODO: also support with AlphaChannel | Qt.GlobalColor | QGradient
+                )  # TODO: also support with AlphaChannel | Qt.GlobalColor | QGradient
             if "opacity" in style:
                 cat_opacity = max(0.0, min(float(style["opacity"]), 1.0))
             if "width" in style:

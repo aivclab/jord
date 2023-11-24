@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 from typing import List, Iterable, Union, Tuple
 
 import numpy
@@ -50,12 +52,10 @@ def get_helmert_transformation_parameters(
     # https://homepage.univie.ac.at/Wolfgang.Kainz/Lehrveranstaltungen/15th_Nordic_Summer_School/The_Mathematics_of_GIS_Draft.pdf
     # https://riptutorial.com/numpy/example/16034/find-the-least-squares-solution-to-a-linear-system-with-np-linalg-lstsq
 
-    # Displaysmentlins have to from local coordinat system to Webmercator.
+    # Displacement lines have to from local coordinate system to Webmercator.
     # The transformation is a 2d helmert and not affine, so the scale factor is the same in x and y direction
     # The angle between x and y axis have is also 90 degree.
     # This would not be the case if target project would have been WGS84
-
-
 
     :param displacements:
     :return:
@@ -78,7 +78,12 @@ def get_helmert_transformation_parameters(
 
 def get_affine_transform_parameters(
     displacements: Iterable[Tuple[Tuple[float, float], Tuple[float, float]]]
-) -> Tuple[float, float, float, float, float, float]:
+) -> List[float, float, float, float, float, float]:
+    """
+
+    :param displacements:
+    :return:
+    """
     transformation_params, _ = get_helmert_transformation_parameters(displacements)
     a, b, c, d = transformation_params
     return [a, b, -b, a, c, d]

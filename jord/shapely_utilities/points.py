@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 from typing import Sequence, List, Optional, Union, Tuple, Iterable, Generator
 
 import numpy
@@ -61,14 +63,12 @@ def nearest_neighbor_within(others: Sequence, point, max_distance) -> Optional[P
 def closest_object(
     geometries: Iterable[BaseGeometry], point: Point
 ) -> Tuple[BaseGeometry, float, int]:
-    """Find the nearest geometry among a list, measured from fixed point.
+    """
+    Find the nearest geometry among a list, measured from fixed point.
 
-    Args:
-        geometries: a list of shapely geometry objects
-        point: a shapely Point
-
-    Returns:
-        Tuple (geom, min_dist, min_index) of the geometry with minimum distance
+    :param geometries:  a iterable of shapely geometry objects
+    :param point: a shapely Point
+    :return: Tuple (geom, min_dist, min_index) of the geometry with minimum distance
         to point, its distance min_dist and the list index of geom, so that
         geom = geometries[min_index].
     """
@@ -90,6 +90,11 @@ def shift_point(
     """
 
     shift points with offset in orientation of line c1->c2
+
+    :param c1:
+    :param c2:
+    :param offset:
+    :return:
     """
 
     if isinstance(c1, Point):

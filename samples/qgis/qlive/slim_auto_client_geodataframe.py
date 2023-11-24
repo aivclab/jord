@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 from geopandas import GeoDataFrame, GeoSeries
 
 from jord.qlive_utilities.clients.auto import AutoQliveClient

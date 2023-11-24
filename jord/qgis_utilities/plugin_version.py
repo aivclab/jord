@@ -1,6 +1,8 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 # noinspection PyUnresolvedReferences
 from pyplugin_installer.installer_data import repositories, plugins
-
 
 __all__ = ["plugin_status"]
 
