@@ -12,6 +12,10 @@ from shapely.geometry import (
     Polygon,
 )
 from shapely.geometry.base import BaseGeometry
+from warg import pairs, Number
+
+from jord.shapely_utilities.morphology import opening, closing
+from jord.shapely_utilities.rings import ensure_ccw_ring, ensure_cw_ring
 
 __all__ = [
     "zero_buffer",
@@ -22,10 +26,6 @@ __all__ = [
     "polygon_has_interior_rings",
     "iter_polygons",
 ]
-
-from warg import pairs
-from jord.shapely_utilities.morphology import opening, closing
-from jord.shapely_utilities.rings import ensure_ccw_ring, ensure_cw_ring
 
 
 def zero_buffer(
@@ -204,6 +204,41 @@ def prune_rings(geom: BaseGeometry, eps: float = 1e-7) -> BaseGeometry:
     return poly_areas
 
 
+def prune_holes(
+    geom: Union[MultiPolygon, Polygon], epsilon: Number = 1000
+) -> Union[MultiPolygon, Polygon]:
+    """
+
+    :param geom:
+    :return:"""
+
+    if isinstance(geom, MultiPolygon):
+        parts = []
+
+        for polygon in geom.geoms:
+            interiors = []
+
+            for interior in polygon.interiors:
+                p = Polygon(interior)
+
+                if p.area > epsilon:
+                    interiors.append(interior)
+
+            temp_pol = Polygon(polygon.exterior.coords, holes=interiors)
+            parts.append(temp_pol)
+
+        return MultiPolygon(parts)
+
+    interiors = []
+
+    for interior in geom.interiors:
+        p = Polygon(interior)
+        if p.area > epsilon:
+            interiors.append(interior)
+
+    return Polygon(geom.exterior.coords, holes=interiors)
+
+
 def sanitise(geom: BaseGeometry, *args: callable) -> BaseGeometry:
     """
       #A positive distance produces a dilation, a negative distance an erosion. A very small or zero distance may sometimes be used to “tidy” a polygon.
@@ -273,11 +308,10 @@ def explode_polygons(
     return_index: bool = False,
 ) -> Union[Sequence[LineString], Tuple[Sequence[LineString], Sequence[int]]]:
     """
-    returns main line features that make up the polygons
 
     :param polygons:
     :param return_index:
-    :return:
+    :return: main line features that make up the polygons
     """
     lines_out = []
     index = []

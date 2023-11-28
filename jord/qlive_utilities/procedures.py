@@ -14,7 +14,7 @@ from warg import ensure_existence
 from warg import passes_kws_to, Number
 
 from jord import PROJECT_APP_PATH
-from jord.qlive_utilities.qgis_layer_creation import (
+from jord.qgis_utilities.layer_creation import (
     add_qgis_single_feature_layer,
     add_qgis_multi_feature_layer,
 )
@@ -96,6 +96,80 @@ def add_wkb_layer(
     add_qgis_multi_feature_layer(
         qgis_instance_handle,
         [QgsGeometry.fromWkb(wkb) for wkb in wkbs],
+        *args,
+        **kwargs,
+    )
+
+
+@passes_kws_to(add_qgis_multi_feature_layer)
+def add_geojson_layer(
+    qgis_instance_handle: Any, geojsons: Iterable[str], *args, **kwargs
+) -> None:
+    """
+
+      fromMultiPointXY
+
+    Creates a new geometry from a QgsMultiPointXY object
+
+    fromMultiPolygonXY
+
+    Creates a new geometry from a QgsMultiPolygonXY.
+
+    fromMultiPolylineXY
+
+    Creates a new geometry from a QgsMultiPolylineXY object.
+
+    fromPointXY
+
+    Creates a new geometry from a QgsPointXY object
+
+    fromPolygonXY
+
+    Creates a new polygon geometry from a list of lists of QgsPointXY.
+
+    fromPolyline
+
+    Creates a new LineString geometry from a list of QgsPoint points.
+
+    fromPolylineXY
+
+    Creates a new LineString geometry from a list of QgsPointXY points.
+
+    fromQPointF
+
+    Construct geometry from a QPointF
+
+    fromQPolygonF
+
+    Construct geometry from a QPolygonF.
+
+    fromRect
+
+    Creates a new geometry from a QgsRectangle
+
+    fromWkb
+
+    Set the geometry, feeding in the buffer containing OGC Well-Known Binary
+
+    fromWkt
+
+    Creates a new geometry from a WKT string
+
+
+    TODO: IMPLEMENT THIS
+
+      :param qgis_instance_handle:
+      :param wkbs:
+      :param args:
+      :param kwargs:
+      :return:
+    """
+    # noinspection PyUnresolvedReferences
+    from qgis.core import QgsGeometry
+
+    add_qgis_multi_feature_layer(
+        qgis_instance_handle,
+        # [gj for gj in geojsons],
         *args,
         **kwargs,
     )

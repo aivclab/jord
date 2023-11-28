@@ -159,7 +159,9 @@ def add_qgis_single_feature_layer(
                 feat.setAttributes(list(columns.values()))
 
         layer = QgsVectorLayer(uri, layer_name, "memory")
-        layer_data_provider = layer.dataProvider()
+        layer_data_provider = (
+            layer.dataProvider()
+        )  # DEFAULT DATA PROVIDER, MAYBE CHANGE THIS
         layer_data_provider.addFeatures([feat])
         layer_data_provider.updateExtents()
 
