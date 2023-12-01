@@ -3,6 +3,7 @@
 from typing import Sequence, List, Optional, Union, Tuple, Iterable, Generator
 
 import numpy
+import shapely
 from shapely.geometry import LineString, Point, MultiPoint
 from shapely.geometry.base import BaseGeometry
 from warg import Number
@@ -33,7 +34,9 @@ def unique_line_points(lines: Sequence[LineString]) -> List[Point]:
     return [Point(p) for p in set(vertices)]
 
 
-def nearest_neighbor_within(others: Sequence, point, max_distance) -> Optional[Point]:
+def nearest_neighbor_within(
+    others: Sequence, point: shapely.Point, max_distance: Number
+) -> Optional[Point]:
     """Find the nearest point among others up to a maximum distance.
 
 

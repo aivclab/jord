@@ -63,13 +63,13 @@ def get_helmert_transformation_parameters(
     A = []
     b = []
     for from_, to_ in displacements:
-        fromx, fromy = from_
-        tox, toy = to_
+        from_x, from_y = from_
+        to_x, to_y = to_
 
-        A.append([fromx, fromy, 1, 0])
-        b.append(tox)
-        A.append([fromy, -fromx, 0, 1])
-        b.append(toy)
+        A.append([from_x, from_y, 1, 0])
+        b.append(to_x)
+        A.append([from_y, -from_x, 0, 1])
+        b.append(to_y)
 
     x, residuals, rank, s = numpy.linalg.lstsq(A, b, rcond=-1)
 

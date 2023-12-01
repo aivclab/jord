@@ -209,6 +209,7 @@ def prune_holes(
 ) -> Union[MultiPolygon, Polygon]:
     """
 
+    :param epsilon:
     :param geom:
     :return:"""
 

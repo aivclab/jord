@@ -475,6 +475,8 @@ def add_raster(
     default_value: Number = DEFAULT_NUMBER,
     field: str = None,
     no_data_value: int = -1,
+    group: Any = None,
+    visible: bool = True,
 ) -> None:
     """
     add a raster
@@ -638,8 +640,15 @@ def add_raster(
     if SKIP_MEMORY_LAYER_CHECK_AT_CLOSE:
         layer.setCustomProperty("skipMemoryLayersCheck", 1)
 
-    qgis_instance_handle.qgis_project.addMapLayer(layer, False)
-    qgis_instance_handle.temporary_group.insertLayer(0, layer)
+    if group:
+        qgis_instance_handle.qgis_project.addMapLayer(layer, False)
+        group.insertLayer(0, layer)
+    else:
+        qgis_instance_handle.qgis_project.addMapLayer(layer)
+
+    qgis_instance_handle.qgis_project.layerTreeRoot().findLayer(
+        layer.id()
+    ).setItemVisibilityChecked(visible)
 
 
 @passes_kws_to(add_raster, no_pass_filter=["name"])
