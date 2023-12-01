@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import json
 import time
-from typing import Any, Optional, Mapping, Iterable, Union
+from typing import Any, Optional, Mapping, Iterable, Union, List
 
 from warg import passes_kws_to
 
@@ -34,10 +34,14 @@ def add_qgis_single_feature_layer(
     columns: Optional[Mapping[str, Any]] = None,
     index: bool = False,
     categorise_by_attribute: Optional[str] = None,
-) -> None:
+    group: Any = None,
+    visible: bool = True,
+) -> List:
     """
     An example url is “Point?crs=epsg:4326&field=id:integer&field=name:string(20)&index=yes”
 
+    :param categorise_by_attribute:
+    :param group:
     :param columns: Field=name:type(length,precision) Defines an attribute of the layer. Multiple field parameters can be added to the data provider definition. Type is one of “integer”, “double”, “string”.
     :param index: index=yes Specifies that the layer will be constructed with a spatial index
     :param qgis_instance_handle:
@@ -50,7 +54,13 @@ def add_qgis_single_feature_layer(
     :rtype: None
     """
     # noinspection PyUnresolvedReferences
-    from qgis.core import QgsVectorLayer, QgsFeature
+    from qgis.core import (
+        QgsVectorLayer,
+        QgsFeature,
+        QgsVectorLayer,
+        QgsRasterLayer,
+        QgsProject,
+    )
 
     # noinspection PyUnresolvedReferences
     import qgis
@@ -58,6 +68,8 @@ def add_qgis_single_feature_layer(
     # uri = geom.type()
     # uri = geom.wkbType()
     # uri = geom.wktTypeStr()
+
+    return_collection = []
 
     geom_type = json.loads(geom.asJson())["type"]
     uri = geom_type  # TODO: URI MIGHT BE NONE?
@@ -80,8 +92,6 @@ def add_qgis_single_feature_layer(
         fields = None
 
     if geom_type == GeoJsonGeometryTypesEnum.geometry_collection.value.__name__:
-        gm_group = qgis_instance_handle.temporary_group.addGroup(layer_name)
-
         for g in geom.asGeometryCollection():  # TODO: Look into recursion?
             uri = json.loads(g.asJson())["type"]
             if uri is None:
@@ -126,11 +136,17 @@ def add_qgis_single_feature_layer(
             sub_layer.updateFields()
             sub_layer.updateExtents()
 
-            if USE_TEMP_GROUP:
+            return_collection.append(sub_layer)
+
+            if group:
                 qgis_instance_handle.qgis_project.addMapLayer(sub_layer, False)
-                gm_group.insertLayer(0, sub_layer)
+                group.insertLayer(0, sub_layer)
             else:
                 qgis_instance_handle.qgis_project.addMapLayer(sub_layer)
+
+            qgis_instance_handle.qgis_project.layerTreeRoot().findLayer(
+                sub_layer.id()
+            ).setItemVisibilityChecked(visible)
     else:
         uri += "?"
 
@@ -159,7 +175,9 @@ def add_qgis_single_feature_layer(
                 feat.setAttributes(list(columns.values()))
 
         layer = QgsVectorLayer(uri, layer_name, "memory")
-        layer_data_provider = layer.dataProvider()
+        layer_data_provider = (
+            layer.dataProvider()
+        )  # DEFAULT DATA PROVIDER, MAYBE CHANGE THIS
         layer_data_provider.addFeatures([feat])
         layer_data_provider.updateExtents()
 
@@ -170,15 +188,23 @@ def add_qgis_single_feature_layer(
         layer.updateFields()
         layer.updateExtents()
 
-        if USE_TEMP_GROUP:
+        return_collection.append(layer)
+
+        if group:
             qgis_instance_handle.qgis_project.addMapLayer(layer, False)
-            qgis_instance_handle.temporary_group.insertLayer(0, layer)
+            group.insertLayer(0, layer)
         else:
             qgis_instance_handle.qgis_project.addMapLayer(layer)
+
+        qgis_instance_handle.qgis_project.layerTreeRoot().findLayer(
+            layer.id()
+        ).setItemVisibilityChecked(visible)
 
     actions = qgis.utils.iface.layerTreeView().defaultActions()
     actions.showFeatureCount()
     actions.showFeatureCount()
+
+    return return_collection
 
 
 @passes_kws_to(add_qgis_single_feature_layer)
@@ -214,7 +240,9 @@ def add_qgis_multi_feature_layer(
         Union[Mapping[str, Mapping[str, Any]], Iterable[Mapping[str, Any]]]
     ] = None,
     index: bool = False,
-) -> None:
+    group: Any = None,
+    visible: bool = True,
+) -> List:
     """
 
         fields  == column definition name, type, length/size
@@ -222,6 +250,7 @@ def add_qgis_multi_feature_layer(
 
     An example url is “Point?crs=epsg:4326&field=id:integer&field=name:string(20)&index=yes”
 
+        :param group:
         :param qgis_instance_handle:
         :param geoms:
         :param name:
@@ -240,6 +269,8 @@ def add_qgis_multi_feature_layer(
     # uri = geom.type()
     # uri = geom.wkbType()
     # uri = geom.wktTypeStr()
+
+    return_collection = []
 
     if name is None:
         name = DEFAULT_LAYER_NAME
@@ -307,10 +338,12 @@ def add_qgis_multi_feature_layer(
                 if sub_type is None:
                     raise Exception(f"Could not load {g.asJson()} as json")
 
-                add_qgis_multi_feature_layer(
-                    qgis_instance_handle, g, f"{name}_{sub_type}"
+                return_collection.extend(
+                    add_qgis_multi_feature_layer(
+                        qgis_instance_handle, g, f"{name}_{sub_type}"
+                    )
                 )
-            return
+            return return_collection
         else:
             feat = QgsFeature()
 
@@ -351,12 +384,20 @@ def add_qgis_multi_feature_layer(
     layer.updateFields()
     layer.updateExtents()
 
-    if USE_TEMP_GROUP:
+    if group:
         qgis_instance_handle.qgis_project.addMapLayer(layer, False)
-        qgis_instance_handle.temporary_group.insertLayer(0, layer)
+        group.insertLayer(0, layer)
     else:
         qgis_instance_handle.qgis_project.addMapLayer(layer)
+
+    qgis_instance_handle.qgis_project.layerTreeRoot().findLayer(
+        layer.id()
+    ).setItemVisibilityChecked(visible)
 
     actions = qgis.utils.iface.layerTreeView().defaultActions()
     actions.showFeatureCount()
     actions.showFeatureCount()
+
+    return_collection.append(layer)
+
+    return return_collection

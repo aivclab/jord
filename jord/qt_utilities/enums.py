@@ -52,12 +52,12 @@ def str_to_check_state(str_: str) -> Any:
     return INT_TO_CHECK_STATE[int(str_)]
 
 
-def check_state_to_str(CheckStateEnum_: CheckStateEnum) -> Any:
-    return str(CHECK_STATE_TO_INT[CheckStateEnum_])
+def check_state_to_str(check_state: CheckStateEnum) -> Any:
+    return str(CHECK_STATE_TO_INT[check_state])
 
 
-def check_state_to_bool(CheckStateEnum_: CheckStateEnum) -> bool:
-    return CHECK_STATE_TO_INT[CheckStateEnum_] > 0
+def check_state_to_bool(check_state: CheckStateEnum) -> bool:
+    return CHECK_STATE_TO_INT[check_state] > 0
 
 
 class DropActionFlag(Flag):
