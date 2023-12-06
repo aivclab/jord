@@ -144,9 +144,13 @@ def add_qgis_single_feature_layer(
             else:
                 qgis_instance_handle.qgis_project.addMapLayer(sub_layer)
 
-            qgis_instance_handle.qgis_project.layerTreeRoot().findLayer(
-                sub_layer.id()
-            ).setItemVisibilityChecked(visible)
+            layer_tree_handle = (
+                qgis_instance_handle.qgis_project.layerTreeRoot().findLayer(
+                    sub_layer.id()
+                )
+            )
+            if layer_tree_handle:
+                layer_tree_handle.setItemVisibilityChecked(visible)
     else:
         uri += "?"
 
@@ -196,9 +200,11 @@ def add_qgis_single_feature_layer(
         else:
             qgis_instance_handle.qgis_project.addMapLayer(layer)
 
-        qgis_instance_handle.qgis_project.layerTreeRoot().findLayer(
+        layer_tree_handle = qgis_instance_handle.qgis_project.layerTreeRoot().findLayer(
             layer.id()
-        ).setItemVisibilityChecked(visible)
+        )
+        if layer_tree_handle:
+            layer_tree_handle.setItemVisibilityChecked(visible)
 
     actions = qgis.utils.iface.layerTreeView().defaultActions()
     actions.showFeatureCount()
@@ -390,12 +396,14 @@ def add_qgis_multi_feature_layer(
     else:
         qgis_instance_handle.qgis_project.addMapLayer(layer)
 
-    qgis_instance_handle.qgis_project.layerTreeRoot().findLayer(
+    layer_tree_handle = qgis_instance_handle.qgis_project.layerTreeRoot().findLayer(
         layer.id()
-    ).setItemVisibilityChecked(visible)
+    )
+    if layer_tree_handle:
+        layer_tree_handle.setItemVisibilityChecked(visible)
 
     actions = qgis.utils.iface.layerTreeView().defaultActions()
-    actions.showFeatureCount()
+    actions.showFeatureCount()  # TODO: Twice?
     actions.showFeatureCount()
 
     return_collection.append(layer)
