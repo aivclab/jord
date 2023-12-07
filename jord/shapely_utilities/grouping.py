@@ -4,18 +4,26 @@ from typing import Mapping, Sequence, Union
 import shapely
 from shapely import unary_union
 
+from jord.shapely_utilities import closing
 from jord.shapely_utilities.geometry_types import is_multi
 
 __all__ = ["overlap_groups"]
 
 
-def overlap_groups(to_be_grouped: Union[Sequence, Mapping]) -> Sequence[Mapping]:
+def overlap_groups(
+    to_be_grouped: Union[Sequence, Mapping], must_be_unique: bool = False
+) -> Sequence[Mapping]:
     if isinstance(to_be_grouped, Mapping):
         ...
     else:
         to_be_grouped = dict(zip((i for i in range(len(to_be_grouped))), to_be_grouped))
 
-    union = unary_union(list(to_be_grouped.values()))
+    if must_be_unique:
+        assert not any(is_multi(p) for p in to_be_grouped.values()), to_be_grouped
+
+    s = list(unary_union(v) for v in to_be_grouped.values())
+
+    union = closing(unary_union(s)).buffer(0)
     groups = []
     already_grouped = []
 
@@ -26,7 +34,8 @@ def overlap_groups(to_be_grouped: Union[Sequence, Mapping]) -> Sequence[Mapping]
             intersectors = {}
             for k, v in to_be_grouped.items():
                 if shapely.intersects(v, union_part):
-                    assert k not in already_grouped
+                    if must_be_unique:
+                        assert k not in already_grouped, f"{k, already_grouped, v}"
                     intersectors[k] = v
                     already_grouped.append(k)
             groups.append(intersectors)
@@ -52,5 +61,16 @@ if __name__ == "__main__":
         ]
 
         pprint(overlap_groups(data))
+
+        data = [
+            box(1, 1, 3, 3),
+            unary_union([box(2, 2, 3, 3), box(4, 4, 5, 5)]),
+            box(4, 4, 6, 6),
+            box(4, 4, 5, 5),
+        ]
+
+        pprint(overlap_groups(data))
+
+        # pprint(overlap_groups(data, must_be_unique=True)) # FAILS!
 
     demo()
