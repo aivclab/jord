@@ -6,7 +6,7 @@ from enum import Enum
 
 __all__ = [
     "VectorGeometryTypeEnum",
-    "CommonCordinateReferenceSystemEnum",
+    "CommonCoordinateReferenceSystemEnum",
     "FieldTypeEnum",
 ]
 
@@ -24,12 +24,12 @@ class VectorGeometryTypeEnum(Enum):
     multi_polygon = "multipolygon"  # + Geopackage
 
 
-class CommonCordinateReferenceSystemEnum(Enum):
+class CommonCoordinateReferenceSystemEnum(Enum):
     epsg4326 = "epsg:4326"  # WGS 84
     epsg3857 = "EPSG:3857"  # WGS 84 / Pseudo-Mercator"
 
 
-class FieldTypeEnum:
+class FieldTypeEnum(Enum):
     integer = "integer"
     double = "double"
     string = "string"

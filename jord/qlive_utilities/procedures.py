@@ -646,9 +646,11 @@ def add_raster(
     else:
         qgis_instance_handle.qgis_project.addMapLayer(layer)
 
-    qgis_instance_handle.qgis_project.layerTreeRoot().findLayer(
+    layer_tree_handle = qgis_instance_handle.qgis_project.layerTreeRoot().findLayer(
         layer.id()
-    ).setItemVisibilityChecked(visible)
+    )
+    if layer_tree_handle:
+        layer_tree_handle.setItemVisibilityChecked(visible)
 
 
 @passes_kws_to(add_raster, no_pass_filter=["name"])

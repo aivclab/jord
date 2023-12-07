@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-
 from enum import Enum
 
 __all__ = ["CommonVectorDataProviderLibEnum"]
@@ -21,15 +20,15 @@ def auishd(iface) -> None:
     from PyQt5.QtCore import QSettings
 
     """
-  connection_type
-  connection_name
-  authcfg
-  password
-  referer
-  url
-  username
-  zmax
-  zmin
+connection_type
+connection_name
+authcfg
+password
+referer
+url
+username
+zmax
+zmin
 """
 
     # Sources

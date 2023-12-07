@@ -91,3 +91,9 @@ def serialise_qgis_layer(qgis_instance_handle: Any, layer: Any) -> None:
     layer_geojson_rep = QgsJsonExporter(
         layer, precision=17
     )  # Note that geometries will be automatically reprojected to WGS84 to match GeoJSON spec if either the source vector layer or source CRS is set.
+
+    return layer_geojson_rep
+
+
+if __name__ == "__main__":
+    print("A")

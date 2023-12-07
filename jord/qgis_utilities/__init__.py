@@ -17,14 +17,16 @@ with open(Path(__file__).parent / "README.md", "r") as this_init_file:
 try:
     from .importing import *
     from .configuration import *
-    from .helpers import *
-    from .numpy_utilities import *
+
+    # from .helpers import * # import issues
+    # from .numpy_utilities import *
     from .data_provider import *
     from .geometry_types import *
     from .conversion import *
-    from .categorisation import *
-    from .styling import *
-    from .plugin_version import *
+
+    # from .categorisation import *
+    # from .styling import *
+    # from .plugin_version import *
 except ImportError as ix:
     this_package_name = Path(__file__).parent.name
     print(f"Make sure qgis module is available for {this_package_name}")
