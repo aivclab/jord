@@ -3,20 +3,19 @@
 import time
 import uuid
 from enum import Enum
-from typing import Mapping, Any, Tuple, Iterable
+from typing import Any, Iterable, Mapping, Tuple
 
 import numpy
 import shapely.geometry.base
 import tqdm
 from pandas import DataFrame
 from shapely.geometry.base import BaseGeometry
-from warg import ensure_existence
-from warg import passes_kws_to, Number
+from warg import Number, ensure_existence, passes_kws_to
 
 from jord import PROJECT_APP_PATH
 from jord.qgis_utilities.layer_creation import (
-    add_qgis_single_feature_layer,
     add_qgis_multi_feature_layer,
+    add_qgis_single_feature_layer,
 )
 
 APPEND_TIMESTAMP = True
@@ -507,7 +506,7 @@ def add_raster(
         Qgis,
     )
     from jord.qgis_utilities.numpy_utilities.data_type import get_qgis_type
-    from jord.qgis_utilities import RasterDataProviderEditSession
+    from jord.qgis_utilities.helpers.sessions import RasterDataProviderEditSession
 
     x_size, y_size, *rest_size = raster.shape
 

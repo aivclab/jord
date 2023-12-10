@@ -16,7 +16,7 @@ def test_import_package():
 
 
 def test_qgis_import_package():
-    if False:
+    if True:
         from jord import qgis_utilities
 
         print(qgis_utilities.__doc__)
@@ -99,3 +99,4 @@ if __name__ == "__main__":
     test_import_package()
     test_shapely_import_package()
     test_rasterio_import_package()
+    test_qgis_import_package()
