@@ -17,9 +17,6 @@ def erosion(geom: BaseGeometry, eps: float = 1e-7) -> BaseGeometry:
     return geom.buffer(-eps)
 
 
-erode = erosion
-
-
 def dilation(geom: BaseGeometry, eps: float = 1e-7) -> BaseGeometry:
     """
 
@@ -30,9 +27,6 @@ def dilation(geom: BaseGeometry, eps: float = 1e-7) -> BaseGeometry:
     return geom.buffer(eps)
 
 
-dilate = dilation
-
-
 def closing(geom: BaseGeometry, eps: float = 1e-7) -> BaseGeometry:
     """
 
@@ -41,9 +35,6 @@ def closing(geom: BaseGeometry, eps: float = 1e-7) -> BaseGeometry:
     :return: The closed geometry
     """
     return erode(dilate(geom, eps), eps)
-
-
-close = closing
 
 
 def opening(geom: BaseGeometry, eps: float = 1e-7) -> BaseGeometry:
@@ -57,6 +48,9 @@ def opening(geom: BaseGeometry, eps: float = 1e-7) -> BaseGeometry:
 
 
 # open = opening # keyword clash
+erode = erosion
+dilate = dilation
+close = closing
 
 if __name__ == "__main__":
 

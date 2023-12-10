@@ -23,34 +23,33 @@ __all__ = [
 import collections
 import logging
 from enum import Enum
-from typing import List, Iterable, Optional
-from typing import Tuple, Sequence, Union
+from typing import Iterable, List, Optional, Sequence, Tuple, Union
 
 import numpy
 from shapely.geometry import (
+    GeometryCollection,
     LineString,
     MultiLineString,
     MultiPoint,
+    MultiPolygon,
     Point,
     Polygon,
-    MultiPolygon,
-    GeometryCollection,
+    box,
 )
-from shapely.geometry import box
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import linemerge as shapely_linemerge
 from sorcery import assigned_names
 from warg import Number, pairs
 
-from jord.shapely_utilities.points import (
-    unique_line_points,
-    nearest_neighbor_within,
+from .points import (
     azimuth,
-    shift_point,
     closest_object,
+    nearest_neighbor_within,
+    shift_point,
+    unique_line_points,
 )
-from jord.shapely_utilities.polygons import explode_polygons
-from jord.shapely_utilities.projection import nearest_geometry
+from .polygons import explode_polygons
+from .projection import nearest_geometry
 
 EPSILON = 1e-6
 

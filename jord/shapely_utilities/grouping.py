@@ -4,8 +4,8 @@ from typing import Mapping, Sequence, Union
 import shapely
 from shapely import unary_union
 
-from jord.shapely_utilities import closing
-from jord.shapely_utilities.geometry_types import is_multi
+from .geometry_types import is_multi
+from .morphology import closing
 
 __all__ = ["overlap_groups"]
 
