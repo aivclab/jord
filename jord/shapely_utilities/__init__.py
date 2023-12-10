@@ -17,10 +17,11 @@ from .lines import *
 from .morphology import *
 from .points import *
 from .polygons import *
-from .serialisation import *
 from .geometry_types import *
 from .projection import *
 from .transformation import *
 from .rings import *
 from .selection import *
 from .grouping import *
+from .mirroring import *
+from .selection import *
