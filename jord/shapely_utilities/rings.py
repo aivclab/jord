@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from typing import Iterable, Union
 
-from shapely import LinearRing
+from shapely import LineString, LinearRing, MultiLineString, Point
+
+from .projection import line_line_intersection, project_point_to_line
 
 __all__ = [
     "ensure_ccw_ring",
@@ -22,16 +25,6 @@ def ensure_cw_ring(ring: LinearRing) -> LinearRing:
     if ring.is_ccw:
         return LinearRing(list(ring.coords)[::-1])
     return ring
-
-
-from typing import Iterable, Union
-
-from shapely import MultiLineString, LineString, Point, LinearRing
-
-from jord.shapely_utilities.projection import (
-    project_point_to_line,
-    line_line_intersection,
-)
 
 
 def make_projected_ring(

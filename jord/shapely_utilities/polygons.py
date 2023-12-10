@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import statistics
-from typing import Union, Tuple, List, Sequence, Generator
+from typing import Generator, List, Sequence, Tuple, Union
 
 from shapely.geometry import (
     LineString,
@@ -12,10 +12,10 @@ from shapely.geometry import (
     Polygon,
 )
 from shapely.geometry.base import BaseGeometry
-from warg import pairs, Number
+from warg import Number, pairs
 
-from jord.shapely_utilities.morphology import opening, closing
-from jord.shapely_utilities.rings import ensure_ccw_ring, ensure_cw_ring
+from .morphology import closing, opening
+from .rings import ensure_ccw_ring, ensure_cw_ring
 
 __all__ = [
     "zero_buffer",
