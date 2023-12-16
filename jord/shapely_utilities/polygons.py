@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 import statistics
 from typing import Generator, List, Sequence, Tuple, Union
 
+import shapely
 from shapely.geometry import (
     LineString,
     LinearRing,
@@ -25,6 +25,8 @@ __all__ = [
     "explode_polygons",
     "polygon_has_interior_rings",
     "iter_polygons",
+    "discard_holes",
+    "get_coords_from_polygonal_shape",
 ]
 
 
@@ -238,6 +240,35 @@ def prune_holes(
             interiors.append(interior)
 
     return Polygon(geom.exterior.coords, holes=interiors)
+
+
+def get_coords_from_polygonal_shape(
+    shape: Union[shapely.Polygon, shapely.MultiPolygon]
+) -> List[List[List[tuple[float, float]]]]:
+    coords = []
+
+    if isinstance(shape, shapely.Polygon):
+        coords.append(shape.exterior.coords[:])
+        for linearring in shape.interiors:
+            coords.append(linearring.coords[:])
+    elif isinstance(shape, shapely.MultiPolygon):
+        for polygon in shape.geoms:
+            coords.append(get_coords_from_polygonal_shape(polygon))
+
+    return coords
+
+
+def discard_holes(
+    shape: Union[shapely.Polygon, shapely.MultiPolygon]
+) -> Union[Polygon, MultiPolygon]:
+    if isinstance(shape, shapely.Polygon):
+        return shapely.Polygon(shape.exterior.coords)
+    elif isinstance(shape, shapely.MultiPolygon):
+        shape_parts = []
+        for shape_part in shape.geoms:
+            shape_parts.append(shapely.Polygon(shape_part.exterior.coords))
+        return MultiPolygon(shape_parts)
+    raise NotImplementedError
 
 
 def sanitise(geom: BaseGeometry, *args: callable) -> BaseGeometry:

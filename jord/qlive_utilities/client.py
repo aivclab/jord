@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
+import time
 from typing import Any
 
 import zmq
@@ -57,6 +56,8 @@ class QliveClient(AlsoDecorator):
 
     def send(self, *args) -> Any:
         self.socket.send(*args, self.flag)
+
+        time.sleep(0.1)  # TODO: TEMPORARY WORKAROUND! for state fail
 
         if self.blocking:
             return self.socket.recv()

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 import cuspatial  # conda install -c rapidsai -c conda-forge -c nvidia cuspatial=23.10 python=3.10 cudatoolkit=11.8
 import geopandas

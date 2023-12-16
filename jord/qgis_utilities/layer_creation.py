@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 import json
 import time
 from typing import Any, Optional, Mapping, Iterable, Union, List

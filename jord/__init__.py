@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 
 from pathlib import Path
@@ -17,7 +16,7 @@ from warg import package_is_editable, clean_string, get_version
 
 __project__ = "Jord"
 __author__ = "Christian Heider Lindbjerg"
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 __doc__ = r"""
 .. module:: jord
    :platform: Unix, Windows
@@ -30,7 +29,7 @@ Created on 27/04/2019
 @author: cnheider
 """
 
-with open(Path(__file__).parent / "README.md", "r") as this_init_file:
+with open(Path(__file__).parent / "README.md") as this_init_file:
     __doc__ += this_init_file.read()
 
 PROJECT_NAME = clean_string(__project__)
@@ -40,6 +39,7 @@ PROJECT_AUTHOR = clean_string(__author__)
 PROJECT_ORGANISATION = clean_string("Automaps")
 PROJECT_APP_PATH = AppPath(app_name=PROJECT_NAME, app_author=PROJECT_AUTHOR)
 INCLUDE_PROJECT_READMES = False
+VERBOSE = False
 
 PACKAGE_DATA_PATH = files(PROJECT_NAME) / "data"
 

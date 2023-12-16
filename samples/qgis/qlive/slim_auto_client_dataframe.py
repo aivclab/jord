@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from geopandas import GeoSeries
 from pandas import DataFrame
 
@@ -52,7 +51,7 @@ with AutoQliveClient(server_address) as qlive:
 
     if False:
         for t in df.itertuples():
-            t: pandas.core.frame.Pandas
+            t
             print(t)
 
     qlive.add_dataframe_layer(DataFrame(df), geometry_column="Coordinates")
