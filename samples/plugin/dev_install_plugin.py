@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 from pathlib import Path
 
@@ -38,13 +37,13 @@ It is easy to find out the library in use.
 
 Go to Qt Designer → Help → About Plugins. You will see the QGIS library in use.
 INSTALL PLUGIN
-USE PATH "C:\OSGeo4W\apps\qgis\qtplugins\designer\qgis_customwidgets.dll"
+USE PATH "C:\\OSGeo4W\apps\\qgis\\qtplugins\\designer\\qgis_customwidgets.dll"
 
 ABOVE DOES NOT WORK!!
 
 USE instead
 SHORTCUT "Qt Designer with QGIS 3.24.3 custom widgets"
-"C:\Program Files\QGIS 3.24.3\bin\bgspawn.exe" "C:\PROGRA~1\QGIS 3.24.3\bin\qgis-designer.bat"
+"C:\\Program Files\\QGIS 3.24.3\bin\bgspawn.exe" "C:\\PROGRA~1\\QGIS 3.24.3\bin\\qgis-designer.bat"
 
 """
 

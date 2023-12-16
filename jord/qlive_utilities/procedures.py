@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 import time
 import uuid
 from enum import Enum
@@ -91,6 +90,9 @@ def add_wkb_layer(
 ) -> None:
     # noinspection PyUnresolvedReferences
     from qgis.core import QgsGeometry
+
+    if isinstance(wkbs, str):
+        wkbs = [wkbs]
 
     add_qgis_multi_feature_layer(
         qgis_instance_handle,
@@ -213,6 +215,9 @@ def add_wkt_layer(
     # noinspection PyUnresolvedReferences
     from qgis.core import QgsGeometry
 
+    if isinstance(wkts, str):
+        wkts = [wkts]
+
     add_qgis_multi_feature_layer(
         qgis_instance_handle,
         [QgsGeometry.fromWkt(wkt) for wkt in wkts],
@@ -261,6 +266,8 @@ def add_shapely_layer(
     **kwargs,
 ) -> None:
     # assert geoms[0] == #TODO: SAME TYPE
+    if isinstance(geoms, shapely.geometry.base.BaseGeometry):
+        geoms = [geoms]
     add_wkt_layer(qgis_instance_handle, [geom.wkt for geom in geoms], *args, **kwargs)
 
 
@@ -426,6 +433,9 @@ def add_geojsons(
 def add_geojson_layer(
     qgis_instance_handle: Any, geojsons: Iterable[str], *args, **kwargs
 ) -> None:
+    if isinstance(geojsons, str):
+        geojsons = [geojsons]
+
     add_shapely_layer(
         qgis_instance_handle,
         [shapely.from_geojson(geojson_) for geojson_ in geojsons],

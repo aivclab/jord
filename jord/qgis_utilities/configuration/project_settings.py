@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 __author__ = "heider"
 __doc__ = r"""
@@ -13,15 +12,16 @@ __all__ = [
     "restore_default_project_settings",
 ]
 
+import logging
 from logging import warning
 from typing import Any, Mapping, Optional
 
-from jord import PROJECT_NAME
+from jord import PROJECT_NAME, VERBOSE
 
 
 def restore_default_project_settings(
     defaults: Optional[Mapping] = None, *, project_name: str = PROJECT_NAME
-):
+) -> None:
     """
 
     :param defaults:
@@ -30,11 +30,14 @@ def restore_default_project_settings(
     """
     if defaults is None:
         defaults = {}
+
     for key, value in defaults.items():
         store_project_setting(key, value, project_name=project_name)
 
 
-def store_project_setting(key: str, value: Any, *, project_name: str = PROJECT_NAME):
+def store_project_setting(
+    key: str, value: Any, *, project_name: str = PROJECT_NAME
+) -> None:
     """
 
     :param key:
@@ -57,7 +60,8 @@ def store_project_setting(key: str, value: Any, *, project_name: str = PROJECT_N
         value = str(value)
         qgis_project.writeEntry(project_name, key, value)
 
-    print(project_name, key, value)
+    if VERBOSE:
+        logging.info(f"Stored in {project_name} settings {key=} {value=}")
 
 
 def read_project_setting(
@@ -66,7 +70,7 @@ def read_project_setting(
     *,
     defaults: Mapping = None,
     project_name: str = PROJECT_NAME,
-):
+) -> Any:
     """
 
     :param key:

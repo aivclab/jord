@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 __author__ = "heider"
 __doc__ = r"""
@@ -189,9 +188,9 @@ def line_endpoints(lines: Union[List[LineString], MultiLineString]) -> MultiPoin
         for i in [0, -1]:  # start and end point
             all_points.append(line.coords[i])
 
-    endpoints = set(
-        [item for item, count in collections.Counter(all_points).items() if count < 2]
-    )  # Remove duplicates
+    endpoints = {
+        item for item, count in collections.Counter(all_points).items() if count < 2
+    }  # Remove duplicates
 
     return MultiPoint([Point(p) for p in endpoints])
 

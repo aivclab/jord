@@ -1,6 +1,16 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+import numpy
+from geopandas import GeoDataFrame, GeoSeries
+from pandas import DataFrame
+
+from jord.qlive_utilities import build_package
 from jord.qlive_utilities.client import QliveClient
+from jord.qlive_utilities.procedures import QliveRPCMethodEnum, QliveRPCMethodMap
+
+build_package
+numpy
+QliveRPCMethodMap
+QliveRPCMethodEnum
 
 DEFAULT_CRS = "EPSG:3857"  # "EPSG:4326"
 crs = DEFAULT_CRS
@@ -59,9 +69,6 @@ with QliveClient("tcp://localhost:5555") as qlive:
         )
 
     if True:
-        from geopandas import GeoDataFrame, GeoSeries
-        from pandas import DataFrame
-
         df = DataFrame(
             {
                 "City": ["Buenos Aires", "Brasilia", "Santiago", "Bogota", "Caracas"],

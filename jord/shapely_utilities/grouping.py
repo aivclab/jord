@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from typing import Mapping, Sequence, Union
 
 import shapely
@@ -13,9 +12,7 @@ __all__ = ["overlap_groups"]
 def overlap_groups(
     to_be_grouped: Union[Sequence, Mapping], must_be_unique: bool = False
 ) -> Sequence[Mapping]:
-    if isinstance(to_be_grouped, Mapping):
-        ...
-    else:
+    if not isinstance(to_be_grouped, Mapping):
         to_be_grouped = dict(zip((i for i in range(len(to_be_grouped))), to_be_grouped))
 
     if must_be_unique:

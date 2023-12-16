@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from geopandas import GeoDataFrame, GeoSeries
 
 from jord.qlive_utilities.clients.auto import AutoQliveClient
@@ -40,7 +39,7 @@ with AutoQliveClient(server_address) as qlive:
 
     if False:
         for t in df.itertuples():
-            t: pandas.core.frame.Pandas
+            t
             print(t)
 
     if False:

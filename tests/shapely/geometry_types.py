@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import shapely
 
 from jord.shapely_utilities import is_multi

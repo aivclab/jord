@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 import numpy
 
 from jord.qlive_utilities.clients.auto import AutoQliveClient
