@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 
 import statistics
-from typing import Generator, List, Sequence, Tuple, Union
+from typing import Generator, Iterable, List, Sequence, Tuple, Union
 
 import shapely
 from shapely.geometry import (
     LineString,
-    LinearRing,
     MultiLineString,
     MultiPolygon,
     Polygon,
@@ -14,32 +13,18 @@ from shapely.geometry import (
 from shapely.geometry.base import BaseGeometry
 from warg import Number, pairs
 
-from .morphology import closing, opening
+from jord.shapely_utilities.base import sanitise
+from .lines import segments
 from .rings import ensure_ccw_ring, ensure_cw_ring
 
 __all__ = [
-    "zero_buffer",
-    "sanitise",
-    "deflimmer",
-    "clean_geometry",
     "explode_polygons",
     "polygon_has_interior_rings",
     "iter_polygons",
     "discard_holes",
     "get_coords_from_polygonal_shape",
+    "get_polygonal_shape_from_coords",
 ]
-
-
-def zero_buffer(
-    geom: BaseGeometry,
-) -> Union[
-    BaseGeometry
-    # Point,
-    # LineString,
-    # Polygon,
-    # MultiPolygon
-]:
-    return geom.buffer(0)
 
 
 def polygon_has_interior_rings(polygon: Polygon) -> bool:
@@ -49,72 +34,6 @@ def polygon_has_interior_rings(polygon: Polygon) -> bool:
     :return:
     """
     return len(polygon.interiors) > 0
-
-
-def deflimmer(geom: BaseGeometry, eps: float = 1e-7) -> BaseGeometry:
-    """
-
-    :param geom:
-    :param eps:
-    :return:
-    """
-    return opening(closing(geom, eps), eps)
-
-
-clean_geometry = unflimmer = deflimmer
-
-
-def extract_poly_coords(geom: BaseGeometry) -> Tuple[List, List]:
-    """
-
-    :param geom:
-    :return:
-    """
-    if geom.type == "Polygon":
-        exterior_coords = geom.exterior.coords[:]
-        interior_coords = []
-        for interior in geom.interiors:
-            interior_coords += interior.coords[:]
-    elif geom.type == "MultiPolygon":
-        exterior_coords = []
-        interior_coords = []
-        for part in geom:
-            epc = extract_poly_coords(part)  # Recursive call
-            exterior_coords += epc[0]
-            interior_coords += epc[1]
-    else:
-        raise ValueError(f"Unhandled geometry type: {repr(geom.type)}")
-    return exterior_coords, interior_coords
-
-
-def extract_poly_rings(geom: BaseGeometry) -> Tuple[List, List]:
-    """
-
-    :param geom:
-    :return:
-    """
-    interior_rings = []
-    exterior_rings = []
-    if isinstance(geom, Polygon):
-        exterior_rings.append(geom.exterior)
-        interior_rings.extend(geom.interiors)
-    elif isinstance(geom, MultiPolygon):
-        for part in geom.geoms:
-            exterior_rings.append(part.exterior)
-            interior_rings.extend(part.interiors)
-    else:
-        raise ValueError(f"Unhandled geometry type: {repr(geom.type)}")
-
-    return exterior_rings, interior_rings
-
-
-def segments(curve: Union[LinearRing, LineString]) -> List[LineString]:
-    """
-
-    :param curve:
-    :return:
-    """
-    return list(map(LineString, zip(curve.coords[:-1], curve.coords[1:])))
 
 
 def mean_std_dev_line_length(geom: BaseGeometry) -> Tuple[float, float]:
@@ -258,6 +177,73 @@ def get_coords_from_polygonal_shape(
     return coords
 
 
+def get_polygonal_shape_from_coords(
+    coords: Union[
+        Iterable[Iterable[Iterable[tuple[float, float]]]],
+        Iterable[Iterable[tuple[float, float]]],
+    ]
+) -> Union[Polygon, MultiPolygon]:
+    outer = next(iter(coords))
+    assert isinstance(outer, Iterable)
+    a = next(iter(outer))
+    if isinstance(a, Iterable):  # Polygon
+        b = next(iter(a))
+        if isinstance(b, Iterable):  # Holes
+            polygons = []
+            for poly in coords:  # MultiPolygon and # MultiPolygon Holes
+                polygons.append(get_polygonal_shape_from_coords(poly))
+            return MultiPolygon(polygons)
+        else:
+            exterior, *interior = coords
+            return Polygon(exterior, holes=interior)
+    return Polygon(coords)
+
+
+def extract_poly_coords(geom: BaseGeometry) -> Tuple[List, List]:
+    """
+    TODO: Duplicate of get_coords_from_polygonal_shape
+
+    :param geom:
+    :return:
+    """
+    if geom.type == "Polygon":
+        exterior_coords = geom.exterior.coords[:]
+        interior_coords = []
+        for interior in geom.interiors:
+            interior_coords += interior.coords[:]
+    elif geom.type == "MultiPolygon":
+        exterior_coords = []
+        interior_coords = []
+        for part in geom:
+            epc = extract_poly_coords(part)  # Recursive call
+            exterior_coords += epc[0]
+            interior_coords += epc[1]
+    else:
+        raise ValueError(f"Unhandled geometry type: {repr(geom.type)}")
+    return exterior_coords, interior_coords
+
+
+def extract_poly_rings(geom: BaseGeometry) -> Tuple[List, List]:
+    """
+
+    :param geom:
+    :return:
+    """
+    interior_rings = []
+    exterior_rings = []
+    if isinstance(geom, Polygon):
+        exterior_rings.append(geom.exterior)
+        interior_rings.extend(geom.interiors)
+    elif isinstance(geom, MultiPolygon):
+        for part in geom.geoms:
+            exterior_rings.append(part.exterior)
+            interior_rings.extend(part.interiors)
+    else:
+        raise ValueError(f"Unhandled geometry type: {repr(geom.type)}")
+
+    return exterior_rings, interior_rings
+
+
 def discard_holes(
     shape: Union[shapely.Polygon, shapely.MultiPolygon]
 ) -> Union[Polygon, MultiPolygon]:
@@ -269,24 +255,6 @@ def discard_holes(
             shape_parts.append(shapely.Polygon(shape_part.exterior.coords))
         return MultiPolygon(shape_parts)
     raise NotImplementedError
-
-
-def sanitise(geom: BaseGeometry, *args: callable) -> BaseGeometry:
-    """
-      #A positive distance produces a dilation, a negative distance an erosion. A very small or zero distance may sometimes be used to “tidy” a polygon.
-
-    :param geom:
-    :param args:
-    :return:
-    """
-
-    if not len(args):
-        args = (zero_buffer, deflimmer)
-
-    for f in args:
-        geom = f(geom)
-
-    return geom
 
 
 def ensure_ccw_poly(polygon: Polygon) -> Polygon:
