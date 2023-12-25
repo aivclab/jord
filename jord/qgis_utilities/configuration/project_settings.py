@@ -28,7 +28,6 @@ def restore_default_project_settings(defaults={}, *, project_name=PROJECT_NAME):
 
 
 def store_project_setting(key, value, *, project_name=PROJECT_NAME):
-
     if isinstance(value, bool):
         qgis_project.writeEntryBool(project_name, key, value)
     elif isinstance(value, float):
