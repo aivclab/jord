@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 import json
 import time
-from typing import Any, Optional, Mapping, Iterable, Union, List
+from typing import Any, Iterable, List, Mapping, Optional, Union
 
 from warg import passes_kws_to
 
 from jord.geojson_utilities import GeoJsonGeometryTypesEnum
+from .categorisation import categorise_layer
 
 APPEND_TIMESTAMP = True
 SKIP_MEMORY_LAYER_CHECK_AT_CLOSE = True
@@ -39,6 +40,7 @@ def add_qgis_single_feature_layer(
     """
     An example url is “Point?crs=epsg:4326&field=id:integer&field=name:string(20)&index=yes”
 
+    :param visible:
     :param categorise_by_attribute:
     :param group:
     :param columns: Field=name:type(length,precision) Defines an attribute of the layer. Multiple field parameters can be added to the data provider definition. Type is one of “integer”, “double”, “string”.
@@ -90,6 +92,11 @@ def add_qgis_single_feature_layer(
     else:
         fields = None
 
+    if categorise_by_attribute and fields:
+        assert (
+            categorise_by_attribute in fields
+        ), f"{categorise_by_attribute} was not found in {fields}"
+
     if geom_type == GeoJsonGeometryTypesEnum.geometry_collection.value.__name__:
         for g in geom.asGeometryCollection():  # TODO: Look into recursion?
             uri = json.loads(g.asJson())["type"]
@@ -130,6 +137,9 @@ def add_qgis_single_feature_layer(
 
             if SKIP_MEMORY_LAYER_CHECK_AT_CLOSE:
                 sub_layer.setCustomProperty("skipMemoryLayersCheck", 1)
+
+            if categorise_by_attribute:
+                categorise_layer(sub_layer, categorise_by_attribute)
 
             sub_layer.commitChanges()
             sub_layer.updateFields()
@@ -186,6 +196,9 @@ def add_qgis_single_feature_layer(
 
         if SKIP_MEMORY_LAYER_CHECK_AT_CLOSE:
             layer.setCustomProperty("skipMemoryLayersCheck", 1)
+
+        if categorise_by_attribute:
+            categorise_layer(layer, categorise_by_attribute)
 
         layer.commitChanges()
         layer.updateFields()
@@ -244,6 +257,7 @@ def add_qgis_multi_feature_layer(
     columns: Optional[
         Union[Mapping[str, Mapping[str, Any]], Iterable[Mapping[str, Any]]]
     ] = None,
+    categorise_by_attribute: Optional[str] = None,
     index: bool = False,
     group: Any = None,
     visible: bool = True,
@@ -255,14 +269,16 @@ def add_qgis_multi_feature_layer(
 
     An example url is “Point?crs=epsg:4326&field=id:integer&field=name:string(20)&index=yes”
 
-        :param group:
-        :param qgis_instance_handle:
-        :param geoms:
-        :param name:
-        :param crs:
-        :param columns:
-        :param index:
-        :return:
+    :param categorise_by_attribute:
+    :param visible:
+    :param group:
+    :param qgis_instance_handle:
+    :param geoms:
+    :param name:
+    :param crs:
+    :param columns:
+    :param index:
+    :return:
     """
 
     # noinspection PyUnresolvedReferences
@@ -298,13 +314,13 @@ def add_qgis_multi_feature_layer(
 
     if columns and len(columns):
         if isinstance(columns, Mapping):
-            sample_row = next(iter(columns.values()))
+            sample_row = next(iter(columns.values()), None)
             # TODO: Might not be ordered correctly
             # if isinstance(next(iter(columns.values())), Mapping):
             #    ...
             attr_generator = iter(columns.values())
         elif isinstance(columns, Iterable):
-            sample_row = next(iter(columns))
+            sample_row = next(iter(columns), None)
             # TODO: Might not be ordered correctly
             # if isinstance(next(iter(columns.values())), Mapping):
             #    ...
@@ -315,6 +331,11 @@ def add_qgis_multi_feature_layer(
     if sample_row:
         fields = {k: solve_type(v) for k, v in sample_row.items()}
         num_cols = len(sample_row)
+
+    if categorise_by_attribute and fields:
+        assert (
+            categorise_by_attribute in fields
+        ), f"{categorise_by_attribute} was not found in {fields}"
 
     if not geoms:
         return  # No geometry
@@ -384,6 +405,9 @@ def add_qgis_multi_feature_layer(
 
     if SKIP_MEMORY_LAYER_CHECK_AT_CLOSE:
         layer.setCustomProperty("skipMemoryLayersCheck", 1)
+
+    if categorise_by_attribute:
+        categorise_layer(layer, categorise_by_attribute)
 
     layer.commitChanges()
     layer.updateFields()
