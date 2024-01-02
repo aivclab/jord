@@ -182,12 +182,13 @@ def get_polygonal_shape_from_coords(
         Iterable[Iterable[Iterable[tuple[float, float]]]],
         Iterable[Iterable[tuple[float, float]]],
     ]
-) -> Union[Polygon, MultiPolygon]:
-    outer = next(iter(coords))
+) -> Union[Polygon, MultiPolygon, None]:
+    outer = next(iter(coords), None)
+
     assert isinstance(outer, Iterable)
-    a = next(iter(outer))
+    a = next(iter(outer), None)
     if isinstance(a, Iterable):  # Polygon
-        b = next(iter(a))
+        b = next(iter(a), None)
         if isinstance(b, Iterable):  # Holes
             polygons = []
             for poly in coords:  # MultiPolygon and # MultiPolygon Holes
@@ -195,7 +196,13 @@ def get_polygonal_shape_from_coords(
             return MultiPolygon(polygons)
         else:
             exterior, *interior = coords
-            return Polygon(exterior, holes=interior)
+            if interior:
+                return Polygon(exterior, holes=interior)
+            return Polygon(exterior)
+
+    if len(coords[0]) == 0:
+        return None
+
     return Polygon(coords)
 
 
