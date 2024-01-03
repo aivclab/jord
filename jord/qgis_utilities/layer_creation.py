@@ -6,7 +6,6 @@ from typing import Any, Iterable, List, Mapping, Optional, Union
 from warg import passes_kws_to
 
 from jord.geojson_utilities import GeoJsonGeometryTypesEnum
-from .categorisation import categorise_layer
 
 APPEND_TIMESTAMP = True
 SKIP_MEMORY_LAYER_CHECK_AT_CLOSE = True
@@ -62,6 +61,7 @@ def add_qgis_single_feature_layer(
         QgsRasterLayer,
         QgsProject,
     )
+    from .categorisation import categorise_layer
 
     # noinspection PyUnresolvedReferences
     import qgis
@@ -283,6 +283,7 @@ def add_qgis_multi_feature_layer(
 
     # noinspection PyUnresolvedReferences
     from qgis.core import QgsVectorLayer, QgsFeature
+    from .categorisation import categorise_layer
 
     # noinspection PyUnresolvedReferences
     import qgis
@@ -374,9 +375,10 @@ def add_qgis_multi_feature_layer(
             feat = QgsFeature()
 
             if attr_generator:
-                if sample_row:
+                row = next(attr_generator, None)
+                if row:
                     feat.initAttributes(num_cols)
-                    feat.setAttributes(list(next(attr_generator).values()))
+                    feat.setAttributes(list(row.values()))
 
             feat.setGeometry(geom)
             features.append(feat)
