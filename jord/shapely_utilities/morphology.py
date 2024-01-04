@@ -1,49 +1,79 @@
 #!/usr/bin/env python3
-
-
+import shapely
 from shapely.geometry.base import BaseGeometry
 
 __all__ = ["closing", "opening", "erode", "erosion", "dilate", "dilation", "close"]
 
+from warg import passes_kws_to
 
-def erosion(geom: BaseGeometry, eps: float = 1e-7) -> BaseGeometry:
+FALLBACK_CAPSTYLE = shapely.BufferCapStyle.round  # CAN BE OVERRIDEN
+
+
+@passes_kws_to(shapely.geometry.base.BaseGeometry.buffer)
+def erosion(
+    geom: BaseGeometry,
+    distance: float = 1e-7,
+    cap_style: shapely.BufferCapStyle = shapely.BufferCapStyle.flat,
+    join_style: shapely.BufferJoinStyle = shapely.BufferJoinStyle.mitre,
+    **kwargs
+) -> BaseGeometry:
     """
 
+    :param distance:
+    :param cap_style:
+    :param join_style:
     :param geom: The geometry to be eroded
-    :param eps: Erosion amount
     :return: The eroded geometry
     """
-    return geom.buffer(-eps)
+    return geom.buffer(
+        distance=-distance, cap_style=cap_style, join_style=join_style, **kwargs
+    )
 
 
-def dilation(geom: BaseGeometry, eps: float = 1e-7) -> BaseGeometry:
+@passes_kws_to(shapely.geometry.base.BaseGeometry.buffer)
+def dilation(
+    geom: BaseGeometry,
+    distance: float = 1e-7,
+    cap_style: shapely.BufferCapStyle = shapely.BufferCapStyle.flat,
+    join_style: shapely.BufferJoinStyle = shapely.BufferJoinStyle.mitre,
+    **kwargs
+) -> BaseGeometry:
     """
 
+    :param cap_style:
+    :param join_style:
     :param geom: The geometry to be dilated
-    :param eps: Dilation amount
+    :param distance: Dilation amount
     :return: The dilated geometry
     """
-    return geom.buffer(eps)
+    if (
+        isinstance(geom, shapely.Point) and cap_style == shapely.BufferCapStyle.flat
+    ):  # NONSENSE, propably not what is intended
+        cap_style = FALLBACK_CAPSTYLE
+
+    return geom.buffer(
+        distance=distance, cap_style=cap_style, join_style=join_style, **kwargs
+    )
 
 
-def closing(geom: BaseGeometry, eps: float = 1e-7) -> BaseGeometry:
+@passes_kws_to(shapely.geometry.base.BaseGeometry.buffer)
+def closing(geom: BaseGeometry, **kwargs) -> BaseGeometry:
     """
 
     :param geom: The geometry to be closed
-    :param eps: Dilation and Erosion amount
     :return: The closed geometry
     """
-    return erode(dilate(geom, eps), eps)
+    return erode(dilate(geom, **kwargs), **kwargs)
 
 
-def opening(geom: BaseGeometry, eps: float = 1e-7) -> BaseGeometry:
+@passes_kws_to(shapely.geometry.base.BaseGeometry.buffer)
+def opening(geom: BaseGeometry, **kwargs) -> BaseGeometry:
     """
 
     :param geom: The geometry to be opened
-    :param eps: Erosion and Dilation amount
     :return: The opened geometry
     """
-    return dilate(erode(geom, eps), eps)
+    return dilate(erode(geom, **kwargs), **kwargs)
 
 
 # open = opening # keyword clash

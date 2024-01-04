@@ -2,19 +2,19 @@
 
 import random
 from itertools import cycle
-from typing import Iterable, Sized, Callable, Generator
+from typing import Callable, Generator, Iterable, Sized
 
+import qgis
 from PyQt5.Qt import QColor
 
 # noinspection PyUnresolvedReferences
 from qgis.core import (
-    QgsVectorLayer,
-    QgsSymbol,
-    QgsRendererCategory,
     QgsCategorizedSymbolRenderer,
+    QgsRendererCategory,
+    QgsSymbol,
+    QgsVectorLayer,
 )
-import qgis
-from warg import TripleNumber, QuadNumber, n_uint_mix_generator_builder
+from warg import QuadNumber, TripleNumber, n_uint_mix_generator_builder
 
 __all__ = ["categorise_layer"]
 
