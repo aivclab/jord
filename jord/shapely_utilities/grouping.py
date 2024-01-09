@@ -1,4 +1,4 @@
-from typing import Mapping, Sequence, Union
+from typing import Any, Callable, List, Mapping, Sequence, Union
 
 import shapely
 from shapely import unary_union
@@ -10,32 +10,51 @@ __all__ = ["overlap_groups"]
 
 
 def overlap_groups(
-    to_be_grouped: Union[Sequence, Mapping], must_be_unique: bool = False
-) -> Sequence[Mapping]:
+    to_be_grouped: Union[
+        Sequence[shapely.geometry.base.BaseGeometry],
+        Mapping[Any, shapely.geometry.base.BaseGeometry],
+    ],
+    must_be_unique: bool = False,
+    group_test: Callable = shapely.intersects,
+) -> List[Mapping[Any, shapely.geometry.base.BaseGeometry]]:
+    """
+
+    Given a sequence of geometries `to_be_grouped`, this function will group
+    the geometries based on a `group_test` function. `group_test` must return a bool indicating whether to group any two geometries
+
+    `must_be_unique` allows us to assert whether all geometries will be possible grouped uniquely, e.g. if in `to_be_grouped` a multi shape could end up in 2 groups, we can disallow that.
+
+    :param to_be_grouped:
+    :param must_be_unique:
+    :param group_test:
+    :return:
+    """
+
     if not isinstance(to_be_grouped, Mapping):
         to_be_grouped = dict(zip((i for i in range(len(to_be_grouped))), to_be_grouped))
 
     if must_be_unique:
         assert not any(is_multi(p) for p in to_be_grouped.values()), to_be_grouped
 
-    s = list(unary_union(v) for v in to_be_grouped.values())
+    unions = closing(
+        unary_union(list(unary_union(v) for v in to_be_grouped.values()))
+    ).buffer(0)
 
-    union = closing(unary_union(s)).buffer(0)
     groups = []
     already_grouped = []
 
-    if not is_multi(union):
+    if not is_multi(unions):
         groups.append(to_be_grouped)
     else:
-        for union_part in union.geoms:
-            intersectors = {}
+        for union_part in unions.geoms:
+            incidentee = {}
             for k, v in to_be_grouped.items():
-                if shapely.intersects(v, union_part):
+                if group_test(v, union_part):
                     if must_be_unique:
                         assert k not in already_grouped, f"{k, already_grouped, v}"
-                    intersectors[k] = v
+                    incidentee[k] = v
                     already_grouped.append(k)
-            groups.append(intersectors)
+            groups.append(incidentee)
 
     return groups
 
