@@ -8,6 +8,7 @@ __doc__ = r"""
            Created on 5/5/22
            """
 
+import logging
 from pathlib import Path
 
 with open(Path(__file__).parent / "README.md") as this_init_file:
@@ -28,5 +29,5 @@ try:
     # from .plugin_version import *
 except ImportError as ix:
     this_package_name = Path(__file__).parent.name
-    print(f"Make sure qgis module is available for {this_package_name}")
+    logging.error(f"Make sure qgis module is available for {this_package_name}")
     raise ix

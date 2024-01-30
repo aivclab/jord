@@ -128,7 +128,9 @@ def add_qgis_single_feature_layer(
                     for field_idx, attr in enumerate(columns.values()):
                         feat.setAttribute(field_idx, attr)
                 else:
-                    feat.setAttributes(list(columns.values()))
+                    feat.setAttributes(
+                        list(to_string_if_not_of_exact_type(columns.values()))
+                    )
 
             sub_layer = QgsVectorLayer(uri, f"{layer_name}_{sub_type}", "memory")
             layer_data_provider = sub_layer.dataProvider()
@@ -185,12 +187,14 @@ def add_qgis_single_feature_layer(
                 for field_idx, attr in enumerate(columns.values()):
                     feat.setAttribute(field_idx, attr)
             else:
-                feat.setAttributes(list(columns.values()))
+                feat.setAttributes(
+                    list(to_string_if_not_of_exact_type(columns.values()))
+                )
 
         layer = QgsVectorLayer(uri, layer_name, "memory")
         layer_data_provider = (
             layer.dataProvider()
-        )  # DEFAULT DATA PROVIDER, MAYBE CHANGE THIS
+        )  # DEFAULT DATA PROVIDER, TODO: MAYBE CHANGE THIS
         layer_data_provider.addFeatures([feat])
         layer_data_provider.updateExtents()
 
@@ -220,7 +224,7 @@ def add_qgis_single_feature_layer(
 
     actions = qgis.utils.iface.layerTreeView().defaultActions()
     actions.showFeatureCount()
-    actions.showFeatureCount()
+    actions.showFeatureCount()  # TODO: Duplicate?
 
     return return_collection
 
@@ -240,11 +244,12 @@ def solve_type(d: Any) -> str:
     :param d:
     :return:
     """
-    if isinstance(d, int):
-        return "integer"
+    if not isinstance(d, bool):
+        if isinstance(d, int):
+            return "integer"
 
-    elif isinstance(d, float):
-        return "double"
+        elif isinstance(d, float):
+            return "double"
 
     return "string"
 
@@ -378,7 +383,9 @@ def add_qgis_multi_feature_layer(
                 row = next(attr_generator, None)
                 if row:
                     feat.initAttributes(num_cols)
-                    feat.setAttributes(list(row.values()))
+                    feat.setAttributes(
+                        list(to_string_if_not_of_exact_type(row.values()))
+                    )
 
             feat.setGeometry(geom)
             features.append(feat)
@@ -434,3 +441,22 @@ def add_qgis_multi_feature_layer(
     return_collection.append(layer)
 
     return return_collection
+
+
+def to_string_if_not_of_exact_type(
+    gen: Iterable, type_: Iterable[type] = (int, float)
+) -> Union[str, Any]:
+    """
+
+    :param type_: Type for testing against
+    :param gen: The iterable to be converted
+    :return:
+    """
+    if not isinstance(type_, Iterable):
+        type_ = [type_]
+
+    for v in gen:
+        if all([type(v) != t for t in type_]) or v is None:
+            yield str(v)
+        else:
+            yield v

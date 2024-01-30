@@ -6,6 +6,7 @@ __doc__ = r"""
            Created on 02-12-2020
            """
 
+import logging
 from typing import Sequence
 
 import numpy
@@ -49,7 +50,7 @@ def get_qimage_from_numpy(img: Image, debug: bool = False) -> QtGui.QImage:
     height, width, channels = img.shape
 
     if debug:
-        print(f"height: {height}, width: {width}, channels: {channels}")
+        logging.info(f"height: {height}, width: {width}, channels: {channels}")
 
     bytes_per_line = channels * width
     img = numpy.require(img, numpy.uint8, "C")

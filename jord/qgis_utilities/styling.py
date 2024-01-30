@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 
+import logging
 from typing import Mapping
 
 from PyQt5.Qt import QColor
 
 # noinspection PyUnresolvedReferences
 from qgis.core import (
-    QgsVectorLayer,
-    QgsSymbol,
-    QgsRendererCategory,
     QgsCategorizedSymbolRenderer,
     QgsLineSymbol,
+    QgsRendererCategory,
+    QgsSymbol,
+    QgsVectorLayer,
 )
 from warg import TripleNumber
 
@@ -52,7 +53,7 @@ def style_layer_from_mapping(
         if isinstance(symbol, QgsLineSymbol):
             symbol.setWidth(cat_width)
         else:
-            print(f"width ignored, symbol is of type: {type(symbol)}")
+            logging(f"width ignored, symbol is of type: {type(symbol)}")
 
         render_categories.append(
             QgsRendererCategory(cat, symbol=symbol, label=label, render=True)
