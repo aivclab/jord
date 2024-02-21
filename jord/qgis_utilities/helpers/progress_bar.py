@@ -9,17 +9,46 @@ __doc__ = r"""
 from typing import Tuple
 
 # noinspection PyUnresolvedReferences
-from qgis.PyQt import QtGui, QtWidgets
+from qgis.PyQt import QtWidgets
 
-__all__ = ["dialog_progress_bar"]
+__all__ = ["make_dialog_progress_bar", "DialogProgressBar"]
+
+from warg import AlsoDecorator, passes_kws_to
 
 
-def dialog_progress_bar(
-    progress: int = 0, *, minimum_width: int = 300
+class DialogProgressBar(AlsoDecorator):
+    @passes_kws_to()
+    def __init__(self, progress: int = 0, **kwargs):
+        self._progress_dialog, self._progress_bar = make_dialog_progress_bar(
+            progress, **kwargs
+        )
+
+    def __enter__(self):
+        if self._progress_dialog:
+            self._progress_dialog.show()
+        return self._progress_bar
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self._progress_dialog:
+            self._progress_dialog.close()
+
+
+def make_dialog_progress_bar(
+    progress: int = 0,
+    *,
+    minimum_width: int = 300,
+    min_value: int = 0,
+    max_value: int = 100,
+    title: str = "Progress",
+    label: str = ""
 ) -> Tuple[QtWidgets.QDialog, QtWidgets.QProgressBar]:
     """
     Create a progress bar dialog.
 
+    :param title:
+    :param label:
+    :param min_value:
+    :param max_value:
     :param progress: The progress to display.
     :type progress: int
     :param minimum_width: The minimum width of the dialog.
@@ -27,17 +56,18 @@ def dialog_progress_bar(
     :return: The dialog.
     :rtype: Tuple[QtWidgets.QDialog, QtWidgets.QProgressBar]
     """
-    dialog = QtGui.QProgressDialog()
-    dialog.setWindowTitle("Progress")
-    dialog.setLabelText("text")
+    dialog = QtWidgets.QProgressDialog()
+    dialog.setWindowTitle(title)
+    dialog.setLabelText(label)
 
     bar = QtWidgets.QProgressBar(dialog)
     bar.setTextVisible(True)
+    bar.setValue(min_value)
     bar.setValue(progress)
+    bar.setMaximum(max_value)
 
     dialog.setBar(bar)
     dialog.setMinimumWidth(minimum_width)
-    dialog.show()
 
     return dialog, bar
 
@@ -47,7 +77,7 @@ if __name__ == "__main__":
     def calc(x, y):
         from time import sleep
 
-        dialog, bar = dialog_progress_bar(0)
+        dialog, bar = make_dialog_progress_bar(0)
         bar.setValue(0)
         bar.setMaximum(100)
         sum_ = 0

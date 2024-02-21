@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import shapely
 from shapely.geometry.base import BaseGeometry
 
@@ -76,6 +77,78 @@ def opening(geom: BaseGeometry, **kwargs) -> BaseGeometry:
     return dilate(erode(geom, **kwargs), **kwargs)
 
 
+@passes_kws_to(shapely.geometry.base.BaseGeometry.buffer)
+def pro_closing(geom: BaseGeometry, **kwargs) -> BaseGeometry:
+    """
+      Remove Salt and Pepper
+
+      Common Variants
+    Opening and closing are themselves often used in combination to achieve more subtle results. If we represent the closing of an image f by C(f), and its opening by O(f), then some common combinations include:
+
+    Proper Opening
+    Min(f, /em{C}(O(C(f))))
+
+    Proper Closing
+    Max(f, O(C(O(f))))
+
+    Automedian Filter
+    Max(O(C(O(f))), Min(f, C(O(C(f)))))
+
+    These operators are commonly known as morphological filters.
+
+
+    Closing
+    Dilation means that the central pixel will be replaced by the brightest pixel in the vicinity (filter structural element).
+    Perfect for removing pepper noise and ensuring that the key features are relatively sharp.
+
+    Opening
+    Erosion means is that if we have a structuring element that is a 3 X 3 matrix, the central pixel will be replaced by the darkest pixel in the 3 X 3 neighborhood.
+    Opening is erosion followed by dilation which makes it perfect for removing salt noise (white dots) and ensuring that the key features are relatively sharp.
+
+      :param geom:
+      :param kwargs:
+      :return:
+    """
+
+    return opening(closing(opening(geom, **kwargs), **kwargs), **kwargs)
+
+
+@passes_kws_to(shapely.geometry.base.BaseGeometry.buffer)
+def pro_opening(geom: BaseGeometry, **kwargs) -> BaseGeometry:
+    """
+      Remove Salt and Pepper
+
+      Common Variants
+    Opening and closing are themselves often used in combination to achieve more subtle results. If we represent the closing of an image f by C(f), and its opening by O(f), then some common combinations include:
+
+    Proper Opening
+    Min(f, /em{C}(O(C(f))))
+
+    Proper Closing
+    Max(f, O(C(O(f))))
+
+    Automedian Filter
+    Max(O(C(O(f))), Min(f, C(O(C(f)))))
+
+    These operators are commonly known as morphological filters.
+
+
+    Closing
+    Dilation means that the central pixel will be replaced by the brightest pixel in the vicinity (filter structural element).
+    Perfect for removing pepper noise and ensuring that the key features are relatively sharp.
+
+    Opening
+    Erosion means is that if we have a structuring element that is a 3 X 3 matrix, the central pixel will be replaced by the darkest pixel in the 3 X 3 neighborhood.
+    Opening is erosion followed by dilation which makes it perfect for removing salt noise (white dots) and ensuring that the key features are relatively sharp.
+
+      :param geom:
+      :param kwargs:
+      :return:
+    """
+
+    return closing(opening(closing(geom, **kwargs), **kwargs), **kwargs)
+
+
 # open = opening # keyword clash
 erode = erosion
 dilate = dilation
@@ -124,4 +197,82 @@ if __name__ == "__main__":
         p.plot()
         pyplot.show()
 
-    aishdjauisd()
+    # aishdjauisd()
+
+    def ahfuashdu():
+        from random import random
+        import matplotlib.pyplot
+        import geopandas
+
+        circle_diameter = 100.0
+        ring_width = 6.0
+
+        circle = dilate(shapely.Point(0, 0), distance=circle_diameter)
+        ring = circle.difference(erode(circle, distance=ring_width))
+
+        noise_elements = []
+
+        num_noise_points = 1000
+        num_noise_lines = 100
+        noise_amplitude = 2.0
+
+        for i in range(num_noise_points):
+            noise_elements.append(
+                dilate(
+                    shapely.Point(
+                        -circle_diameter + random() * circle_diameter * 2,
+                        -circle_diameter + random() * circle_diameter * 2,
+                    ),
+                    distance=random() * noise_amplitude,
+                )
+            )
+
+        for i in range(num_noise_lines):
+            noise_elements.append(
+                dilate(
+                    shapely.LineString(
+                        [
+                            shapely.Point(
+                                -circle_diameter + random() * circle_diameter * 2,
+                                -circle_diameter + random() * circle_diameter * 2,
+                            )
+                            for _ in range(2)
+                        ]
+                    ),
+                    distance=random() * noise_amplitude,
+                )
+            )
+
+        noisy_ring = shapely.unary_union(noise_elements + [ring])
+
+        geopandas.GeoSeries(noisy_ring).plot()
+        matplotlib.pyplot.title("noisy_ring")
+        matplotlib.pyplot.show()
+
+        some_ring = opening(noisy_ring, distance=noise_amplitude)
+
+        geopandas.GeoSeries(some_ring).plot()
+        matplotlib.pyplot.title("opening_ring")
+        matplotlib.pyplot.show()
+
+        some_ring = closing(
+            opening(noisy_ring, distance=noise_amplitude), distance=noise_amplitude
+        )
+
+        geopandas.GeoSeries(some_ring).plot()
+        matplotlib.pyplot.title("some_ring")
+        matplotlib.pyplot.show()
+
+        pro_closing_ring = pro_closing(noisy_ring, distance=noise_amplitude)
+
+        geopandas.GeoSeries(pro_closing_ring).plot()
+        matplotlib.pyplot.title("pro_closing_ring")
+        matplotlib.pyplot.show()
+
+        pro_opening_ring = pro_opening(noisy_ring, distance=noise_amplitude)
+
+        geopandas.GeoSeries(pro_opening_ring).plot()
+        matplotlib.pyplot.title("pro_opening_ring")
+        matplotlib.pyplot.show()
+
+    ahfuashdu()

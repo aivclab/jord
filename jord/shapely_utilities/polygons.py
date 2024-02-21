@@ -206,7 +206,7 @@ def get_polygonal_shape_from_coords(
     return Polygon(coords)
 
 
-def extract_poly_coords(geom: BaseGeometry) -> Tuple[List, List]:
+def extract_poly_coords(geom: Union[Polygon, MultiPolygon]) -> Tuple[List, List]:
     """
     TODO: Duplicate of get_coords_from_polygonal_shape
 
@@ -221,7 +221,7 @@ def extract_poly_coords(geom: BaseGeometry) -> Tuple[List, List]:
     elif geom.type == "MultiPolygon":
         exterior_coords = []
         interior_coords = []
-        for part in geom:
+        for part in geom.geoms:
             epc = extract_poly_coords(part)  # Recursive call
             exterior_coords += epc[0]
             interior_coords += epc[1]
