@@ -16,12 +16,13 @@ __all__ = [
     "FocusPolicyFlag",
     "FocusReasonEnum",
     "ColorEnum",
+    "WindowModalityEnum",
 ]
 
 from enum import Flag, Enum
 from typing import Any
 
-from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtCore import Qt  # TODO: Should not be qgis import
 
 
 class DockWidgetAreaFlag(Flag):
@@ -613,6 +614,10 @@ class KeyEnum(Enum):
 
 
 class AlignmentFlag(Flag):
+    """
+    Alignment
+    """
+
     left = Qt.AlignLeft
     right = Qt.AlignRight
     bottom = Qt.AlignBottom
@@ -620,3 +625,32 @@ class AlignmentFlag(Flag):
     center = Qt.AlignCenter
     horizontal_center = Qt.AlignHCenter
     vertical_center = Qt.AlignVCenter
+
+
+class WindowModalityEnum(Enum):
+    """
+
+    PySide2.QtCore.Qt.WindowModality¶
+    This enum specifies the behavior of a modal window. A modal window is one that blocks input to other windows. Note that windows that are children of a modal window are not blocked.
+
+    The values are:
+
+    Constant
+
+    Description
+
+    Qt.NonModal
+
+    The window is not modal and does not block input to other windows.
+
+    Qt.WindowModal
+
+    The window is modal to a single window hierarchy and blocks input to its parent window, all grandparent windows, and all siblings of its parent and grandparent windows.
+
+    Qt.ApplicationModal
+
+    The window is modal to the application and blocks input to all windows."""
+
+    non_modal = Qt.NonModal
+    application = Qt.ApplicationModal
+    window = Qt.WindowModal

@@ -6,45 +6,52 @@ __doc__ = r"""
            Created on 02-12-2020
            """
 
-from typing import Tuple
+from typing import Tuple, Optional, Any
 
 # noinspection PyUnresolvedReferences
 from qgis.PyQt import QtWidgets
 
-__all__ = ["make_dialog_progress_bar", "DialogProgressBar"]
+__all__ = [
+    "make_dialog_progress_bar",
+    "DialogProgressBar",
+    "make_progress_bar",
+    "InjectedProgressBar",
+]
 
 from warg import AlsoDecorator, passes_kws_to
 
+from jord.qt_utilities import WindowModalityEnum
 
-class DialogProgressBar(AlsoDecorator):
-    @passes_kws_to()
-    def __init__(self, progress: int = 0, **kwargs):
-        self._progress_dialog, self._progress_bar = make_dialog_progress_bar(
-            progress, **kwargs
-        )
 
-    def __enter__(self):
-        if self._progress_dialog:
-            self._progress_dialog.show()
-        return self._progress_bar
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if self._progress_dialog:
-            self._progress_dialog.close()
+def make_progress_bar(
+    *,
+    progress: int = 0,
+    min_value: int = 0,
+    max_value: int = 100,
+    parent: Optional[Any] = None
+) -> QtWidgets.QProgressBar:
+    bar = QtWidgets.QProgressBar(parent)
+    bar.setTextVisible(True)
+    bar.setValue(min_value)
+    bar.setValue(progress)
+    bar.setMaximum(max_value)
+    return bar
 
 
 def make_dialog_progress_bar(
-    progress: int = 0,
     *,
+    progress: int = 0,
     minimum_width: int = 300,
     min_value: int = 0,
     max_value: int = 100,
     title: str = "Progress",
-    label: str = ""
+    label: str = "",
+    parent: Optional[Any] = None
 ) -> Tuple[QtWidgets.QDialog, QtWidgets.QProgressBar]:
     """
     Create a progress bar dialog.
 
+    :param parent:
     :param title:
     :param label:
     :param min_value:
@@ -56,20 +63,50 @@ def make_dialog_progress_bar(
     :return: The dialog.
     :rtype: Tuple[QtWidgets.QDialog, QtWidgets.QProgressBar]
     """
-    dialog = QtWidgets.QProgressDialog()
+    dialog = QtWidgets.QProgressDialog(parent)
     dialog.setWindowTitle(title)
     dialog.setLabelText(label)
 
-    bar = QtWidgets.QProgressBar(dialog)
-    bar.setTextVisible(True)
-    bar.setValue(min_value)
-    bar.setValue(progress)
-    bar.setMaximum(max_value)
+    bar = make_progress_bar(
+        parent=dialog, progress=progress, min_value=min_value, max_value=max_value
+    )
 
     dialog.setBar(bar)
     dialog.setMinimumWidth(minimum_width)
+    dialog.setWindowModality(WindowModalityEnum.window.value)
 
     return dialog, bar
+
+
+class DialogProgressBar(AlsoDecorator):  # TODO This freezes!
+    @passes_kws_to(make_dialog_progress_bar)
+    def __init__(self, **kwargs):
+        (self._progress_dialog, self._progress_bar) = make_dialog_progress_bar(**kwargs)
+
+    def __enter__(self):
+        if self._progress_dialog:
+            self._progress_dialog.show()
+        return self._progress_bar
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self._progress_dialog:
+            self._progress_dialog.close()
+
+
+class InjectedProgressBar(AlsoDecorator):
+    @passes_kws_to(make_progress_bar)
+    def __init__(self, **kwargs):
+        self._parent = kwargs.pop("parent", None)
+        self._progress_bar = make_progress_bar(**kwargs)
+
+    def __enter__(self):
+        if self._parent:
+            self._parent.addWidget(self._progress_bar)
+        return self._progress_bar
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self._parent:
+            self._parent.removeWidget(self._progress_bar)
 
 
 if __name__ == "__main__":
