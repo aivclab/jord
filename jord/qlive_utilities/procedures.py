@@ -2,7 +2,7 @@
 import time
 import uuid
 from enum import Enum
-from typing import Any, Iterable, Mapping, Tuple
+from typing import Any, Iterable, Mapping, Tuple, List
 
 import numpy
 import shapely.geometry.base
@@ -53,7 +53,7 @@ __all__ = [
 
 
 @passes_kws_to(add_qgis_single_feature_layer)
-def add_wkb(qgis_instance_handle: Any, wkb: str, *args, **kwargs) -> None:
+def add_wkb(qgis_instance_handle: Any, wkb: str, *args, **kwargs) -> List:
     """
 
     :param qgis_instance_handle:
@@ -64,7 +64,7 @@ def add_wkb(qgis_instance_handle: Any, wkb: str, *args, **kwargs) -> None:
     # noinspection PyUnresolvedReferences
     from qgis.core import QgsGeometry
 
-    add_qgis_single_feature_layer(
+    return add_qgis_single_feature_layer(
         qgis_instance_handle, QgsGeometry.fromWkb(wkb), *args, **kwargs
     )
 
@@ -72,7 +72,7 @@ def add_wkb(qgis_instance_handle: Any, wkb: str, *args, **kwargs) -> None:
 @passes_kws_to(add_wkb)
 def add_wkbs(
     qgis_instance_handle: Any, wkbs: Mapping[str, str], *args, **kwargs
-) -> None:
+) -> List:
     """
 
     :param qgis_instance_handle:
@@ -80,21 +80,25 @@ def add_wkbs(
     :param kwargs:
     :return:
     """
+    return_list = []
     for layer_name, wkb in wkbs.items():
-        add_wkb(qgis_instance_handle, wkb, *args, name=layer_name, **kwargs)
+        return_list.extend(
+            add_wkb(qgis_instance_handle, wkb, *args, name=layer_name, **kwargs)
+        )
+    return return_list
 
 
 @passes_kws_to(add_qgis_multi_feature_layer)
 def add_wkb_layer(
     qgis_instance_handle: Any, wkbs: Iterable[str], *args, **kwargs
-) -> None:
+) -> List:
     # noinspection PyUnresolvedReferences
     from qgis.core import QgsGeometry
 
     if isinstance(wkbs, str):
         wkbs = [wkbs]
 
-    add_qgis_multi_feature_layer(
+    return add_qgis_multi_feature_layer(
         qgis_instance_handle,
         [QgsGeometry.fromWkb(wkb) for wkb in wkbs],
         *args,
@@ -105,7 +109,7 @@ def add_wkb_layer(
 @passes_kws_to(add_qgis_multi_feature_layer)
 def add_geojson_layer(
     qgis_instance_handle: Any, geojsons: Iterable[str], *args, **kwargs
-) -> None:
+) -> List:
     """
 
       fromMultiPointXY
@@ -168,7 +172,7 @@ def add_geojson_layer(
     # noinspection PyUnresolvedReferences
     from qgis.core import QgsGeometry
 
-    add_qgis_multi_feature_layer(
+    return add_qgis_multi_feature_layer(
         qgis_instance_handle,
         # [gj for gj in geojsons],
         *args,
@@ -177,7 +181,7 @@ def add_geojson_layer(
 
 
 @passes_kws_to(add_qgis_single_feature_layer)
-def add_wkt(qgis_instance_handle: Any, wkt: str, *args, **kwargs) -> None:
+def add_wkt(qgis_instance_handle: Any, wkt: str, *args, **kwargs) -> List:
     """
 
     :param qgis_instance_handle:
@@ -188,7 +192,7 @@ def add_wkt(qgis_instance_handle: Any, wkt: str, *args, **kwargs) -> None:
     # noinspection PyUnresolvedReferences
     from qgis.core import QgsGeometry
 
-    add_qgis_single_feature_layer(
+    return add_qgis_single_feature_layer(
         qgis_instance_handle, QgsGeometry.fromWkt(wkt), *args, **kwargs
     )
 
@@ -196,7 +200,7 @@ def add_wkt(qgis_instance_handle: Any, wkt: str, *args, **kwargs) -> None:
 @passes_kws_to(add_wkt)
 def add_wkts(
     qgis_instance_handle: Any, wkts: Mapping[str, str], *args, **kwargs
-) -> None:
+) -> List:
     """
 
     :param qgis_instance_handle:
@@ -204,21 +208,25 @@ def add_wkts(
     :param kwargs:
     :return:
     """
+    return_list = []
     for layer_name, wkt in wkts.items():
-        add_wkt(qgis_instance_handle, wkt, *args, name=layer_name, **kwargs)
+        return_list.extend(
+            add_wkt(qgis_instance_handle, wkt, *args, name=layer_name, **kwargs)
+        )
+    return return_list
 
 
 @passes_kws_to(add_qgis_multi_feature_layer)
 def add_wkt_layer(
     qgis_instance_handle: Any, wkts: Iterable[str], *args, **kwargs
-) -> None:
+) -> List:
     # noinspection PyUnresolvedReferences
     from qgis.core import QgsGeometry
 
     if isinstance(wkts, str):
         wkts = [wkts]
 
-    add_qgis_multi_feature_layer(
+    return add_qgis_multi_feature_layer(
         qgis_instance_handle,
         [QgsGeometry.fromWkt(wkt) for wkt in wkts],
         *args,
@@ -229,7 +237,7 @@ def add_wkt_layer(
 @passes_kws_to(add_wkt)
 def add_shapely_geometry(
     qgis_instance_handle: Any, geom: BaseGeometry, *args, **kwargs
-) -> None:
+) -> List:
     """
     Add a shapely geometry
 
@@ -238,7 +246,7 @@ def add_shapely_geometry(
     :return:
     """
 
-    add_wkt(qgis_instance_handle, geom.wkt, *args, **kwargs)
+    return add_wkt(qgis_instance_handle, geom.wkt, *args, **kwargs)
 
 
 @passes_kws_to(add_shapely_geometry)
@@ -264,11 +272,13 @@ def add_shapely_layer(
     geoms: Iterable[shapely.geometry.base.BaseGeometry],
     *args,
     **kwargs,
-) -> None:
+) -> List:
     # assert geoms[0] == #TODO: SAME TYPE
     if isinstance(geoms, shapely.geometry.base.BaseGeometry):
         geoms = [geoms]
-    add_wkt_layer(qgis_instance_handle, [geom.wkt for geom in geoms], *args, **kwargs)
+    return add_wkt_layer(
+        qgis_instance_handle, [geom.wkt for geom in geoms], *args, **kwargs
+    )
 
 
 @passes_kws_to(add_wkb)  # OR add_wkt
@@ -278,7 +288,7 @@ def add_dataframe(
     geometry_column="geometry",
     *args,
     **kwargs,
-) -> None:
+) -> List:
     """
 
     :param qgis_instance_handle:
@@ -289,17 +299,23 @@ def add_dataframe(
     from geopandas import GeoDataFrame
     from jord.geopandas_utilities import split_on_geom_type
 
+    return_list = []
+
     if isinstance(dataframe, GeoDataFrame):
         geom_dict = split_on_geom_type(dataframe)
         for df in geom_dict.values():
             if False:
                 for w in df.geometry.to_wkt():
-                    add_wkt(qgis_instance_handle, w, *args, **kwargs)
+                    return_list.append(
+                        add_wkt(qgis_instance_handle, w, *args, **kwargs)
+                    )
             else:
                 for columns, w in zip(
                     df.iterrows(), df.geometry.to_wkb()
                 ):  # TODO: ITERROWS may not work
-                    add_wkb(qgis_instance_handle, w, columns, *args, **kwargs)
+                    return_list.append(
+                        add_wkb(qgis_instance_handle, w, columns, *args, **kwargs)
+                    )
 
     elif isinstance(dataframe, DataFrame):
         raise NotImplemented
@@ -316,17 +332,25 @@ def add_dataframe(
             raise NotImplemented
 
         for row in wkts:
-            add_wkt(qgis_instance_handle, row, *args, **kwargs)
+            return_list.append(add_wkt(qgis_instance_handle, row, *args, **kwargs))
     else:
         raise NotImplemented
+
+    return return_list
 
 
 @passes_kws_to(add_dataframe)
 def add_dataframes(
     qgis_instance_handle: Any, dataframes: Mapping[str, DataFrame], *args, **kwargs
-) -> None:
+) -> List:
+    return_list = []
     for layer_name, geometry in dataframes.items():
-        add_dataframe(qgis_instance_handle, geometry, name=layer_name, *args, **kwargs)
+        return_list.append(
+            add_dataframe(
+                qgis_instance_handle, geometry, name=layer_name, *args, **kwargs
+            )
+        )
+    return return_list
 
 
 @passes_kws_to(add_wkt_layer)
@@ -337,9 +361,11 @@ def add_dataframe_layer(
     geometry_column="geometry",
     *args,
     **kwargs,
-) -> None:
+) -> List:
     from geopandas import GeoDataFrame
     from jord.geopandas_utilities import split_on_geom_type
+
+    return_list = []
 
     if isinstance(dataframe, GeoDataFrame):
         geom_dict = split_on_geom_type(dataframe)
@@ -368,13 +394,15 @@ def add_dataframe_layer(
             else:
                 layer_name = name
 
-            add_wkt_layer(
-                qgis_instance_handle,
-                geoms,
-                name=layer_name,
-                columns=columns,
-                *args,
-                **kwargs,
+            return_list.append(
+                add_wkt_layer(
+                    qgis_instance_handle,
+                    geoms,
+                    name=layer_name,
+                    columns=columns,
+                    *args,
+                    **kwargs,
+                )
             )
     elif isinstance(dataframe, DataFrame):
         raise NotImplemented
@@ -387,14 +415,20 @@ def add_dataframe_layer(
                 geoms.append(w)
                 columns.append({**c})
 
-            add_wkt_layer(qgis_instance_handle, geoms, columns=columns, *args, **kwargs)
+            return_list.append(
+                add_wkt_layer(
+                    qgis_instance_handle, geoms, columns=columns, *args, **kwargs
+                )
+            )
 
     else:
         raise NotImplemented(f"{type(dataframe)}, {dataframe}")
 
+    return return_list
+
 
 @passes_kws_to(add_shapely_geometry)
-def add_geojson(qgis_instance_handle: Any, geojson_: str, *args, **kwargs) -> None:
+def add_geojson(qgis_instance_handle: Any, geojson_: str, *args, **kwargs) -> List:
     """
 
     :param geojson_:
@@ -403,7 +437,7 @@ def add_geojson(qgis_instance_handle: Any, geojson_: str, *args, **kwargs) -> No
     :return:
     """
     # meta_data = ''
-    add_shapely_geometry(
+    return add_shapely_geometry(
         qgis_instance_handle, shapely.from_geojson(geojson_), *args, **kwargs
     )
 
@@ -411,7 +445,7 @@ def add_geojson(qgis_instance_handle: Any, geojson_: str, *args, **kwargs) -> No
 @passes_kws_to(add_shapely_geometry)
 def add_geojsons(
     qgis_instance_handle: Any, geojsons: Mapping[str, str], *args, **kwargs
-) -> None:
+) -> List:
     """
 
     :param qgis_instance_handle:
@@ -419,24 +453,28 @@ def add_geojsons(
     :param kwargs:
     :return:
     """
+    return_list = []
     for layer_name, geojson_ in geojsons.items():
-        add_shapely_geometry(
-            qgis_instance_handle,
-            shapely.from_geojson(geojson_),
-            name=layer_name,
-            *args,
-            **kwargs,
+        return_list.append(
+            add_shapely_geometry(
+                qgis_instance_handle,
+                shapely.from_geojson(geojson_),
+                name=layer_name,
+                *args,
+                **kwargs,
+            )
         )
+    return return_list
 
 
 @passes_kws_to(add_shapely_layer)
 def add_geojson_layer(
     qgis_instance_handle: Any, geojsons: Iterable[str], *args, **kwargs
-) -> None:
+) -> List:
     if isinstance(geojsons, str):
         geojsons = [geojsons]
 
-    add_shapely_layer(
+    return add_shapely_layer(
         qgis_instance_handle,
         [shapely.from_geojson(geojson_) for geojson_ in geojsons],
         *args,
@@ -486,7 +524,7 @@ def add_raster(
     no_data_value: int = -1,
     group: Any = None,
     visible: bool = True,
-) -> None:
+) -> List:
     """
     add a raster
 
@@ -661,9 +699,11 @@ def add_raster(
     if layer_tree_handle:
         layer_tree_handle.setItemVisibilityChecked(visible)
 
+    return [layer]
+
 
 @passes_kws_to(add_raster, no_pass_filter=["name"])
-def add_rasters(qgis_instance_handle, rasters: Mapping, *args, **kwargs) -> None:
+def add_rasters(qgis_instance_handle, rasters: Mapping, *args, **kwargs) -> List:
     """
 
     :param qgis_instance_handle:
@@ -671,8 +711,13 @@ def add_rasters(qgis_instance_handle, rasters: Mapping, *args, **kwargs) -> None
     :param kwargs:
     :return:
     """
+    return_list = []
     for layer_name, raster in rasters.items():
-        add_raster(qgis_instance_handle, raster, *args, name=layer_name, **kwargs)
+        return_list.append(
+            add_raster(qgis_instance_handle, raster, *args, name=layer_name, **kwargs)
+        )
+
+    return return_list
 
 
 class QliveRPCMethodEnum(Enum):
