@@ -79,13 +79,18 @@ def make_dialog_progress_bar(
 
 
 class DialogProgressBar(AlsoDecorator):  # TODO This freezes!
+    # TODO Make it formatable with a unit or a title
+    # self.progressBar.setFormat(f"{hms} - %p%")
     @passes_kws_to(make_dialog_progress_bar)
     def __init__(self, **kwargs):
         (self._progress_dialog, self._progress_bar) = make_dialog_progress_bar(**kwargs)
 
     def __enter__(self):
         if self._progress_dialog:
+            # self._progress_dialog.forceShow()?
             self._progress_dialog.show()
+            # time.sleep(0.2)  # WAIT FOR IT TO BE RENDERED?
+            # self._progress_dialog.exec_() # RUN IT?
         return self._progress_bar
 
     def __exit__(self, exc_type, exc_val, exc_tb):
