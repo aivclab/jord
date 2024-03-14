@@ -305,7 +305,7 @@ def add_dataframe(
         geom_dict = split_on_geom_type(dataframe)
         for df in geom_dict.values():
             if False:
-                for w in df.geometry.to_wkt():
+                for w in df.geometry.to_wkt(rounding_precision=-1):
                     return_list.append(
                         add_wkt(qgis_instance_handle, w, *args, **kwargs)
                     )
@@ -384,7 +384,9 @@ def add_dataframe_layer(
         for k, df in geom_dict.items():  # each geom type
             geoms = []
             columns = []
-            for (i, c), w in zip(df.iterrows(), df.geometry.to_wkt()):
+            for (i, c), w in zip(
+                df.iterrows(), df.geometry.to_wkt(rounding_precision=-1)
+            ):
                 c.pop(geometry_column)
                 geoms.append(w)
                 columns.append({**c})
@@ -410,7 +412,9 @@ def add_dataframe_layer(
         for df in geom_dict.values():  # each geom type
             geoms = []
             columns = []
-            for (i, c), w in zip(df.iterrows(), df.geometry.to_wkt()):
+            for (i, c), w in zip(
+                df.iterrows(), df.geometry.to_wkt(rounding_precision=-1)
+            ):
                 c.pop(geometry_column)
                 geoms.append(w)
                 columns.append({**c})
