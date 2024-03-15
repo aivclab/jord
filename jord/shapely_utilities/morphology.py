@@ -1,23 +1,54 @@
 #!/usr/bin/env python3
 
 import shapely
+from shapely import LinearRing
 from shapely.geometry.base import BaseGeometry
 
 __all__ = ["closing", "opening", "erode", "erosion", "dilate", "dilation", "close"]
 
 from warg import passes_kws_to
 
-FALLBACK_CAPSTYLE = shapely.BufferCapStyle.round  # CAN BE OVERRIDEN
+FALLBACK_CAPSTYLE = shapely.BufferCapStyle.round  # CAN BE OVERRIDDEN
 
 
 @passes_kws_to(shapely.geometry.base.BaseGeometry.buffer)
-def erosion(
+def morphology_buffer(
     geom: BaseGeometry,
     distance: float = 1e-7,
     cap_style: shapely.BufferCapStyle = shapely.BufferCapStyle.flat,
     join_style: shapely.BufferJoinStyle = shapely.BufferJoinStyle.mitre,
     **kwargs
-) -> BaseGeometry:
+):
+    if distance == 0:
+        if isinstance(geom, shapely.GeometryCollection):
+            return shapely.GeometryCollection(
+                [
+                    dilation(
+                        g,
+                        distance=distance,
+                        cap_style=cap_style,
+                        join_style=join_style,
+                        **kwargs
+                    )
+                    for g in geom.geoms
+                ]
+            )
+
+        if not isinstance(geom, (shapely.Polygon, shapely.MultiPolygon)):
+            return geom
+
+    if (
+        isinstance(geom, shapely.Point) and cap_style == shapely.BufferCapStyle.flat
+    ):  # parameter NONSENSE, probably not what is intended
+        cap_style = FALLBACK_CAPSTYLE
+
+    return geom.buffer(
+        distance=-distance, cap_style=cap_style, join_style=join_style, **kwargs
+    )
+
+
+@passes_kws_to(morphology_buffer)
+def erosion(geom: BaseGeometry, distance: float = 1e-7, **kwargs) -> BaseGeometry:
     """
 
     :param distance:
@@ -26,12 +57,10 @@ def erosion(
     :param geom: The geometry to be eroded
     :return: The eroded geometry
     """
-    return geom.buffer(
-        distance=-distance, cap_style=cap_style, join_style=join_style, **kwargs
-    )
+    return morphology_buffer(geom=geom, distance=-distance, **kwargs)
 
 
-@passes_kws_to(shapely.geometry.base.BaseGeometry.buffer)
+@passes_kws_to(morphology_buffer)
 def dilation(
     geom: BaseGeometry,
     distance: float = 1e-7,
@@ -47,14 +76,8 @@ def dilation(
     :param distance: Dilation amount
     :return: The dilated geometry
     """
-    if (
-        isinstance(geom, shapely.Point) and cap_style == shapely.BufferCapStyle.flat
-    ):  # NONSENSE, propably not what is intended
-        cap_style = FALLBACK_CAPSTYLE
 
-    return geom.buffer(
-        distance=distance, cap_style=cap_style, join_style=join_style, **kwargs
-    )
+    return morphology_buffer(geom=geom, distance=distance, **kwargs)
 
 
 @passes_kws_to(shapely.geometry.base.BaseGeometry.buffer)
@@ -197,8 +220,6 @@ if __name__ == "__main__":
         p.plot()
         pyplot.show()
 
-    # aishdjauisd()
-
     def ahfuashdu():
         from random import random
         import matplotlib.pyplot
@@ -275,4 +296,11 @@ if __name__ == "__main__":
         matplotlib.pyplot.title("pro_opening_ring")
         matplotlib.pyplot.show()
 
-    ahfuashdu()
+    def ahfuas3232hdu():
+        lr = LinearRing([(-1, -1), (1, 1), (1, 1), (1, -1), (-1, -1)])
+        print(dilate(lr))
+        print(lr.buffer(0))
+
+    ahfuas3232hdu()
+    # ahfuashdu()
+    # aishdjauisd()
