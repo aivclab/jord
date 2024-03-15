@@ -16,13 +16,13 @@ from warg import package_is_editable, clean_string, get_version
 
 __project__ = "Jord"
 __author__ = "Christian Heider Lindbjerg"
-__version__ = "0.4.6"
+__version__ = "0.4.7"
 __doc__ = r"""
 .. module:: jord
    :platform: Unix, Windows
    :synopsis: A set of general tools build for geo data.
 
-.. moduleauthor:: Christian Heider Nielsen <christian.heider@alexandra.dk>
+.. moduleauthor:: Christian Heider Lindbjerg <chen@mapspeople.dk>
 
 Created on 27/04/2019
 
