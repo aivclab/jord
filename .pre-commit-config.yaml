@@ -9,7 +9,7 @@ repos:
           - --keep-runtime-typing
 
   - repo: https://github.com/ambv/black
-    rev: 23.12.1
+    rev: 24.3.0
     hooks:
       - id: black
         language_version: python3.10
