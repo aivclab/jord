@@ -276,6 +276,7 @@ def add_shapely_layer(
     # assert geoms[0] == #TODO: SAME TYPE
     if isinstance(geoms, shapely.geometry.base.BaseGeometry):
         geoms = [geoms]
+
     return add_wkt_layer(
         qgis_instance_handle, [geom.wkt for geom in geoms], *args, **kwargs
     )

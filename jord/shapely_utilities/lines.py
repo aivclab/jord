@@ -42,7 +42,6 @@ from enum import Enum
 from typing import Iterable, List, Sequence, Tuple, Union
 
 import numpy
-from shapely import LinearRing
 from shapely.geometry import (
     LineString,
     MultiLineString,
@@ -50,6 +49,7 @@ from shapely.geometry import (
     Point,
     box,
 )
+from shapely.geometry import LinearRing
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import linemerge as shapely_linemerge
 from sorcery import assigned_names
