@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import shapely
-from shapely import LinearRing
+from shapely.geometry import LinearRing
 from shapely.geometry.base import BaseGeometry
 
 __all__ = ["closing", "opening", "erode", "erosion", "dilate", "dilation", "close"]

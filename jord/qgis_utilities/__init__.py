@@ -24,6 +24,7 @@ try:
     from .geometry_types import *
     from .conversion import *
 
+    # from .styles import *
     # from .categorisation import *
     # from .styling import *
     # from .plugin_version import *
