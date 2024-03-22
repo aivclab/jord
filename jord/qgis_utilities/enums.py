@@ -11,9 +11,9 @@ from qgis.core import (
     QgsSingleBandPseudoColorRenderer,
 )
 
-__all__ = ["QgisRendererEnum"]
-
 from jord.geojson_utilities import GeoJsonGeometryTypesEnum
+
+__all__ = ["QgisRendererEnum", "QgisLayerTypeEnum"]
 
 
 class QgisRendererEnum(Enum):

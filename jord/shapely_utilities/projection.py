@@ -69,6 +69,7 @@ def project_point_to_line_points(
 
     Source: http://gis.stackexchange.com/a/438/19627
 
+    :param must_be_orthogonal:
     :param point: a shapely Point object
     :param line_start: the line starting point as a shapely Point
     :param line_end: the line end point as a shapely Point

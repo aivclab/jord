@@ -28,6 +28,7 @@ class MyTableModel(QtCore.QAbstractTableModel):
         super().__init__(parent)
         self.data = data
 
+    # noinspection PyMethodMayBeStatic
     def headerData(
         self, section: int, orientation: QtCore.Qt.Orientation, role: int
     ) -> str:  # Do not rename

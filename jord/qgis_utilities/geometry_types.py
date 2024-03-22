@@ -10,8 +10,7 @@ __all__ = [
 ]
 
 
-def QgisWkbToVectorGeometryType():
-    ...  # QgsWkbTypes.LineGeometry
+class QgisWkbToVectorGeometryType(Enum): ...  # QgsWkbTypes.LineGeometry
 
 
 class VectorGeometryTypeEnum(Enum):

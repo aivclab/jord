@@ -1,5 +1,6 @@
 from typing import Optional, Any
 
+# noinspection PyUnresolvedReferences
 from qgis.core import QgsLayerTreeGroup
 
 __all__ = ["duplicate_groups"]
