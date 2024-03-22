@@ -19,8 +19,7 @@ class SilenceGDALSession(AlsoDecorator):
     TODO: add support for having a lasting side effect or leaving last set state of error/exception handling
     """
 
-    def __init__(self):
-        ...
+    def __init__(self): ...
 
     def __enter__(self) -> bool:
         GDAL.PushErrorHandler(

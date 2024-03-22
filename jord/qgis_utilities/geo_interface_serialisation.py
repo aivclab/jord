@@ -2,6 +2,8 @@ import logging
 from typing import List, Union
 
 import shapely
+
+# noinspection PyUnresolvedReferences
 from qgis.core import QgsFeature, QgsGeometry, QgsPointXY
 
 from jord.shapely_utilities import is_multi

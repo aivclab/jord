@@ -10,6 +10,9 @@ from typing import Tuple, Optional, Any
 
 # noinspection PyUnresolvedReferences
 from qgis.PyQt import QtWidgets
+from warg import AlsoDecorator, passes_kws_to
+
+from jord.qt_utilities import WindowModalityEnum
 
 __all__ = [
     "make_dialog_progress_bar",
@@ -17,10 +20,6 @@ __all__ = [
     "make_progress_bar",
     "InjectedProgressBar",
 ]
-
-from warg import AlsoDecorator, passes_kws_to
-
-from jord.qt_utilities import WindowModalityEnum
 
 
 def make_progress_bar(

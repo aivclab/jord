@@ -4,7 +4,6 @@ import random
 from itertools import cycle
 from typing import Callable, Generator, Iterable, Sized
 
-import qgis
 from PyQt5.Qt import QColor
 
 # noinspection PyUnresolvedReferences
@@ -14,6 +13,9 @@ from qgis.core import (
     QgsSymbol,
     QgsVectorLayer,
 )
+
+# noinspection PyUnresolvedReferences
+from qgis.utils import iface
 from warg import QuadNumber, TripleNumber, n_uint_mix_generator_builder
 
 __all__ = ["categorise_layer"]
@@ -114,4 +116,4 @@ def categorise_layer(
 
     layer.setRenderer(QgsCategorizedSymbolRenderer(field_name, render_categories))
     layer.triggerRepaint()
-    qgis.utils.iface.layerTreeView().refreshLayerSymbology(layer.id())
+    iface.layerTreeView().refreshLayerSymbology(layer.id())

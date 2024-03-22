@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+# noinspection PyUnresolvedReferences
 from qgis.core import QgsMapLayer, QgsRasterDataProvider
 from warg import AlsoDecorator
 

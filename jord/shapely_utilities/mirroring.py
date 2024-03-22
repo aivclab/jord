@@ -14,8 +14,7 @@ from shapely.ops import transform
 # display(Polygon(pts.dot([[1,0],[0,-1]])))
 
 
-def principal_axis():
-    ...
+def principal_axis(): ...
 
 
 def reflection(x0: Number) -> Callable:

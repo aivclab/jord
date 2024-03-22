@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from enum import Flag, Enum
+from typing import Any
 
 __all__ = [
     "DockWidgetAreaFlag",
@@ -17,27 +19,137 @@ __all__ = [
     "FocusReasonEnum",
     "ColorEnum",
     "WindowModalityEnum",
+    "AlignmentFlag",
 ]
 
-from enum import Flag, Enum
-from typing import Any
+try:
+    from PyQt6.QtCore import Qt
 
-from qgis.PyQt.QtCore import Qt  # TODO: Should not be qgis import
+    class AlignmentFlag(Flag):
+        """
+        Alignment
+        """
 
+        left = Qt.AlignmentFlag.AlignLeft
+        right = Qt.AlignmentFlag.AlignRight
+        bottom = Qt.AlignmentFlag.AlignBottom
+        top = Qt.AlignmentFlag.AlignTop
+        center = Qt.AlignmentFlag.AlignCenter
+        horizontal_center = Qt.AlignmentFlag.AlignHCenter
+        vertical_center = Qt.AlignmentFlag.AlignVCenter
 
-class DockWidgetAreaFlag(Flag):
-    left = Qt.LeftDockWidgetArea  # 0x1	The left dock area of a QMainWindow.
-    right = Qt.RightDockWidgetArea  # 0x2	The right dock area of a QMainWindow.
-    top = Qt.TopDockWidgetArea  # 0x4	The top dock area of a QMainWindow.
-    bottom = Qt.BottomDockWidgetArea  # 0x8	The bottom dock area of a QMainWindow.
-    all = Qt.AllDockWidgetAreas  # DockWidgetArea_Mask	All dock widget areas (default).
-    none = Qt.NoDockWidgetArea  # 0	No dock widget areas.
+    class WindowModalityEnum(Enum):
+        """
 
+        PySide2.QtCore.Qt.WindowModality¶
+        This enum specifies the behavior of a modal window. A modal window is one that blocks input to other windows. Note that windows that are children of a modal window are not blocked.
 
-class CheckStateEnum(Enum):
-    unchecked = Qt.Unchecked
-    partial = Qt.PartiallyChecked
-    checked = Qt.Checked
+        The values are:
+
+        Constant
+
+        Description
+
+        Qt.NonModal
+
+        The window is not modal and does not block input to other windows.
+
+        Qt.WindowModal
+
+        The window is modal to a single window hierarchy and blocks input to its parent window, all grandparent windows, and all siblings of its parent and grandparent windows.
+
+        Qt.ApplicationModal
+
+        The window is modal to the application and blocks input to all windows."""
+
+        non_modal = Qt.WindowModality.NonModal
+        application = Qt.WindowModality.ApplicationModal
+        window = Qt.WindowModality.WindowModal
+
+    class DockWidgetAreaFlag(Flag):
+        left = (
+            Qt.DockWidgetArea.LeftDockWidgetArea
+        )  # 0x1	The left dock area of a QMainWindow.
+        right = (
+            Qt.DockWidgetArea.RightDockWidgetArea
+        )  # 0x2	The right dock area of a QMainWindow.
+        top = (
+            Qt.DockWidgetArea.TopDockWidgetArea
+        )  # 0x4	The top dock area of a QMainWindow.
+        bottom = (
+            Qt.DockWidgetArea.BottomDockWidgetArea
+        )  # 0x8	The bottom dock area of a QMainWindow.
+        all = (
+            Qt.DockWidgetArea.AllDockWidgetAreas
+        )  # DockWidgetArea_Mask	All dock widget areas (default).
+        none = Qt.DockWidgetArea.NoDockWidgetArea  # 0	No dock widget areas.
+
+    class CheckStateEnum(Enum):
+        unchecked = Qt.CheckState.Unchecked
+        partial = Qt.CheckState.PartiallyChecked
+        checked = Qt.CheckState.Checked
+
+except:
+    try:
+        from PyQt5.QtCore import Qt
+    except:
+        from qgis.PyQt.QtCore import Qt
+
+    class AlignmentFlag(Flag):
+        """
+        Alignment
+        """
+
+        left = Qt.AlignLeft
+        right = Qt.AlignRight
+        bottom = Qt.AlignBottom
+        top = Qt.AlignTop
+        center = Qt.AlignCenter
+        horizontal_center = Qt.AlignHCenter
+        vertical_center = Qt.AlignVCenter
+
+    class WindowModalityEnum(Enum):
+        """
+
+        PySide2.QtCore.Qt.WindowModality¶
+        This enum specifies the behavior of a modal window. A modal window is one that blocks input to other windows. Note that windows that are children of a modal window are not blocked.
+
+        The values are:
+
+        Constant
+
+        Description
+
+        Qt.NonModal
+
+        The window is not modal and does not block input to other windows.
+
+        Qt.WindowModal
+
+        The window is modal to a single window hierarchy and blocks input to its parent window, all grandparent windows, and all siblings of its parent and grandparent windows.
+
+        Qt.ApplicationModal
+
+        The window is modal to the application and blocks input to all windows."""
+
+        non_modal = Qt.NonModal
+        application = Qt.ApplicationModal
+        window = Qt.WindowModal
+
+    class DockWidgetAreaFlag(Flag):
+        left = Qt.LeftDockWidgetArea  # 0x1	The left dock area of a QMainWindow.
+        right = Qt.RightDockWidgetArea  # 0x2	The right dock area of a QMainWindow.
+        top = Qt.TopDockWidgetArea  # 0x4	The top dock area of a QMainWindow.
+        bottom = Qt.BottomDockWidgetArea  # 0x8	The bottom dock area of a QMainWindow.
+        all = (
+            Qt.AllDockWidgetAreas
+        )  # DockWidgetArea_Mask	All dock widget areas (default).
+        none = Qt.NoDockWidgetArea  # 0	No dock widget areas.
+
+    class CheckStateEnum(Enum):
+        unchecked = Qt.Unchecked
+        partial = Qt.PartiallyChecked
+        checked = Qt.Checked
 
 
 INT_TO_CHECK_STATE = {
@@ -611,46 +723,3 @@ class KeyEnum(Enum):
     Qt::Key_Exit	0x0102000a
     Qt::Key_Cancel	0x01020001
     """
-
-
-class AlignmentFlag(Flag):
-    """
-    Alignment
-    """
-
-    left = Qt.AlignLeft
-    right = Qt.AlignRight
-    bottom = Qt.AlignBottom
-    top = Qt.AlignTop
-    center = Qt.AlignCenter
-    horizontal_center = Qt.AlignHCenter
-    vertical_center = Qt.AlignVCenter
-
-
-class WindowModalityEnum(Enum):
-    """
-
-    PySide2.QtCore.Qt.WindowModality¶
-    This enum specifies the behavior of a modal window. A modal window is one that blocks input to other windows. Note that windows that are children of a modal window are not blocked.
-
-    The values are:
-
-    Constant
-
-    Description
-
-    Qt.NonModal
-
-    The window is not modal and does not block input to other windows.
-
-    Qt.WindowModal
-
-    The window is modal to a single window hierarchy and blocks input to its parent window, all grandparent windows, and all siblings of its parent and grandparent windows.
-
-    Qt.ApplicationModal
-
-    The window is modal to the application and blocks input to all windows."""
-
-    non_modal = Qt.NonModal
-    application = Qt.ApplicationModal
-    window = Qt.WindowModal

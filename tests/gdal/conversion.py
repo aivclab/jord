@@ -9,12 +9,10 @@ __doc__ = r"""
 __all__ = []
 
 
-def test_tiff_to_geotiff():
-    ...
+def test_tiff_to_geotiff(): ...
 
 
-def test_geotiff_to_tiff():
-    ...
+def test_geotiff_to_tiff(): ...
 
 
 if __name__ == "__main__":

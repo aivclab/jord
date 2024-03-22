@@ -334,8 +334,7 @@ def get_versions_from_index(
             return None
 
 
-def pip_freeze_list() -> List:
-    ...
+def pip_freeze_list() -> List: ...
 
 
 def is_requirement_updatable(requirement_name: str) -> bool:
