@@ -72,7 +72,11 @@ def categorise_layer(
 
     color_iter = iter(iterable)
 
-    assert field_name in layer.fields().names()
+    available_field_names = layer.fields().names()
+
+    assert (
+        field_name in available_field_names
+    ), f"Did not find {field_name=} in {available_field_names=}"
 
     render_categories = []
     for cat in layer.uniqueValues(layer.fields().indexFromName(field_name)):
