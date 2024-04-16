@@ -97,6 +97,13 @@ def add_qgis_single_feature_layer(
             categorise_by_attribute in fields
         ), f"{categorise_by_attribute} was not found in {fields}"
 
+    if not isinstance(qgis_instance_handle, QgsProject):
+        qgis_project = qgis_instance_handle.qgis_project
+    elif qgis_instance_handle is None:
+        qgis_project = QgsProject.instance()
+    else:
+        qgis_project = qgis_instance_handle
+
     if geom_type == GeoJsonGeometryTypesEnum.geometry_collection.value.__name__:
         for g in geom.asGeometryCollection():  # TODO: Look into recursion?
             uri = json.loads(g.asJson())["type"]
@@ -150,16 +157,13 @@ def add_qgis_single_feature_layer(
             return_collection.append(sub_layer)
 
             if group:
-                qgis_instance_handle.qgis_project.addMapLayer(sub_layer, False)
+
+                qgis_project.addMapLayer(sub_layer, False)
                 group.insertLayer(0, sub_layer)
             else:
-                qgis_instance_handle.qgis_project.addMapLayer(sub_layer)
+                qgis_project.addMapLayer(sub_layer)
 
-            layer_tree_handle = (
-                qgis_instance_handle.qgis_project.layerTreeRoot().findLayer(
-                    sub_layer.id()
-                )
-            )
+            layer_tree_handle = qgis_project.layerTreeRoot().findLayer(sub_layer.id())
             if layer_tree_handle:
                 layer_tree_handle.setItemVisibilityChecked(visible)
     else:
@@ -211,14 +215,12 @@ def add_qgis_single_feature_layer(
         return_collection.append(layer)
 
         if group:
-            qgis_instance_handle.qgis_project.addMapLayer(layer, False)
+            qgis_project.addMapLayer(layer, False)
             group.insertLayer(0, layer)
         else:
-            qgis_instance_handle.qgis_project.addMapLayer(layer)
+            qgis_project.addMapLayer(layer)
 
-        layer_tree_handle = qgis_instance_handle.qgis_project.layerTreeRoot().findLayer(
-            layer.id()
-        )
+        layer_tree_handle = qgis_project.layerTreeRoot().findLayer(layer.id())
         if layer_tree_handle:
             layer_tree_handle.setItemVisibilityChecked(visible)
 
@@ -286,9 +288,14 @@ def add_qgis_multi_feature_layer(
     :return:
     """
 
-    # noinspection PyUnresolvedReferences
-    from qgis.core import QgsVectorLayer, QgsFeature
     from .categorisation import categorise_layer
+
+    # noinspection PyUnresolvedReferences
+    from qgis.core import (
+        QgsFeature,
+        QgsVectorLayer,
+        QgsProject,
+    )
 
     # noinspection PyUnresolvedReferences
     import qgis
@@ -422,15 +429,20 @@ def add_qgis_multi_feature_layer(
     layer.updateFields()
     layer.updateExtents()
 
+    if not isinstance(qgis_instance_handle, QgsProject):
+        qgis_project = qgis_instance_handle.qgis_project
+    elif qgis_instance_handle is None:
+        qgis_project = QgsProject.instance()
+    else:
+        qgis_project = qgis_instance_handle
+
     if group:
-        qgis_instance_handle.qgis_project.addMapLayer(layer, False)
+        qgis_project.addMapLayer(layer, False)
         group.insertLayer(0, layer)
     else:
-        qgis_instance_handle.qgis_project.addMapLayer(layer)
+        qgis_project.addMapLayer(layer)
 
-    layer_tree_handle = qgis_instance_handle.qgis_project.layerTreeRoot().findLayer(
-        layer.id()
-    )
+    layer_tree_handle = qgis_project.layerTreeRoot().findLayer(layer.id())
     if layer_tree_handle:
         layer_tree_handle.setItemVisibilityChecked(visible)
 
