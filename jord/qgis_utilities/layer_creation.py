@@ -97,10 +97,10 @@ def add_qgis_single_feature_layer(
             categorise_by_attribute in fields
         ), f"{categorise_by_attribute} was not found in {fields}"
 
-    if not isinstance(qgis_instance_handle, QgsProject):
-        qgis_project = qgis_instance_handle.qgis_project
-    elif qgis_instance_handle is None:
+    if qgis_instance_handle is None:
         qgis_project = QgsProject.instance()
+    elif not isinstance(qgis_instance_handle, QgsProject):
+        qgis_project = qgis_instance_handle.qgis_project
     else:
         qgis_project = qgis_instance_handle
 
@@ -429,10 +429,10 @@ def add_qgis_multi_feature_layer(
     layer.updateFields()
     layer.updateExtents()
 
-    if not isinstance(qgis_instance_handle, QgsProject):
-        qgis_project = qgis_instance_handle.qgis_project
-    elif qgis_instance_handle is None:
+    if qgis_instance_handle is None:
         qgis_project = QgsProject.instance()
+    elif not isinstance(qgis_instance_handle, QgsProject):
+        qgis_project = qgis_instance_handle.qgis_project
     else:
         qgis_project = qgis_instance_handle
 

@@ -23,6 +23,7 @@ __all__ = [
 ]
 
 try:
+
     from PyQt6.QtCore import Qt
 
     class AlignmentFlag(Flag):

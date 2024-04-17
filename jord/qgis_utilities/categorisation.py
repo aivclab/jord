@@ -4,7 +4,8 @@ import random
 from itertools import cycle
 from typing import Callable, Generator, Iterable, Sized
 
-from PyQt5.Qt import QColor
+# noinspection PyUnresolvedReferences
+from qgis.PyQt.QtGui import QColor
 
 # noinspection PyUnresolvedReferences
 from qgis.core import (

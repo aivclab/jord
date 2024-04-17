@@ -3,7 +3,7 @@ from typing import Optional, Any
 # noinspection PyUnresolvedReferences
 from qgis.core import QgsLayerTreeGroup
 
-__all__ = ["duplicate_groups"]
+__all__ = ["duplicate_groups", "select_layer_in_group", "is_group_selected"]
 
 
 def duplicate_groups(
@@ -29,3 +29,28 @@ def duplicate_groups(
             new_group_parent.addChildNode(original_group_child.clone())
 
     return new_group_parent
+
+
+def select_layer_in_group(layer_name, group_name):
+    # noinspection PyUnresolvedReferences
+    from qgis.core import QgsLayerTreeGroup, QgsLayerTreeLayer, QgsProject
+
+    # noinspection PyUnresolvedReferences
+    from qgis.utils import iface
+
+    group = QgsProject.instance().layerTreeRoot().findGroup(group_name)
+    if group is not None:
+        for child in group.children():
+            if child.name() == layer_name:
+                iface.setActiveLayer(child.layer())
+
+
+def is_group_selected(group_name):
+    # noinspection PyUnresolvedReferences
+    from qgis.core import QgsLayerTreeGroup, QgsLayerTreeLayer, QgsProject
+
+    # noinspection PyUnresolvedReferences
+    from qgis.utils import iface
+
+    group = QgsProject.instance().layerTreeRoot().findGroup(group_name)
+    return group in iface.layerTreeView().selectedNodes()
