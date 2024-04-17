@@ -3,7 +3,8 @@
 import logging
 from typing import Mapping
 
-from PyQt5.Qt import QColor
+# noinspection PyUnresolvedReferences
+from qgis.PyQt.QtGui import QColor
 
 # noinspection PyUnresolvedReferences
 from qgis.core import (

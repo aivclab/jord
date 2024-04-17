@@ -9,6 +9,7 @@ __all__ = ["closing", "opening", "erode", "erosion", "dilate", "dilation", "clos
 from warg import passes_kws_to
 
 FALLBACK_CAPSTYLE = shapely.BufferCapStyle.round  # CAN BE OVERRIDDEN
+FALLBACK_JOINSTYLE = shapely.BufferCapStyle.round  # CAN BE OVERRIDDEN
 
 
 @passes_kws_to(shapely.geometry.base.BaseGeometry.buffer)
@@ -23,7 +24,7 @@ def morphology_buffer(
         if isinstance(geom, shapely.GeometryCollection):
             return shapely.GeometryCollection(
                 [
-                    dilation(
+                    morphology_buffer(
                         g,
                         distance=distance,
                         cap_style=cap_style,
@@ -34,16 +35,19 @@ def morphology_buffer(
                 ]
             )
 
-        if not isinstance(geom, (shapely.Polygon, shapely.MultiPolygon)):
+        if not isinstance(
+            geom, (shapely.Polygon, shapely.MultiPolygon)
+        ):  # So if line(s) or point(s)
             return geom
 
     if (
         isinstance(geom, shapely.Point) and cap_style == shapely.BufferCapStyle.flat
     ):  # parameter NONSENSE, probably not what is intended
         cap_style = FALLBACK_CAPSTYLE
+        join_style = FALLBACK_JOINSTYLE
 
     return geom.buffer(
-        distance=-distance, cap_style=cap_style, join_style=join_style, **kwargs
+        distance=distance, cap_style=cap_style, join_style=join_style, **kwargs
     )
 
 
@@ -61,13 +65,7 @@ def erosion(geom: BaseGeometry, distance: float = 1e-7, **kwargs) -> BaseGeometr
 
 
 @passes_kws_to(morphology_buffer)
-def dilation(
-    geom: BaseGeometry,
-    distance: float = 1e-7,
-    cap_style: shapely.BufferCapStyle = shapely.BufferCapStyle.flat,
-    join_style: shapely.BufferJoinStyle = shapely.BufferJoinStyle.mitre,
-    **kwargs
-) -> BaseGeometry:
+def dilation(geom: BaseGeometry, distance: float = 1e-7, **kwargs) -> BaseGeometry:
     """
 
     :param cap_style:
@@ -301,6 +299,11 @@ if __name__ == "__main__":
         print(dilate(lr))
         print(lr.buffer(0))
 
-    ahfuas3232hdu()
+    def simple_dilate_example():
+        print(dilate(shapely.Point(0, 0)))
+        print(dilate(shapely.Point(0, 0), distance=0))
+
+    simple_dilate_example()
+    # ahfuas3232hdu()
     # ahfuashdu()
     # aishdjauisd()
