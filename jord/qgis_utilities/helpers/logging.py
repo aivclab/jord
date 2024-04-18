@@ -92,6 +92,8 @@ def setup_logger(
     iface: Optional[Any] = None,
     sentry_url: Optional[str] = None,
     log_file: Optional[Path] = None,
+    logger_level: int = logging.INFO,
+    default_handler_level=logging.DEBUG,
 ) -> logging.Logger:
     """Run once when the module is loaded and enable logging.
 
@@ -131,22 +133,22 @@ def setup_logger(
 
     """
     logger = logging.getLogger(logger_name)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logger_level)
 
-    default_handler_level = logging.DEBUG
     # create formatter that will be added to the handlers
     formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
 
-    qgis_handler = QgsLogHandler(logger_name, iface=iface)
+    qgis_handler = QgsLogHandler(logger_name, iface=iface, level=default_handler_level)
+    # qgis_handler.setLevel(default_handler_level)
     qgis_handler.setFormatter(formatter)
     add_logging_handler_once(logger, qgis_handler)
 
     if False:
         # create console handler with a higher log level
         console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.INFO)
+        console_handler.setLevel(default_handler_level)
         console_handler.setFormatter(formatter)
         add_logging_handler_once(logger, console_handler)
 
@@ -194,7 +196,7 @@ def setup_logger(
             client = Client(sentry_url)
             sentry_handler = SentryHandler(client)
             sentry_handler.setFormatter(formatter)
-            sentry_handler.setLevel(logging.ERROR)
+            sentry_handler.setLevel(default_handler_level)
             if add_logging_handler_once(logger, sentry_handler):
                 logger.debug("Sentry logging enabled")
         else:
