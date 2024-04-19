@@ -10,7 +10,8 @@ from shapely import wkt
 
 __all__ = ["load_wkts_from_csv", "csv_wkt_generator"]
 
-from sorcery import assigned_names
+
+# from sorcery import assigned_names
 
 
 class WktTypeEnum(Enum):
@@ -22,7 +23,15 @@ class WktTypeEnum(Enum):
         polygon,
         multipolygon,
         geometrycollection,
-    ) = assigned_names()
+    ) = (
+        "point",
+        "multipoint",
+        "linestring",
+        "multilinestring",
+        "polygon",
+        "multipolygon",
+        "geometrycollection",
+    )  # assigned_names()
 
 
 def load_wkts_from_csv(

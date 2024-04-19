@@ -52,7 +52,8 @@ from shapely.geometry import (
 from shapely.geometry import LinearRing
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import linemerge as shapely_linemerge
-from sorcery import assigned_names
+
+# from sorcery import assigned_names
 from warg import Number, pairs
 
 from .points import (
@@ -604,7 +605,7 @@ def linestring_azimuth(linestring: LineString, verbose: bool = False) -> float:
 class ExtensionDirectionEnum(Enum):
     """ """
 
-    start, end, both = assigned_names()
+    start, end, both = "start", "end", "both"  # assigned_names()
 
 
 def extend_line(

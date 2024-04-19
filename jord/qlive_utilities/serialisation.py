@@ -7,13 +7,13 @@ from typing import Tuple, Sequence, Any, Callable, Mapping, Union
 
 __all__ = ["build_package", "read_package"]
 
-from sorcery import assigned_names
+# from sorcery import assigned_names
 
 from jord.qlive_utilities.procedures import QliveRPCMethodEnum, QliveRPCMethodMap
 
 
 class SerialisationMethodEnum(Enum):
-    json, pickle = assigned_names()
+    json, pickle = "json", "pickle"  # assigned_names()
 
 
 SERIALISATION_METHOD = SerialisationMethodEnum.pickle
