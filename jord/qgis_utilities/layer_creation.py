@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import logging
 import time
 from typing import Any, Iterable, List, Mapping, Optional, Union
 
@@ -23,6 +24,8 @@ __all__ = [
     "add_qgis_single_geometry_layers",
     "add_qgis_multi_feature_layer",
 ]
+
+logger = logging.getLogger(__name__)
 
 
 def add_qgis_single_feature_layer(
@@ -199,7 +202,16 @@ def add_qgis_single_feature_layer(
         layer_data_provider = (
             layer.dataProvider()
         )  # DEFAULT DATA PROVIDER, TODO: MAYBE CHANGE THIS
-        layer_data_provider.addFeatures([feat])
+        assert feat.isValid(), f"{feat} was invalid"
+        res, out_feats = layer_data_provider.addFeatures([feat])
+
+        if not res:
+            logger.error(f"{layer_data_provider.lastError()}")
+
+            assert (
+                res
+            ), f"Failure while adding features {res} {layer_data_provider.lastError()}: {[o.isValid() for o in out_feats]}"
+
         layer_data_provider.updateExtents()
 
         if SKIP_MEMORY_LAYER_CHECK_AT_CLOSE:
@@ -291,11 +303,7 @@ def add_qgis_multi_feature_layer(
     from .categorisation import categorise_layer
 
     # noinspection PyUnresolvedReferences
-    from qgis.core import (
-        QgsFeature,
-        QgsVectorLayer,
-        QgsProject,
-    )
+    from qgis.core import QgsFeature, QgsVectorLayer, QgsProject, QgsFeatureSink
 
     # noinspection PyUnresolvedReferences
     import qgis
@@ -318,7 +326,6 @@ def add_qgis_multi_feature_layer(
 
     geom_type = None
     uri = None
-    features = []
 
     sample_row = None
     num_cols = None
@@ -351,8 +358,10 @@ def add_qgis_multi_feature_layer(
         ), f"{categorise_by_attribute} was not found in {fields}"
 
     if not geoms:
+        logger.warning("Found no geometries")
         return  # No geometry
 
+    features = []
     for geom in geoms:
         geom_type_ = json.loads(geom.asJson())["type"]
 
@@ -395,7 +404,13 @@ def add_qgis_multi_feature_layer(
                     )
 
             feat.setGeometry(geom)
+
+            assert feat.isValid(), f"{feat} was invalid"
             features.append(feat)
+
+    assert len(list(geoms)) == len(
+        features
+    ), f"Some features where dropped! {len(list(geoms))} != {len(features)}"
 
     if uri is None:
         raise Exception("uri is None")
@@ -416,7 +431,31 @@ def add_qgis_multi_feature_layer(
 
     layer = QgsVectorLayer(uri, layer_name, "memory")
     layer_data_provider = layer.dataProvider()
-    layer_data_provider.addFeatures(features)
+    # pr.addAttributes([QgsField("name", QVariant.String),QgsField("age", QVariant.Int),QgsField("size", QVariant.Double)])
+
+    (res, out_feats) = layer_data_provider.addFeatures(
+        features
+        # , QgsFeatureSink.RollBackOnErrors
+    )
+
+    if not res:
+        logger.error(f"{layer_data_provider.lastError()}")
+
+        assert (
+            res
+        ), f"Failure while adding features {res} {layer_data_provider.lastError()}: {[o.isValid() for o in out_feats]}"
+
+        assert len(list(geoms)) == len(
+            out_feats
+        ), f"Some features where dropped! return status {res}:  {len(list(geoms))} != {len(out_feats)}"
+
+    if len(list(geoms)) == layer.featureCount():
+        logger.error(f"{features}")
+
+        assert (
+            len(list(geoms)) == layer.featureCount()
+        ), f"Some features where dropped! {len(list(geoms))} != {layer.featureCount()}"
+
     layer_data_provider.updateExtents()
 
     if SKIP_MEMORY_LAYER_CHECK_AT_CLOSE:
@@ -425,9 +464,17 @@ def add_qgis_multi_feature_layer(
     if categorise_by_attribute:
         categorise_layer(layer, categorise_by_attribute)
 
+        assert (
+            len(list(geoms)) == layer.featureCount()
+        ), f"Some features where dropped! {len(list(geoms))} != {layer.featureCount()}"
+
     layer.commitChanges()
     layer.updateFields()
     layer.updateExtents()
+
+    assert (
+        len(list(geoms)) == layer.featureCount()
+    ), f"Some features where dropped! {len(list(geoms))} != {layer.featureCount()}"
 
     if qgis_instance_handle is None:
         qgis_project = QgsProject.instance()
@@ -451,6 +498,8 @@ def add_qgis_multi_feature_layer(
     actions.showFeatureCount()
 
     return_collection.append(layer)
+
+    assert len(return_collection) > 0, f"Return collection was empty"
 
     return return_collection
 
