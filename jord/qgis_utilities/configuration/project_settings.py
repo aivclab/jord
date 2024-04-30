@@ -66,9 +66,9 @@ def store_project_setting(
 
 def read_project_setting(
     key: str,
-    type_hint: type = None,
+    type_hint: Optional[type] = None,
     *,
-    defaults: Mapping = None,
+    defaults: Optional[Mapping[str, Any]] = None,
     project_name: str = PROJECT_NAME,
 ) -> Any:
     """
