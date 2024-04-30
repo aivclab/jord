@@ -252,6 +252,7 @@ def add_qgis_single_geometry_layers(
 
 
 ADD_STRING_LEN = True
+NUM_MB16_CHARS = 16777216
 
 
 def solve_type(d: Any) -> str:
@@ -270,9 +271,7 @@ def solve_type(d: Any) -> str:
 
         elif isinstance(d, str):
             if ADD_STRING_LEN:
-                return (
-                    f"string({max(len(d) * 16, 255)})"  # 16x buffer for large strings
-                )
+                return f"string({min(max(len(d) * 16, 255), NUM_MB16_CHARS)})"  # 16x buffer for large strings
 
     if isinstance(d, bool):
         if ADD_STRING_LEN:
