@@ -2,7 +2,7 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import Optional, Any
+from typing import Any, Optional
 
 __all__ = ["setup_logger"]
 
@@ -40,6 +40,7 @@ class QgsLogHandler(logging.Handler):
         :type record: str
         """
 
+        # noinspection PyUnresolvedReferences
         from qgis.core import QgsMessageLog
 
         push = False
@@ -48,7 +49,8 @@ class QgsLogHandler(logging.Handler):
         if self.iface:
             push = True
 
-        message = record.getMessage()
+        message = f"{record.name}({record.lineno}): {record.getMessage()}"
+
         QgsMessageLog.logMessage(
             message=message, tag=self.tag_name, notifyUser=push, level=level
         )
@@ -171,6 +173,7 @@ def setup_logger(
         # We will only log exceptions.
         # Enable the 'plugins/use_sentry' QgsSettings option
         # before this will be enabled.
+        # noinspection PyUnresolvedReferences
         from qgis.core import QgsSettings
 
         settings = QgsSettings()

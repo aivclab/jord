@@ -251,6 +251,9 @@ def add_qgis_single_geometry_layers(
         add_qgis_single_feature_layer(qgis_instance_handle, geom, name, **kwargs)
 
 
+ADD_STRING_LEN = True
+
+
 def solve_type(d: Any) -> str:
     """
     Does not support size/length yet...
@@ -264,6 +267,16 @@ def solve_type(d: Any) -> str:
 
         elif isinstance(d, float):
             return "double"
+
+        elif isinstance(d, str):
+            if ADD_STRING_LEN:
+                return (
+                    f"string({max(len(d) * 16, 255)})"  # 16x buffer for large strings
+                )
+
+    if isinstance(d, bool):
+        if ADD_STRING_LEN:
+            return "string(5)"  # True, False
 
     return "string"
 
@@ -358,7 +371,7 @@ def add_qgis_multi_feature_layer(
         ), f"{categorise_by_attribute} was not found in {fields}"
 
     if not geoms:
-        logger.warning("Found no geometries")
+        logger.info("Found no geometries")
         return  # No geometry
 
     features = []
@@ -449,7 +462,7 @@ def add_qgis_multi_feature_layer(
             out_feats
         ), f"Some features where dropped! return status {res}:  {len(list(geoms))} != {len(out_feats)}"
 
-    if len(list(geoms)) == layer.featureCount():
+    if len(list(geoms)) != layer.featureCount():
         logger.error(f"{features}")
 
         assert (
