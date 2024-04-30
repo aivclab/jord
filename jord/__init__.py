@@ -16,7 +16,7 @@ from warg import package_is_editable, clean_string, get_version
 
 __project__ = "Jord"
 __author__ = "Christian Heider Lindbjerg"
-__version__ = "0.5.8"
+__version__ = "0.6.0"
 __doc__ = r"""
 .. module:: jord
    :platform: Unix, Windows

@@ -210,7 +210,7 @@ def add_qgis_single_feature_layer(
 
             assert (
                 res
-            ), f"Failure while adding features {res} {layer_data_provider.lastError()}: {[o.isValid() for o in out_feats]}"
+            ), f"Failure while adding features {res} {layer_data_provider.lastError()}"
 
         layer_data_provider.updateExtents()
 
@@ -275,7 +275,7 @@ def solve_type(d: Any) -> str:
 
     if isinstance(d, bool):
         if ADD_STRING_LEN:
-            return "string(5)"  # True, False
+            return "string(255)"  # True, False (5)
 
     return "string"
 
@@ -292,7 +292,7 @@ def add_qgis_multi_feature_layer(
     index: bool = False,
     group: Any = None,
     visible: bool = True,
-) -> List:
+) -> Optional[List]:
     """
 
         fields  == column definition name, type, length/size
@@ -455,7 +455,7 @@ def add_qgis_multi_feature_layer(
 
         assert (
             res
-        ), f"Failure while adding features {res} {layer_data_provider.lastError()}: {[o.isValid() for o in out_feats]}"
+        ), f"Failure while adding features {res} {layer_data_provider.lastError()}"
 
         assert len(list(geoms)) == len(
             out_feats
