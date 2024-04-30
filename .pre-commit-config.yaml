@@ -9,7 +9,7 @@ repos:
           - --keep-runtime-typing
 
   - repo: https://github.com/ambv/black
-    rev: 24.4.0
+    rev: 24.4.2
     hooks:
       - id: black
         language_version: python3.10
@@ -26,7 +26,7 @@ repos:
       - id: validate-pyproject
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.9.0
+    rev: v1.10.0
     hooks:
       - id: mypy
         verbose: true
