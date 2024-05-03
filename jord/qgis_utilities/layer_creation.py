@@ -374,6 +374,9 @@ def add_qgis_multi_feature_layer(
         return  # No geometry
 
     features = []
+    if not isinstance(geoms, Iterable):
+        geoms = [geoms]
+
     for geom in geoms:
         geom_type_ = json.loads(geom.asJson())["type"]
 

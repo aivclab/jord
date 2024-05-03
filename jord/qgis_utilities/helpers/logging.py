@@ -65,7 +65,7 @@ class QgsLogHandler(logging.Handler):
             )
 
 
-def add_logging_handler_once(logger, handler):
+def add_logging_handler_once(logger: logging.Logger, handler: logging.Handler) -> bool:
     """A helper to add a handler to a logger, ensuring there are no duplicates.
 
     :param logger: Logger that should have a handler added.
@@ -80,8 +80,8 @@ def add_logging_handler_once(logger, handler):
     """
     class_name = handler.__class__.__name__
 
-    for handler in logger.handlers:
-        if handler.__class__.__name__ == class_name:
+    for handler_ in logger.handlers:
+        if handler_.__class__.__name__ == class_name:
             return False
 
     logger.addHandler(handler)
