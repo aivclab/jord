@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-from enum import Flag, Enum
+from enum import Enum
 from typing import Any
 
 __all__ = [
     "DockWidgetAreaFlag",
     "KeyEnum",
-    "AlignmentFlag",
-    "AlignmentFlag",
     "INT_TO_CHECK_STATE",
     "CHECK_STATE_TO_INT",
     "check_state_to_bool",
@@ -19,14 +17,14 @@ __all__ = [
     "FocusReasonEnum",
     "ColorEnum",
     "WindowModalityEnum",
-    "AlignmentFlag",
+    # "AlignmentFlag",
 ]
 
 try:
 
     from PyQt6.QtCore import Qt
 
-    class AlignmentFlag(Flag):
+    class AlignmentFlag(Enum):
         """
         Alignment
         """
@@ -67,7 +65,7 @@ try:
         application = Qt.WindowModality.ApplicationModal
         window = Qt.WindowModality.WindowModal
 
-    class DockWidgetAreaFlag(Flag):
+    class DockWidgetAreaFlag(Enum):
         left = (
             Qt.DockWidgetArea.LeftDockWidgetArea
         )  # 0x1	The left dock area of a QMainWindow.
@@ -96,7 +94,7 @@ except:
     except:
         from qgis.PyQt.QtCore import Qt
 
-    class AlignmentFlag(Flag):
+    class AlignmentFlag(Enum):
         """
         Alignment
         """
@@ -137,7 +135,7 @@ except:
         application = Qt.ApplicationModal
         window = Qt.WindowModal
 
-    class DockWidgetAreaFlag(Flag):
+    class DockWidgetAreaFlag(Enum):
         left = Qt.LeftDockWidgetArea  # 0x1	The left dock area of a QMainWindow.
         right = Qt.RightDockWidgetArea  # 0x2	The right dock area of a QMainWindow.
         top = Qt.TopDockWidgetArea  # 0x4	The top dock area of a QMainWindow.
@@ -173,7 +171,7 @@ def check_state_to_bool(check_state: CheckStateEnum) -> bool:
     return CHECK_STATE_TO_INT[check_state] > 0
 
 
-class DropActionFlag(Flag):
+class DropActionFlag(Enum):
     """
       Qt::CopyAction	0x1	Copy the data to the target.
     Qt::MoveAction	0x2	Move the data from the source to the target.
@@ -185,7 +183,7 @@ class DropActionFlag(Flag):
     """
 
 
-class EdgeFlag(Flag):
+class EdgeFlag(Enum):
     """
       Qt::TopEdge	0x00001	The top edge of the rectangle.
     Qt::LeftEdge	0x00002	The left edge of the rectangle.
@@ -195,7 +193,7 @@ class EdgeFlag(Flag):
     """
 
 
-class FocusPolicyFlag(Flag):
+class FocusPolicyFlag(Enum):
     """
       Qt::TabFocus	0x1	the widget accepts focus by tabbing.
     Qt::ClickFocus	0x2	the widget accepts focus by clicking.
