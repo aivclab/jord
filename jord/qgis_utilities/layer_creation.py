@@ -370,7 +370,7 @@ def add_qgis_multi_feature_layer(
         ), f"{categorise_by_attribute} was not found in {fields}"
 
     if not geoms:
-        logger.info("Found no geometries")
+        # logger.info(f"Found no geometries, {geoms} for {name}")
         return  # No geometry
 
     features = []
@@ -400,6 +400,8 @@ def add_qgis_multi_feature_layer(
                 sub_type = json.loads(g.asJson())["type"]
                 if sub_type is None:
                     raise Exception(f"Could not load {g.asJson()} as json")
+
+                # logger.info(f'Adding {sub_type=} of {geom=}')
 
                 return_collection.extend(
                     add_qgis_multi_feature_layer(

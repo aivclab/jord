@@ -13,7 +13,8 @@ from shapely.geometry import (
 from shapely.geometry.base import BaseGeometry
 from warg import Number, pairs
 
-from jord.shapely_utilities.base import sanitise
+from .base import sanitise
+from .geometry_types import is_multi
 from .lines import segments
 from .rings import ensure_ccw_ring, ensure_cw_ring
 
@@ -24,6 +25,7 @@ __all__ = [
     "discard_holes",
     "get_coords_from_polygonal_shape",
     "get_polygonal_shape_from_coords",
+    "has_holes",
 ]
 
 
@@ -256,12 +258,36 @@ def discard_holes(
 ) -> Union[Polygon, MultiPolygon]:
     if isinstance(shape, shapely.Polygon):
         return shapely.Polygon(shape.exterior.coords)
+
     elif isinstance(shape, shapely.MultiPolygon):
         shape_parts = []
         for shape_part in shape.geoms:
             shape_parts.append(shapely.Polygon(shape_part.exterior.coords))
         return MultiPolygon(shape_parts)
-    raise NotImplementedError
+
+    elif isinstance(shape, shapely.GeometryCollection):
+        shape_parts = []
+        for shape_part in shape.geoms:
+            if isinstance(shape_part, (Polygon, MultiPolygon)):
+                shape_parts.append(discard_holes(shape_part))
+            else:
+                shape_parts.append(shape_part)
+        return shapely.GeometryCollection(shape_parts)
+
+    raise NotImplementedError(
+        f"Discarding hole for {shape.type if isinstance(shape, shapely.geometry.base.BaseGeometry) else type(shape)} is not implemented"
+    )
+
+
+def has_holes(shape: Union[shapely.Polygon, shapely.MultiPolygon]) -> bool:
+    if is_multi(shape):
+        return any(has_holes(s) for s in shape.geoms)
+
+    if isinstance(shape, Polygon):
+        return len(shape.interiors) > 0
+
+    # raise #not polygonal
+    return False
 
 
 def ensure_ccw_poly(polygon: Polygon) -> Polygon:

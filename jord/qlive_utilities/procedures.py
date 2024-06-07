@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
+import logging
 import time
 import uuid
 from enum import Enum
-from typing import Any, Iterable, Mapping, Tuple, List
+from typing import Any, Iterable, List, Mapping, Tuple
 
 import numpy
 import shapely.geometry.base
@@ -50,6 +51,8 @@ __all__ = [
     "QliveRPCMethodEnum",
     "QliveRPCMethodMap",
 ]
+
+logger = logging.getLogger(__name__)
 
 
 @passes_kws_to(add_qgis_single_feature_layer)
@@ -369,6 +372,10 @@ def add_dataframe_layer(
     return_list = []
 
     if isinstance(dataframe, GeoDataFrame):
+
+        total_feature_len = len(dataframe)
+        split_accum_len = 0
+        accum_feature_len = 0
         geom_dict = split_on_geom_type(dataframe)
 
         append_type_name = False
@@ -385,20 +392,25 @@ def add_dataframe_layer(
         for k, df in geom_dict.items():  # each geom type
             geoms = []
             columns = []
+
+            assert len(df) == len(df.geometry)
+            logger.info(f"{name=} has {len(df.geometry)} {k.value} geometries")
+
             for (i, c), w in zip(
                 df.iterrows(), df.geometry.to_wkt(rounding_precision=-1)
             ):
                 c.pop(geometry_column)
                 geoms.append(w)
                 columns.append({**c})
+                split_accum_len += 1
 
             if append_type_name:
                 layer_name = f"{name}_{k.name}"
             else:
                 layer_name = name
 
-            return_list.append(
-                add_wkt_layer(
+            if geoms:
+                added_layers = add_wkt_layer(
                     qgis_instance_handle,
                     geoms,
                     name=layer_name,
@@ -406,7 +418,13 @@ def add_dataframe_layer(
                     *args,
                     **kwargs,
                 )
-            )
+
+                assert added_layers is not None, f"{added_layers=} must not be None"
+                for al in added_layers:
+                    accum_feature_len += al.featureCount()
+
+                return_list.extend(added_layers)
+
     elif isinstance(dataframe, DataFrame):
         raise NotImplemented
         geom_dict = split_on_geom_type(dataframe)
@@ -428,6 +446,13 @@ def add_dataframe_layer(
 
     else:
         raise NotImplemented(f"{type(dataframe)}, {dataframe}")
+
+    assert (
+        total_feature_len == split_accum_len
+    ), f"only iterated {split_accum_len}/{total_feature_len=} of geometries"
+    assert (
+        total_feature_len == accum_feature_len
+    ), f"only added {accum_feature_len}/{total_feature_len=} of geometries"
 
     return return_list
 
