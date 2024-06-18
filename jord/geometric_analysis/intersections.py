@@ -1,6 +1,5 @@
 from typing import Optional, Sequence, Tuple, Union
 
-import rtree
 from shapely import (
     GeometryCollection,
     LineString,
@@ -47,6 +46,8 @@ def snap_lines(
     :param return_index:
     :return:
     """
+    import rtree
+
     # extend all lines with max_dist to snap lines at a sharp angle
     lines_ext = [extend_line(line, max_dist) for line in lines]
 
@@ -134,6 +135,8 @@ def split_lines(
     :param return_index:
     :return:
     """
+    import rtree
+
     if isinstance(points, Point):
         points = [points]
 
@@ -236,6 +239,7 @@ def intersection_points(
     :param lines2: MultiLineString or list of lines, if None find intersections amongst lines1
     :return: list with shapely points of intersection
     """
+    import rtree
 
     points = []
     tree_idx_pnt = rtree.index.Index()
