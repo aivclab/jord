@@ -50,7 +50,9 @@ def random_color_alpha_generator() -> QuadNumber:
 def categorise_layer(
     layer: QgsVectorLayer,
     field_name: str = "layer",
-    iterable: Iterable = n_uint_mix_generator_builder(255, 255, 255, 255),
+    iterable: Iterable = n_uint_mix_generator_builder(
+        255, 255, 255, mix_min=(200, 200, 200)
+    ),
 ) -> None:
     """
 
@@ -81,7 +83,7 @@ def categorise_layer(
 
     render_categories = []
     for cat in layer.uniqueValues(layer.fields().indexFromName(field_name)):
-        if cat:
+        if cat is not None:
             sym = QgsSymbol.defaultSymbol(layer.geometryType())
             col = next(color_iter)
 
