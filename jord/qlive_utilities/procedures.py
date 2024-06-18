@@ -384,7 +384,7 @@ def add_dataframe_layer(
             append_type_name = True
             if (
                 name is None
-            ):  # if No name give one to have some commoness of new layers in names
+            ):  # if No name give one to have some commonness of new layers in names
                 name = DEFAULT_LAYER_NAME
                 if APPEND_TIMESTAMP and False:
                     name += f"_{time.time()}"
@@ -394,7 +394,7 @@ def add_dataframe_layer(
             columns = []
 
             assert len(df) == len(df.geometry)
-            logger.info(f"{name=} has {len(df.geometry)} {k.value} geometries")
+            # logger.info(f"{name=} has {len(df.geometry)} {k.value} geometries")
 
             for (i, c), w in zip(
                 df.iterrows(), df.geometry.to_wkt(rounding_precision=-1)
