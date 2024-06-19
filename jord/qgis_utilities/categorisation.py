@@ -50,9 +50,7 @@ def random_color_alpha_generator() -> QuadNumber:
 def categorise_layer(
     layer: QgsVectorLayer,
     field_name: str = "layer",
-    iterable: Iterable = n_uint_mix_generator_builder(
-        255, 255, 255, mix_min=(200, 200, 200)
-    ),
+    iterable: Iterable = n_uint_mix_generator_builder(255, 255, 255, mix_min=(0, 0, 0)),
 ) -> None:
     """
 

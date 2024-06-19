@@ -4,7 +4,7 @@ import logging
 import time
 from typing import Any, Iterable, List, Mapping, Optional, Union
 
-from warg import passes_kws_to
+from warg import n_uint_mix_generator_builder, passes_kws_to
 
 from jord.geojson_utilities import GeoJsonGeometryTypesEnum
 
@@ -36,6 +36,9 @@ def add_qgis_single_feature_layer(
     columns: Optional[Mapping[str, Any]] = None,
     index: bool = False,
     categorise_by_attribute: Optional[str] = None,
+    color_generator=n_uint_mix_generator_builder(
+        255, 255, 255, mix_min=(222, 222, 222)
+    ),
     group: Any = None,
     visible: bool = True,
 ) -> List:
@@ -151,7 +154,9 @@ def add_qgis_single_feature_layer(
                 sub_layer.setCustomProperty("skipMemoryLayersCheck", 1)
 
             if categorise_by_attribute:
-                categorise_layer(sub_layer, categorise_by_attribute)
+                categorise_layer(
+                    sub_layer, categorise_by_attribute, iterable=color_generator
+                )
 
             sub_layer.commitChanges()
             sub_layer.updateFields()
@@ -218,7 +223,7 @@ def add_qgis_single_feature_layer(
             layer.setCustomProperty("skipMemoryLayersCheck", 1)
 
         if categorise_by_attribute:
-            categorise_layer(layer, categorise_by_attribute)
+            categorise_layer(layer, categorise_by_attribute, iterable=color_generator)
 
         layer.commitChanges()
         layer.updateFields()
@@ -289,6 +294,9 @@ def add_qgis_multi_feature_layer(
         Union[Mapping[str, Mapping[str, Any]], Iterable[Mapping[str, Any]]]
     ] = None,
     categorise_by_attribute: Optional[str] = None,
+    color_generator=n_uint_mix_generator_builder(
+        255, 255, 255, mix_min=(222, 222, 222)
+    ),
     index: bool = False,
     group: Any = None,
     visible: bool = True,
@@ -479,7 +487,7 @@ def add_qgis_multi_feature_layer(
         layer.setCustomProperty("skipMemoryLayersCheck", 1)
 
     if categorise_by_attribute:
-        categorise_layer(layer, categorise_by_attribute)
+        categorise_layer(layer, categorise_by_attribute, iterable=color_generator)
 
         assert (
             len(list(geoms)) == layer.featureCount()
