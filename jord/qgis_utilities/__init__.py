@@ -17,6 +17,7 @@ with open(Path(__file__).parent / "README.md") as this_init_file:
 try:
     from .importing import *
     from .configuration import *
+    from .categorisation import *
 
     # from .helpers import * # import issues
     # from .numpy_utilities import *

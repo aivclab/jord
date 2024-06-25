@@ -26,6 +26,7 @@ CONTRAST_ENHANCE = True
 DEFAULT_LAYER_NAME = "QliveLayer"
 DEFAULT_LAYER_CRS = "EPSG:4326"
 VERBOSE = False
+STRICT = False
 
 __all__ = [
     "add_raster",
@@ -289,7 +290,7 @@ def add_shapely_layer(
 def add_dataframe(
     qgis_instance_handle: Any,
     dataframe: DataFrame,
-    geometry_column="geometry",
+    geometry_column: str = "geometry",
     *args,
     **kwargs,
 ) -> List:
@@ -447,12 +448,22 @@ def add_dataframe_layer(
     else:
         raise NotImplemented(f"{type(dataframe)}, {dataframe}")
 
-    assert (
-        total_feature_len == split_accum_len
-    ), f"only iterated {split_accum_len}/{total_feature_len=} of geometries"
-    assert (
-        total_feature_len == accum_feature_len
-    ), f"only added {accum_feature_len}/{total_feature_len=} of geometries"
+    if STRICT:
+        assert (
+            total_feature_len == split_accum_len
+        ), f"only iterated {split_accum_len}/{total_feature_len=} of geometries"
+        assert (
+            total_feature_len == accum_feature_len
+        ), f"only added {accum_feature_len}/{total_feature_len=} of geometries"
+    else:
+        if total_feature_len != split_accum_len:
+            logger.error(
+                f"only iterated {split_accum_len}/{total_feature_len=} of geometries"
+            )
+        if total_feature_len != accum_feature_len:
+            logger.error(
+                f"only added {accum_feature_len}/{total_feature_len=} of geometries"
+            )
 
     return return_list
 
@@ -558,6 +569,8 @@ def add_raster(
     """
     add a raster
 
+    :param group:
+    :param visible:
     :param no_data_value:
     :param qgis_instance_handle:
     :param raster:
@@ -733,7 +746,7 @@ def add_raster(
 
 
 @passes_kws_to(add_raster, no_pass_filter=["name"])
-def add_rasters(qgis_instance_handle, rasters: Mapping, *args, **kwargs) -> List:
+def add_rasters(qgis_instance_handle: Any, rasters: Mapping, *args, **kwargs) -> List:
     """
 
     :param qgis_instance_handle:

@@ -26,6 +26,7 @@ __all__ = [
     "get_coords_from_polygonal_shape",
     "get_polygonal_shape_from_coords",
     "has_holes",
+    "is_polygonal",
 ]
 
 
@@ -320,6 +321,16 @@ def ensure_cw_poly(polygon: Polygon) -> Polygon:
     )
 
 
+def is_polygonal(cleaned):
+    if isinstance(
+        cleaned, (shapely.Point, shapely.MultiPoint, LineString, MultiLineString)
+    ):
+        return False
+    elif isinstance(cleaned, shapely.GeometryCollection):
+        return any(is_polygonal(p) for p in cleaned.geoms)
+    return True
+
+
 def iter_polygons(
     _input_geometry: BaseGeometry,
 ) -> Union[Generator[Polygon, None, None], Tuple[BaseGeometry]]:
@@ -330,6 +341,8 @@ def iter_polygons(
     """
     if isinstance(_input_geometry, MultiPolygon):
         return (polygon for polygon in _input_geometry.geoms)
+    elif isinstance(_input_geometry, shapely.GeometryCollection):
+        return (poly for poly in _input_geometry.geoms if is_polygonal(poly))
 
     # assert isinstance(_input_geometry, Polygon)
 

@@ -1,11 +1,10 @@
-from typing import Mapping, Any, Optional
+from typing import Any, Mapping, Optional
 
 import shapely
 from shapely import Point
 from shapely.geometry.base import BaseGeometry
 
-from jord.shapely_utilities import dilate
-from .morphology import closing, opening
+from .morphology import closing, dilate, opening
 
 __all__ = [
     "zero_buffer",

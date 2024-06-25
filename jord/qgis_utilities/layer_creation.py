@@ -16,7 +16,7 @@ CONTRAST_ENHANCE = True
 DEFAULT_LAYER_NAME = "TemporaryLayer"
 DEFAULT_LAYER_CRS = "EPSG:4326"
 VERBOSE = False
-
+STRICT = False  # TODO: SET TO TRUE!
 USE_TEMP_GROUP = False
 
 __all__ = [
@@ -36,7 +36,7 @@ def add_qgis_single_feature_layer(
     columns: Optional[Mapping[str, Any]] = None,
     index: bool = False,
     categorise_by_attribute: Optional[str] = None,
-    color_generator=n_uint_mix_generator_builder(
+    color_generator: callable = n_uint_mix_generator_builder(
         255, 255, 255, mix_min=(222, 222, 222)
     ),
     group: Any = None,
@@ -45,6 +45,7 @@ def add_qgis_single_feature_layer(
     """
     An example url is “Point?crs=epsg:4326&field=id:integer&field=name:string(20)&index=yes”
 
+    :param color_generator:
     :param visible:
     :param categorise_by_attribute:
     :param group:
@@ -78,7 +79,11 @@ def add_qgis_single_feature_layer(
 
     return_collection = []
 
-    geom_type = json.loads(geom.asJson())["type"]
+    geom_json = json.loads(geom.asJson())
+    if geom_json is None:
+        return return_collection
+
+    geom_type = geom_json["type"]
     uri = geom_type  # TODO: URI MIGHT BE NONE?
     if uri is None:
         raise Exception(f"Could not load {geom.asJson()} as json")
@@ -137,7 +142,7 @@ def add_qgis_single_feature_layer(
             if columns:
                 feat.initAttributes(len(columns))
 
-                if False:
+                if STRICT:
                     for field_idx, attr in enumerate(columns.values()):
                         feat.setAttribute(field_idx, attr)
                 else:
@@ -294,7 +299,7 @@ def add_qgis_multi_feature_layer(
         Union[Mapping[str, Mapping[str, Any]], Iterable[Mapping[str, Any]]]
     ] = None,
     categorise_by_attribute: Optional[str] = None,
-    color_generator=n_uint_mix_generator_builder(
+    color_generator: Iterable = n_uint_mix_generator_builder(
         255, 255, 255, mix_min=(222, 222, 222)
     ),
     index: bool = False,
@@ -308,6 +313,7 @@ def add_qgis_multi_feature_layer(
 
     An example url is “Point?crs=epsg:4326&field=id:integer&field=name:string(20)&index=yes”
 
+    :param color_generator:
     :param categorise_by_attribute:
     :param visible:
     :param group:
@@ -386,7 +392,12 @@ def add_qgis_multi_feature_layer(
         geoms = [geoms]
 
     for geom in geoms:
-        geom_type_ = json.loads(geom.asJson())["type"]
+        geom_json = json.loads(geom.asJson())
+
+        if geom_json is None:
+            continue
+
+        geom_type_ = geom_json["type"]
 
         assert geom_type_ is not None, f"could not read {geom_type_=} as json"
 
@@ -433,12 +444,21 @@ def add_qgis_multi_feature_layer(
             assert feat.isValid(), f"{feat} was invalid"
             features.append(feat)
 
-    assert len(list(geoms)) == len(
-        features
-    ), f"Some features where dropped! {len(list(geoms))} != {len(features)}"
+    if STRICT:
+        assert len(list(geoms)) == len(
+            features
+        ), f"Some features where dropped! {len(list(geoms))} != {len(features)}"
+    else:
+        if len(list(geoms)) != len(features):
+            logger.error(
+                f"Some features where dropped! {len(list(geoms))} != {len(features)}"
+            )
 
     if uri is None:
-        raise Exception("uri is None")
+        if STRICT:
+            raise Exception("uri is None")
+        else:
+            return return_collection
 
     uri += "?"
 
@@ -477,9 +497,15 @@ def add_qgis_multi_feature_layer(
     if len(list(geoms)) != layer.featureCount():
         logger.error(f"{features}")
 
+    if STRICT:
         assert (
             len(list(geoms)) == layer.featureCount()
         ), f"Some features where dropped! {len(list(geoms))} != {layer.featureCount()}"
+    else:
+        if len(list(geoms)) != layer.featureCount():
+            logger.error(
+                f"Some features where dropped! {len(list(geoms))} != {layer.featureCount()}"
+            )
 
     layer_data_provider.updateExtents()
 
@@ -489,17 +515,29 @@ def add_qgis_multi_feature_layer(
     if categorise_by_attribute:
         categorise_layer(layer, categorise_by_attribute, iterable=color_generator)
 
+    if STRICT:
         assert (
             len(list(geoms)) == layer.featureCount()
         ), f"Some features where dropped! {len(list(geoms))} != {layer.featureCount()}"
+    else:
+        if len(list(geoms)) != layer.featureCount():
+            logger.error(
+                f"Some features where dropped! {len(list(geoms))} != {layer.featureCount()}"
+            )
 
     layer.commitChanges()
     layer.updateFields()
     layer.updateExtents()
 
-    assert (
-        len(list(geoms)) == layer.featureCount()
-    ), f"Some features where dropped! {len(list(geoms))} != {layer.featureCount()}"
+    if STRICT:
+        assert (
+            len(list(geoms)) == layer.featureCount()
+        ), f"Some features where dropped! {len(list(geoms))} != {layer.featureCount()}"
+    else:
+        if len(list(geoms)) != layer.featureCount():
+            logger.error(
+                f"Some features where dropped! {len(list(geoms))} != {layer.featureCount()}"
+            )
 
     if qgis_instance_handle is None:
         qgis_project = QgsProject.instance()
