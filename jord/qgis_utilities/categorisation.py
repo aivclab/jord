@@ -19,7 +19,13 @@ from qgis.core import (
 from qgis.utils import iface
 from warg import QuadNumber, TripleNumber, n_uint_mix_generator_builder
 
-__all__ = ["categorise_layer"]
+__all__ = [
+    "categorise_layer",
+    "random_color_alpha_generator",
+    "random_color_generator",
+    "random_rgba",
+    "random_rgb",
+]
 
 
 def random_rgb(mix: TripleNumber = (255, 255, 255)) -> TripleNumber:

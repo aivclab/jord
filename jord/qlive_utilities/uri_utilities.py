@@ -3,11 +3,11 @@
 __all__ = ["build_uri"]
 
 import json
-from typing import Optional, Mapping
+from typing import Any, Mapping, Optional
 
 
 def build_uri(
-    geom,
+    geom: Any,
     crs: Optional[str] = None,
     fields: Optional[Mapping[str, str]] = None,
     index: bool = False,
@@ -21,7 +21,13 @@ def build_uri(
     :return:
     :rtype: str
     """
-    uri = json.loads(geom.asJson())["type"]  # As GeoJSON Repr, str dict
+
+    geom_json = json.loads(geom.asJson())
+
+    if geom_json is None:
+        raise ValueError("Geom is empty")
+
+    uri = geom_json["type"]  # As GeoJSON Repr, str dict
 
     if crs:
         uri += f"?crs={crs}"
