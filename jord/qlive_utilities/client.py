@@ -2,8 +2,6 @@
 import time
 from typing import Any
 
-import zmq
-from draugr.python_utilities import in_docker
 from warg import AlsoDecorator
 
 __all__ = ["QliveClient"]
@@ -12,6 +10,8 @@ DEFAULT_PORT = "5555"
 
 
 def default_address() -> str:
+    from draugr.python_utilities import in_docker
+
     if in_docker():
         return f"tcp://host.docker.internal:{DEFAULT_PORT}"
     return f"tcp://localhost:{DEFAULT_PORT}"
@@ -25,6 +25,8 @@ class QliveClient(AlsoDecorator):
     """
 
     def __init__(self, address: str = default_address()):
+        import zmq
+
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.REQ)
 
@@ -55,6 +57,8 @@ class QliveClient(AlsoDecorator):
         self.socket.close()
 
     def send(self, *args) -> Any:
+        import zmq
+
         self.socket.send(*args, self.flag)
 
         time.sleep(0.1)  # TODO: TEMPORARY WORKAROUND! for state fail
