@@ -8,8 +8,7 @@ import pandas
 from pandas import DataFrame
 from shapely import wkt
 
-__all__ = ["load_wkts_from_csv", "csv_wkt_generator"]
-
+__all__ = ["load_wkts_from_csv", "csv_wkt_generator", "WktTypeEnum"]
 
 # from sorcery import assigned_names
 
