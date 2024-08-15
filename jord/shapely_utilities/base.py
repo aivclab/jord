@@ -3,6 +3,7 @@ from typing import Any, Mapping, Optional
 import shapely
 from shapely import Point
 from shapely.geometry.base import BaseGeometry
+from shapely.validation import make_valid
 
 from .morphology import closing, dilate, opening
 
@@ -35,7 +36,7 @@ def clean_shape(
     shape = zero_buffer(shape).simplify(0)
 
     if not shape.is_valid:
-        shape = shapely.validation.make_valid(shape)
+        shape = make_valid(shape)
 
     return shape
 
