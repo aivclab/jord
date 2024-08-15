@@ -44,3 +44,30 @@ def test_sanitise_poly():
     p = shapely.Polygon([(-1, 1), (1, 1), (1, -1), (-1, -1), (-1, 1)])
 
     assert sanitise(p).equals(p)
+
+
+def test_clean_shape():
+    p = shapely.Polygon([(-1, 1), (1, 1), (1, -1), (-1, -1), (-1, 1)])
+
+    assert clean_shape(p).equals(p)
+
+
+def test_clean_invalid_shape():
+    p = shapely.Polygon(
+        [
+            (0, 0),
+            (0, 3),
+            (3, 3),
+            (3, 0),
+            (2, 0),
+            (2, 2),
+            (1, 2),
+            (1, 1),
+            (2, 1),
+            (2, 0),
+            (0, 0),
+        ]
+    )
+
+    assert not p.is_valid
+    assert clean_shape(p).is_valid
