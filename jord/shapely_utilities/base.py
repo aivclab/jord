@@ -31,7 +31,13 @@ def clean_shape(
     :param shape: The shape to cleaned
     :return: the cleaned shape
     """
-    return zero_buffer(shape).simplify(0)
+
+    shape = zero_buffer(shape).simplify(0)
+
+    if not shape.is_valid:
+        shape = shapely.validation.make_valid(shape)
+
+    return shape
 
 
 def deflimmer(geom: BaseGeometry, eps: float = 1e-7) -> BaseGeometry:
@@ -53,11 +59,13 @@ def sanitise(
     kwargs: Optional[Mapping[callable, Mapping[str, Any]]] = None
 ) -> BaseGeometry:
     """
-      #A positive distance produces a dilation, a negative distance an erosion. A very small or zero distance may sometimes be used to “tidy” a polygon.
+      #A positive distance produces a dilation, a negative distance an erosion. A very small or zero distance
+      may sometimes be used to “tidy” a polygon.
 
     :param geom: The shape to sanitised
     :param args: The sanitisation callable steps
-    :param kwargs: The sanitisation callable step kwargs in mappings with callable as key then sub-mapping is kwargs for callable
+    :param kwargs: The sanitisation callable step kwargs in mappings with callable as key then sub-mapping is
+    kwargs for callable
     :return: The sanitised shape
     """
 
