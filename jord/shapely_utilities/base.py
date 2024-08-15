@@ -1,3 +1,4 @@
+import logging
 from typing import Any, Mapping, Optional
 
 import shapely
@@ -15,6 +16,8 @@ __all__ = [
     "sanitise",
     "clean_shape",
 ]
+
+logger = logging.getLogger(__name__)
 
 
 def zero_buffer(
@@ -36,7 +39,10 @@ def clean_shape(
     shape = zero_buffer(shape).simplify(0)
 
     if not shape.is_valid:
-        shape = make_valid(shape)
+        try:
+            shape = make_valid(shape)
+        except shapely.errors.GEOSException as e:
+            logger.error(e)
 
     return shape
 

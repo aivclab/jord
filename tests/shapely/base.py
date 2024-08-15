@@ -1,3 +1,4 @@
+import pytest
 import shapely
 
 from jord.shapely_utilities.base import clean_shape, sanitise, zero_buffer
@@ -71,3 +72,20 @@ def test_clean_invalid_shape():
 
     assert not p.is_valid
     assert clean_shape(p).is_valid
+
+
+@pytest.mark.parametrize(
+    "p",
+    [
+        shapely.Point(),
+        shapely.LineString(),
+        shapely.Polygon(),
+        shapely.MultiPolygon(),
+        shapely.MultiPoint(),
+        shapely.MultiLineString(),
+        shapely.GeometryCollection(),
+    ],
+)
+def test_clean_empty_shape(p: shapely.geometry.base.BaseGeometry):
+    assert p.is_empty
+    assert clean_shape(p).is_empty
