@@ -44,12 +44,12 @@ from typing import Iterable, List, Sequence, Tuple, Union
 import numpy
 from shapely.geometry import (
     LineString,
+    LinearRing,
     MultiLineString,
     MultiPoint,
     Point,
     box,
 )
-from shapely.geometry import LinearRing
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import linemerge as shapely_linemerge
 
@@ -153,7 +153,9 @@ def strip_line_dangles(
     working_line = line
     for ith_ in range(iterations):
         working_segments = []
+
         segments = explode_line(working_line)
+
         if len(segments) > 2:
             start, *rest, end = segments
 
@@ -308,7 +310,7 @@ def explode_lines(
 
 
 def find_isolated_endpoints(
-    lines: List[Union[LineString, MultiLineString]],
+    lines: Union[List[LineString], MultiLineString],
 ) -> List[Point]:
     """
     Find endpoints of lines that don't touch another line.
@@ -319,15 +321,16 @@ def find_isolated_endpoints(
 
     isolated_endpoints = []
 
-    it = lines
+    if not isinstance(lines, MultiLineString):
+        lines = MultiLineString(lines)
 
-    for i, line in enumerate(it):
-        other_lines = lines[:i] + lines[i + 1 :]
+    for i, line in enumerate(lines.geoms):
+        other_lines = lines.geoms[:i] | lines.geoms[i + 1 :]
 
         for q in [0, -1]:
             endpoint = Point(line.coords[q])
 
-            if any(endpoint.touches(another_line) for another_line in other_lines):
+            if endpoint.touches(other_lines):
                 continue
             else:
                 isolated_endpoints.append(endpoint)
@@ -635,11 +638,11 @@ def extend_line(
 
         if side == ExtensionDirectionEnum.start:
             p_new = shift_point(coords[0], coords[1], -1.0 * offset)
-            line = LineString([p_new] + coords[:])
+            line = LineString([p_new] + coords[1:])
 
         elif side == ExtensionDirectionEnum.end:
             p_new = shift_point(coords[-1], coords[-2], -1.0 * offset)
-            line = LineString(coords[:] + [p_new])
+            line = LineString(coords[:-1] + [p_new])
 
     if simplify:
         line = LineString(line.boundary.geoms)
@@ -671,7 +674,7 @@ def extend_lines(
 
 
 def cap_lines(
-    line: LineString, offset: float = 0.0, length: float = 1.0
+    line: LineString, offset: float = 0.0, length: float = 1.0, eps=1e-11
 ) -> Tuple[LineString, LineString]:
     """
     Prepare two cap lines at the beginning and end of a LineString object
@@ -685,11 +688,11 @@ def cap_lines(
     """
     coords = line.coords
 
-    if offset > 0:
+    if offset != 0.0:
         # get start & end point line
         start, end = Point(coords[0]), Point(coords[-1])
     else:  # create short line around endpoints (necessary for perpendicular line function)
-        offset = 0.1
+        offset = eps
         # get start & end point line
         start = shift_point(coords[0], coords[1], 2 * abs(offset))
         end = shift_point(coords[-1], coords[-2], 2 * abs(offset))
@@ -898,4 +901,5 @@ if __name__ == "__main__":
         print(are_incident(v2, v3))
         print(are_incident(v3, v3))
 
-    uhsaduh()
+    # uhsaduh()
+    uahsduhjasd()
