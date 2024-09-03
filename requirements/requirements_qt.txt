@@ -1,1 +1,2 @@
-PySide2
+#PySide2
+PyQt6
