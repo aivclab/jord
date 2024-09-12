@@ -25,3 +25,4 @@ from .selection import *
 from .grouping import *
 from .mirroring import *
 from .selection import *
+from .uniformity import *

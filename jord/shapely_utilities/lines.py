@@ -50,6 +50,7 @@ from shapely.geometry import (
     Point,
     box,
 )
+import shapely
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import linemerge as shapely_linemerge
 
@@ -108,6 +109,9 @@ def to_lines(
     """
 
     lines = []
+    if isinstance(geoms, shapely.GeometryCollection):
+        geoms = geoms.geoms
+
     if isinstance(geoms, Iterable):
         for g in geoms:
             if isinstance(g, (LineString)):
@@ -123,12 +127,25 @@ def to_lines(
                         lines.append(LineString(coordinates=boundary.geoms))
                     else:
                         lines.append(boundary)
+                else:
+                    raise NotImplementedError(f"{g, type(g)}")
             else:
                 raise NotImplementedError(f"{g, type(g)}")
     elif isinstance(geoms, MultiLineString):
         lines = geoms.geoms
     elif isinstance(geoms, LineString):
         lines = [geoms]
+    elif isinstance(geoms, (BaseGeometry)):
+        boundary = geoms.boundary
+        if boundary:
+            if isinstance(boundary, MultiLineString):
+                lines.extend(to_lines(boundary.geoms))
+            elif isinstance(boundary, MultiPoint):
+                lines.append(LineString(coordinates=boundary.geoms))
+            else:
+                lines.append(boundary)
+        else:
+            raise NotImplementedError(f"{geoms, type(geoms)}")
     else:
         raise NotImplementedError(f"{geoms, type(geoms)}")
 

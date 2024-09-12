@@ -16,7 +16,6 @@ from warg import Number, pairs
 from .base import sanitise
 from .geometry_types import is_multi
 from .lines import segments
-from .rings import ensure_ccw_ring, ensure_cw_ring
 
 __all__ = [
     "explode_polygons",
@@ -276,7 +275,9 @@ def discard_holes(
         return shapely.GeometryCollection(shape_parts)
 
     raise NotImplementedError(
-        f"Discarding hole for {shape.type if isinstance(shape, shapely.geometry.base.BaseGeometry) else type(shape)} is not implemented"
+        f"Discarding hole for "
+        f"{shape.type if isinstance(shape, shapely.geometry.base.BaseGeometry) else type(shape)} is not "
+        f"implemented"
     )
 
 
@@ -289,36 +290,6 @@ def has_holes(shape: Union[shapely.Polygon, shapely.MultiPolygon]) -> bool:
 
     # raise #not polygonal
     return False
-
-
-def ensure_ccw_poly(polygon: Polygon) -> Polygon:
-    """
-    This function checks if the polygon is counter-clockwise if not it is reversed
-
-
-    :param polygon: The polygon to check
-    :return: Returns the polygon turned clockwise
-    """
-
-    return Polygon(
-        shell=ensure_ccw_ring(polygon.exterior),
-        holes=[ensure_ccw_ring(hole) for hole in polygon.interiors],
-    )
-
-
-def ensure_cw_poly(polygon: Polygon) -> Polygon:
-    """
-    This function checks if the polygon is clockwise if not it is reversed
-
-
-    :param polygon: The polygon to check
-    :return: Returns the polygon turned clockwise
-    """
-
-    return Polygon(
-        shell=ensure_cw_ring(polygon.exterior),
-        holes=[ensure_cw_ring(hole) for hole in polygon.interiors],
-    )
 
 
 def is_polygonal(cleaned):
