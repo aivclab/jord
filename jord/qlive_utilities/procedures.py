@@ -238,7 +238,7 @@ def add_wkt_layer(
     )
 
 
-@passes_kws_to(add_wkt)
+@passes_kws_to(add_wkb)
 def add_shapely_geometry(
     qgis_instance_handle: Any, geom: BaseGeometry, *args, **kwargs
 ) -> List:
@@ -250,7 +250,7 @@ def add_shapely_geometry(
     :return:
     """
 
-    return add_wkt(qgis_instance_handle, geom.wkt, *args, **kwargs)
+    return add_wkb(qgis_instance_handle, geom.wkb, *args, **kwargs)
 
 
 @passes_kws_to(add_shapely_geometry)
@@ -270,7 +270,7 @@ def add_shapely_geometries(
         )
 
 
-@passes_kws_to(add_wkt_layer)
+@passes_kws_to(add_wkb_layer)
 def add_shapely_layer(
     qgis_instance_handle: Any,
     geoms: Iterable[shapely.geometry.base.BaseGeometry],
@@ -281,8 +281,8 @@ def add_shapely_layer(
     if isinstance(geoms, shapely.geometry.base.BaseGeometry):
         geoms = [geoms]
 
-    return add_wkt_layer(
-        qgis_instance_handle, [geom.wkt for geom in geoms], *args, **kwargs
+    return add_wkb_layer(
+        qgis_instance_handle, [geom.wkb for geom in geoms], *args, **kwargs
     )
 
 
@@ -310,9 +310,9 @@ def add_dataframe(
         geom_dict = split_on_geom_type(dataframe)
         for df in geom_dict.values():
             if False:
-                for w in df.geometry.to_wkt(rounding_precision=-1):
+                for w in df.geometry.to_wkb():  # .to_wkt(rounding_precision=-1):
                     return_list.append(
-                        add_wkt(qgis_instance_handle, w, *args, **kwargs)
+                        add_wkb(qgis_instance_handle, w, *args, **kwargs)
                     )
             else:
                 for columns, w in zip(
@@ -330,14 +330,16 @@ def add_dataframe(
             a = dataframe[geometry_column][0]
             # if a.geom_type == "MultiPolygon":
 
-            wkts = [d.wkt for d in dataframe[geometry_column]]
+            wkts = [d.wkb for d in dataframe[geometry_column]]
+        elif isinstance(dataframe[geometry_column][0], bytes):
+            wkts = dataframe[geometry_column]
         elif isinstance(dataframe[geometry_column][0], str):
             wkts = dataframe[geometry_column]
         else:
             raise NotImplemented
 
         for row in wkts:
-            return_list.append(add_wkt(qgis_instance_handle, row, *args, **kwargs))
+            return_list.append(add_wkb(qgis_instance_handle, row, *args, **kwargs))
     else:
         raise NotImplemented
 
@@ -358,7 +360,7 @@ def add_dataframes(
     return return_list
 
 
-@passes_kws_to(add_wkt_layer)
+@passes_kws_to(add_wkb_layer)
 def add_dataframe_layer(
     qgis_instance_handle: Any,
     dataframe: DataFrame,
@@ -373,7 +375,6 @@ def add_dataframe_layer(
     return_list = []
 
     if isinstance(dataframe, GeoDataFrame):
-
         total_feature_len = len(dataframe)
         split_accum_len = 0
         accum_feature_len = 0
@@ -398,7 +399,7 @@ def add_dataframe_layer(
             # logger.info(f"{name=} has {len(df.geometry)} {k.value} geometries")
 
             for (i, c), w in zip(
-                df.iterrows(), df.geometry.to_wkt(rounding_precision=-1)
+                df.iterrows(), df.geometry.to_wkb()  # .to_wkt(rounding_precision=-1)
             ):
                 c.pop(geometry_column)
                 geoms.append(w)
@@ -411,7 +412,7 @@ def add_dataframe_layer(
                 layer_name = name
 
             if geoms:
-                added_layers = add_wkt_layer(
+                added_layers = add_wkb_layer(
                     qgis_instance_handle,
                     geoms,
                     name=layer_name,
@@ -433,14 +434,14 @@ def add_dataframe_layer(
             geoms = []
             columns = []
             for (i, c), w in zip(
-                df.iterrows(), df.geometry.to_wkt(rounding_precision=-1)
+                df.iterrows(), df.geometry.to_wkb()  # .to_wkt(rounding_precision=-1)
             ):
                 c.pop(geometry_column)
                 geoms.append(w)
                 columns.append({**c})
 
             return_list.append(
-                add_wkt_layer(
+                add_wkb_layer(
                     qgis_instance_handle, geoms, columns=columns, *args, **kwargs
                 )
             )

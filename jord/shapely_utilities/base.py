@@ -1,50 +1,20 @@
 import logging
 from typing import Any, Mapping, Optional
 
-import shapely
-from shapely import Point
+from shapely import LineString, Point
 from shapely.geometry.base import BaseGeometry
-from shapely.validation import make_valid
 
-from .morphology import closing, dilate, opening
+from .morphology import closing, opening
+from .uniformity import clean_shape, zero_buffer
 
 __all__ = [
-    "zero_buffer",
     "deflimmer",
     "clean_geometry",
     "unflimmer",
     "sanitise",
-    "clean_shape",
 ]
 
 logger = logging.getLogger(__name__)
-
-
-def zero_buffer(
-    geom: BaseGeometry,
-) -> BaseGeometry:
-    return dilate(geom, distance=0)
-
-
-def clean_shape(
-    shape: shapely.geometry.base.BaseGeometry,
-) -> shapely.geometry.base.BaseGeometry:
-    """
-    removes self-intersections and duplicate points
-
-    :param shape: The shape to cleaned
-    :return: the cleaned shape
-    """
-
-    shape = zero_buffer(shape).simplify(0)
-
-    if not shape.is_valid:
-        try:
-            shape = make_valid(shape)
-        except shapely.errors.GEOSException as e:
-            logger.error(e)
-
-    return shape
 
 
 def deflimmer(geom: BaseGeometry, eps: float = 1e-7) -> BaseGeometry:
@@ -97,4 +67,8 @@ if __name__ == "__main__":
         p = Point((1, 1))
         print(clean_shape(p))
 
-    ausdhasu()
+    def ausdhasu2():
+        p = LineString([(1, 1), (1, 1)])
+        print(clean_shape(p))
+
+    ausdhasu2()

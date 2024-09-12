@@ -65,18 +65,22 @@ class InstallStateEnum(Enum):
 
 class UpgradeStrategyEnum(Enum):
     """
-    eager - all packages will be upgraded to the latest possible version. It should be noted here that pip’s current
+    eager - all packages will be upgraded to the latest possible version. It should be noted here that pip’s
+    current
     resolution algorithm isn’t even aware of packages other than those specified on the command line, and those
     identified as dependencies. This may or may not be true of the new resolver.
 
     only-if-needed - packages are only upgraded if they are named in the pip command or a requirement file (i.e,
-    they are direct requirements), or an upgraded parent needs a later version of the dependency than is currently
+    they are direct requirements), or an upgraded parent needs a later version of the dependency than is
+    currently
     installed.
 
-    to-satisfy-only (undocumented, please avoid) - packages are not upgraded (not even direct requirements) unless the
+    to-satisfy-only (undocumented, please avoid) - packages are not upgraded (not even direct requirements)
+    unless the
     currently installed version fails to satisfy a requirement (either explicitly specified or a dependency).
 
-    This is actually the “default” upgrade strategy when --upgrade is not set, i.e. pip install AlreadyInstalled and pip
+    This is actually the “default” upgrade strategy when --upgrade is not set, i.e. pip install
+    AlreadyInstalled and pip
     install --upgrade --upgrade-strategy=to-satisfy-only AlreadyInstalled yield the same behavior.
     """
 
@@ -114,7 +118,8 @@ def get_qgis_python_interpreter_path() -> Optional[Path]:
                 return None
         return try_path
 
-    # QString QStandardPaths::findExecutable(const QString &executableName, const QStringList &paths = QStringList())
+    # QString QStandardPaths::findExecutable(const QString &executableName, const QStringList &paths =
+    # QStringList())
 
     return interpreter_path
 
@@ -176,7 +181,7 @@ other options:
             print("PIP IS STILL MISSING!")
 
 
-def is_pip_installed():
+def is_pip_installed() -> bool:
     pip_present = True
     try:
         import pip
@@ -185,7 +190,7 @@ def is_pip_installed():
     return pip_present
 
 
-def install_pip_if_not_present(always_upgrade: bool = True):
+def install_pip_if_not_present(always_upgrade: bool = True) -> None:
     if not is_pip_installed() or always_upgrade:
         if False:
             ensurepip.bootstrap(upgrade=True)
@@ -388,7 +393,8 @@ def install_requirements_from_name(
     # --index-url
     # --upgrade-strategy <upgrade_strategy>
     args = ["install", *requirements_name]
-    # args = ["install", "rasterio", "--upgrade"] # RASTERIO for window DOES NOT WORK ATM, should be installed manually
+    # args = ["install", "rasterio", "--upgrade"] # RASTERIO for window DOES NOT WORK ATM, should be installed
+    # manually
 
     # TODO: ADD OPTION TO PICK INDEX
 
