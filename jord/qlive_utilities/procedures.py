@@ -13,6 +13,9 @@ from shapely.geometry.base import BaseGeometry
 from warg import Number, ensure_existence, passes_kws_to
 
 from jord import PROJECT_APP_PATH
+from jord.qgis_utilities import (
+    wkb_geom_constructor,
+)
 from jord.qgis_utilities.layer_creation import (
     add_qgis_multi_feature_layer,
     add_qgis_single_feature_layer,
@@ -69,7 +72,7 @@ def add_wkb(qgis_instance_handle: Any, wkb: bytes, *args, **kwargs) -> List:
     from qgis.core import QgsGeometry
 
     return add_qgis_single_feature_layer(
-        qgis_instance_handle, QgsGeometry().fromWkb(wkb), *args, **kwargs
+        qgis_instance_handle, wkb_geom_constructor(wkb), *args, **kwargs
     )
 
 
@@ -104,7 +107,7 @@ def add_wkb_layer(
 
     return add_qgis_multi_feature_layer(
         qgis_instance_handle,
-        [QgsGeometry().fromWkb(wkb) for wkb in wkbs],
+        [wkb_geom_constructor(wkb) for wkb in wkbs],
         *args,
         **kwargs,
     )

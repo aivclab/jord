@@ -49,14 +49,16 @@ def add_qgis_single_feature_layer(
     :param visible:
     :param categorise_by_attribute:
     :param group:
-    :param columns: Field=name:type(length,precision) Defines an attribute of the layer. Multiple field parameters can be added to the data provider definition. Type is one of “integer”, “double”, “string”.
+    :param columns: Field=name:type(length,precision) Defines an attribute of the layer. Multiple field
+    parameters can be added to the data provider definition. Type is one of “integer”, “double”, “string”.
     :param index: index=yes Specifies that the layer will be constructed with a spatial index
     :param qgis_instance_handle:
     :param geom:
     :type geom: QgsGeometry
     :param name:
     :type name: Optional[str]
-    :param crs: Crs=definition Defines the coordinate reference system to use for the layer. Definition is any string accepted by QgsCoordinateReferenceSystem.createFromString()
+    :param crs: Crs=definition Defines the coordinate reference system to use for the layer. Definition is any
+    string accepted by QgsCoordinateReferenceSystem.createFromString()
     :return: None
     :rtype: None
     """
@@ -170,7 +172,6 @@ def add_qgis_single_feature_layer(
             return_collection.append(sub_layer)
 
             if group:
-
                 qgis_project.addMapLayer(sub_layer, False)
                 group.insertLayer(0, sub_layer)
             else:
@@ -309,7 +310,8 @@ def add_qgis_multi_feature_layer(
     """
 
         fields  == column definition name, type, length/size
-        Multiple field parameters can be added to the data provider definition. type is one of “integer”, “double”, “string”.
+        Multiple field parameters can be added to the data provider definition. type is one of “integer”,
+        “double”, “string”.
 
     An example url is “Point?crs=epsg:4326&field=id:integer&field=name:string(20)&index=yes”
 
@@ -392,6 +394,7 @@ def add_qgis_multi_feature_layer(
         geoms = [geoms]
 
     for geom in geoms:
+        # geom:QgsGeometry
         geom_json = json.loads(geom.asJson())
 
         if geom_json is None:
@@ -476,7 +479,8 @@ def add_qgis_multi_feature_layer(
 
     layer = QgsVectorLayer(uri, layer_name, "memory")
     layer_data_provider = layer.dataProvider()
-    # pr.addAttributes([QgsField("name", QVariant.String),QgsField("age", QVariant.Int),QgsField("size", QVariant.Double)])
+    # pr.addAttributes([QgsField("name", QVariant.String),QgsField("age", QVariant.Int),QgsField("size",
+    # QVariant.Double)])
 
     (res, out_feats) = layer_data_provider.addFeatures(
         features

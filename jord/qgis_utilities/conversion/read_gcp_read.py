@@ -1,11 +1,12 @@
 import csv
+from pathlib import Path
 from typing import Generator, Tuple
 
 __all__ = ["read_gcp_file"]
 
 
 def read_gcp_file(
-    gcp_points_file_path, filter_comments: bool = True
+    gcp_points_file_path: Path, filter_comments: bool = True
 ) -> Tuple[Generator, Generator]:
     with open(gcp_points_file_path, encoding="utf8", errors="ignore") as fp:
         if filter_comments:
