@@ -57,7 +57,7 @@ logger = logging.getLogger(__name__)
 
 
 @passes_kws_to(add_qgis_single_feature_layer)
-def add_wkb(qgis_instance_handle: Any, wkb: str, *args, **kwargs) -> List:
+def add_wkb(qgis_instance_handle: Any, wkb: bytes, *args, **kwargs) -> List:
     """
 
     :param qgis_instance_handle:
@@ -69,13 +69,13 @@ def add_wkb(qgis_instance_handle: Any, wkb: str, *args, **kwargs) -> List:
     from qgis.core import QgsGeometry
 
     return add_qgis_single_feature_layer(
-        qgis_instance_handle, QgsGeometry.fromWkb(wkb), *args, **kwargs
+        qgis_instance_handle, QgsGeometry().fromWkb(wkb), *args, **kwargs
     )
 
 
 @passes_kws_to(add_wkb)
 def add_wkbs(
-    qgis_instance_handle: Any, wkbs: Mapping[str, str], *args, **kwargs
+    qgis_instance_handle: Any, wkbs: Mapping[str, bytes], *args, **kwargs
 ) -> List:
     """
 
@@ -94,17 +94,17 @@ def add_wkbs(
 
 @passes_kws_to(add_qgis_multi_feature_layer)
 def add_wkb_layer(
-    qgis_instance_handle: Any, wkbs: Iterable[str], *args, **kwargs
+    qgis_instance_handle: Any, wkbs: Iterable[bytes], *args, **kwargs
 ) -> List:
     # noinspection PyUnresolvedReferences
     from qgis.core import QgsGeometry
 
-    if isinstance(wkbs, str):
+    if isinstance(wkbs, bytes):
         wkbs = [wkbs]
 
     return add_qgis_multi_feature_layer(
         qgis_instance_handle,
-        [QgsGeometry.fromWkb(wkb) for wkb in wkbs],
+        [QgsGeometry().fromWkb(wkb) for wkb in wkbs],
         *args,
         **kwargs,
     )
