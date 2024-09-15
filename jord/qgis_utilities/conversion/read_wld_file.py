@@ -1,5 +1,7 @@
 from PyQt5.QtGui import QTransform
 
+__all__ = ["read_wld_file"]
+
 
 def read_wld_file(geom, wld_file_path):
     assert wld_file_path is not None
