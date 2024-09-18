@@ -1,9 +1,20 @@
-from typing import Mapping, Any
+from typing import Any, Mapping
 
 import shapely
 from networkx import MultiDiGraph
 
-__all__ = ["assertive_add_edge", "add_shapely_node"]
+__all__ = [
+    "assertive_add_edge",
+    "add_shapely_node",
+    "IllegalLoopException",
+    "IllegalDuplicateEdgeException",
+]
+
+
+class IllegalLoopException(Exception): ...
+
+
+class IllegalDuplicateEdgeException(Exception): ...
 
 
 def assertive_add_edge(
@@ -16,8 +27,28 @@ def assertive_add_edge(
     allow_loops: bool = True,
     allow_duplicates: bool = False,
 ) -> None:
+    """
+
+    :param graph: The Graph
+    :type graph: MultiDiGraph
+    :param u: from node id
+    :type u: int
+    :param v: to node id
+    :type v: int
+    :param uniqueid: id of edge
+    :type uniqueid: int
+    :param attributes: attributes of edge
+    :type attributes: Mapping[str, Any]
+    :param allow_loops: Allow loops
+    :type allow_loops: bool
+    :param allow_duplicates: Allow duplicate edges
+    :type allow_duplicates: bool
+    :return: None
+    """
     if not allow_loops:
-        assert u != v, f"{u} == {v}"
+        if u == v:
+            raise IllegalLoopException(f"{u} == {v}")
+        # assert u != v, f"{u} == {v}"
 
     assert isinstance(u, int)
     assert isinstance(v, int)
@@ -26,7 +57,11 @@ def assertive_add_edge(
     assert graph.has_node(v)
 
     if not allow_duplicates and graph.has_edge(u, v, uniqueid):
-        assert not graph.has_edge(u, v, uniqueid)
+        if graph.has_edge(u, v, uniqueid):
+            raise IllegalDuplicateEdgeException(
+                f"Graph already contains the edge ({u} -> {v}) with {uniqueid=}"
+            )
+        # assert not graph.has_edge(u, v, uniqueid)
 
     graph.add_edge(u, v, key=uniqueid, uniqueid=uniqueid, **attributes)
 
@@ -34,6 +69,18 @@ def assertive_add_edge(
 def add_shapely_node(
     graph: MultiDiGraph, u: int, point: shapely.Point, **kwargs
 ) -> None:
+    """
+    Add a shapely point based node to the graph.
+
+    :param graph: The Graph
+    :type graph: MultiDiGraph
+    :param u: Node id
+    :type u: int
+    :param point:
+    :type point: shapely.Point
+    :param kwargs: Attributes of node
+    :return: None
+    """
     assert isinstance(u, int)
 
     graph.add_node(
