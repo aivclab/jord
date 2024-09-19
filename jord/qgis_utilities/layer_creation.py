@@ -3,7 +3,7 @@ import datetime
 import json
 import logging
 import time
-from typing import Any, Iterable, List, Mapping, Optional, Union
+from typing import Any, Collection, Iterable, List, Mapping, Optional, Union
 
 from warg import n_uint_mix_generator_builder, passes_kws_to
 
@@ -654,7 +654,7 @@ def solve_field_uri(field_type_configuration, fields, uri):
 
 
 def to_string_if_not_of_exact_type(
-    gen: Iterable, type_: Iterable[type] = (int, float)
+    gen: Iterable, type_: Iterable[type] = (int, float, str, bool)
 ) -> Union[str, Any]:
     """
 
@@ -666,7 +666,16 @@ def to_string_if_not_of_exact_type(
         type_ = [type_]
 
     for v in gen:
-        if all([type(v) != t for t in type_]) or v is None:
+        if v is None:
+            yield None
+        elif isinstance(v, Collection):
+            if False:
+                yield list(
+                    str(v_) if all([type(v_) != t for t in type_]) else v_ for v_ in v
+                )  # TODO: SHOULD ALSO BE CONVERTED?
+            else:
+                yield v
+        elif all([type(v) != t for t in type_]):
             yield str(v)
         else:
             yield v
