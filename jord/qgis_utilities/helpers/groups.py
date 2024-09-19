@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, Any, Union
+from typing import Any, Optional, Union
 
 # noinspection PyUnresolvedReferences
 from qgis.core import QgsLayerTreeGroup, QgsLayerTreeLayer, QgsProject
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 def duplicate_groups(
-    group_to_duplicate,
+    group_to_duplicate: Any,
     *,
     group_parent: Optional[Any] = None,
     new_name: Union[str, EllipsisType, None] = None,
@@ -62,7 +62,7 @@ def duplicate_groups(
     return new_group_parent, sub_items
 
 
-def duplicate_tree_node(new_group_parent, original_group_child):
+def duplicate_tree_node(new_group_parent: Any, original_group_child: Any) -> Any:
     original_layer = original_group_child.layer()
     new_layer_copy = deepcopy_layer(original_layer)
     QgsProject.instance().addMapLayer(new_layer_copy, False)
@@ -98,7 +98,7 @@ def duplicate_tree_node(new_group_parent, original_group_child):
     return new_layer_copy
 
 
-def select_layer_in_group(layer_name, group_name):
+def select_layer_in_group(layer_name: Any, group_name: Any) -> None:
     group = QgsProject.instance().layerTreeRoot().findGroup(group_name)
     if group is not None:
         for child in group.children():
@@ -106,6 +106,6 @@ def select_layer_in_group(layer_name, group_name):
                 iface.setActiveLayer(child.layer())
 
 
-def is_group_selected(group_name):
+def is_group_selected(group_name: Any) -> Any:
     group = QgsProject.instance().layerTreeRoot().findGroup(group_name)
     return group in iface.layerTreeView().selectedNodes()

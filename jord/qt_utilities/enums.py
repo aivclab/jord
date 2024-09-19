@@ -21,7 +21,6 @@ __all__ = [
 ]
 
 try:
-
     from PyQt6.QtCore import Qt
 
     class AlignmentFlag(Enum):
@@ -41,7 +40,8 @@ try:
         """
 
         PySide2.QtCore.Qt.WindowModality¶
-        This enum specifies the behavior of a modal window. A modal window is one that blocks input to other windows. Note that windows that are children of a modal window are not blocked.
+        This enum specifies the behavior of a modal window. A modal window is one that blocks input to other
+        windows. Note that windows that are children of a modal window are not blocked.
 
         The values are:
 
@@ -92,6 +92,7 @@ except:
     try:
         from PyQt5.QtCore import Qt
     except:
+        # noinspection PyUnresolvedReferences
         from qgis.PyQt.QtCore import Qt
 
     class AlignmentFlag(Enum):

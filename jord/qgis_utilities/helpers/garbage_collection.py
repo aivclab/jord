@@ -1,4 +1,4 @@
-def gc_layers():
+def gc_layers() -> None:
     # noinspection PyUnresolvedReferences
     import qgis
 

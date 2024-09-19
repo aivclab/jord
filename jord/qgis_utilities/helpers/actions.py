@@ -2,7 +2,10 @@
 
 from typing import Any
 
+# noinspection PyUnresolvedReferences
 from qgis.PyQt.QtGui import QIcon
+
+# noinspection PyUnresolvedReferences
 from qgis.PyQt.QtWidgets import QAction, QWidget
 
 from jord.qgis_utilities.helpers.signals import reconnect_signal
