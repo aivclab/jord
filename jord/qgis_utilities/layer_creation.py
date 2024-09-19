@@ -24,9 +24,104 @@ __all__ = [
     "add_qgis_single_feature_layer",
     "add_qgis_single_geometry_layers",
     "add_qgis_multi_feature_layer",
+    "solve_type_configuration",
+    "solve_type",
+    "solve_field_uri",
 ]
 
 logger = logging.getLogger(__name__)
+
+ADD_STRING_LEN = True
+NUM_MB16_CHARS = 16777216
+
+
+def solve_type(d: Any) -> str:
+    """
+    Does not support size/length yet...
+
+    QGUS Availible Field types:
+    ________________           - Provider type ( MemoryLayer) - implemented
+
+    Whole Number (integer) - integer - X
+    Decimal Number (real) - double - X
+    Text (string) - string - X
+    Date - date - X
+    Time - time - X
+    Date & Time - datetime - X
+    Whole Number ( ... llint - 16bit) - int2 - O
+    Whole Number (integer - 32bit) - int4 - O
+    Whole Number (integer - 64bit) - int8 - O
+    Decimal Number (numeric) - numeric - O
+    Decimal Number (decimal) - decimal - O
+    Decimal Number (real) - real - O
+    Decimal Number (double) - double precision - O
+    Text, unlimited length (text) - text - X
+    Boolean - boolean  - X
+    Binary Object (BLOB) - binary - X
+    String List - stringlist - X
+    Integer List - integerlist - O
+    Decimal (double) List - doublelist - O
+    Integer (64 bit) List - integer64list - O
+    Map - map - O
+    Geometry - geometry - O
+
+    :param d:
+    :return:
+    """
+    if not isinstance(d, bool):
+        if isinstance(d, int):
+            return "integer"
+
+        elif isinstance(d, float):
+            return "double"
+
+        elif isinstance(d, bytes):
+            return "binary"
+
+        elif isinstance(d, (list, tuple, set)):  # ASSUME IS STRINGS
+            return "stringlist"
+
+        elif isinstance(d, datetime.datetime):
+            return "datetime"
+
+        elif isinstance(d, datetime.date):
+            return "date"
+
+        elif isinstance(d, datetime.time):
+            return "time"
+
+        elif isinstance(d, str):
+            if False:
+                if (
+                    ADD_STRING_LEN
+                ):  # WARNING! Shapefiles have a limitation of maximum 254 characters per field
+                    return f"string({min(max(len(d) * 16, 255), NUM_MB16_CHARS)})"  # 16x buffer for large strings
+            else:
+                return "text"
+
+    if isinstance(d, bool):
+        if False:
+            if ADD_STRING_LEN:
+                return "string(255)"  # True, False (5)
+        else:
+            return "boolean"
+
+    if False:
+        return "text"
+
+    return "string"
+
+
+def solve_type_configuration(d: Any) -> Optional[str]:
+    if isinstance(d, str):
+        a = len(d)
+        if True:
+            a *= 2
+
+        a = max(a, 255)
+        return str(a)
+
+    return None
 
 
 def add_qgis_single_feature_layer(
@@ -103,8 +198,12 @@ def add_qgis_single_feature_layer(
 
     if columns:
         fields = {k: solve_type(v) for k, v in columns}
+        field_type_configuration = {
+            k: solve_type_configuration(v) for k, v in columns.items()
+        }
     else:
         fields = None
+        field_type_configuration = None
 
     if categorise_by_attribute and fields:
         assert (
@@ -188,9 +287,7 @@ def add_qgis_single_feature_layer(
             uri += f"crs={crs}"
 
         if fields:
-            uri = str(uri).rstrip("&")
-            for k, v in fields.items():
-                uri += f"&field={k}:{v}"
+            uri = solve_field_uri(field_type_configuration, fields, uri)
 
         uri = str(uri).rstrip("&")
         uri += f'&index={"yes" if index else "no"}'
@@ -263,82 +360,6 @@ def add_qgis_single_geometry_layers(
         add_qgis_single_feature_layer(qgis_instance_handle, geom, name, **kwargs)
 
 
-ADD_STRING_LEN = True
-NUM_MB16_CHARS = 16777216
-
-
-def solve_type(d: Any) -> str:
-    """
-    Does not support size/length yet...
-
-    QGUS Availible Field types:
-    ________________           - Provider type ( MemoryLayer) - implemented
-
-    Whole Number (integer) - integer - X
-    Decimal Number (real) - double - X
-    Text (string) - string - X
-    Date - date - X
-    Time - time - X
-    Date & Time - datetime - X
-    Whole Number ( ... llint - 16bit) - int2 - O
-    Whole Number (integer - 32bit) - int4 - O
-    Whole Number (integer - 64bit) - int8 - O
-    Decimal Number (numeric) - numeric - O
-    Decimal Number (decimal) - decimal - O
-    Decimal Number (real) - real - O
-    Decimal Number (double) - double precision - O
-    Text, unlimited length (text) - text - X
-    Boolean - boolean  - X
-    Binary Object (BLOB) - binary - X
-    String List - stringlist - X
-    Integer List - integerlist - O
-    Decimal (double) List - doublelist - O
-    Integer (64 bit) List - integer64list - O
-    Map - map - O
-    Geometry - geometry - O
-
-    :param d:
-    :return:
-    """
-    if not isinstance(d, bool):
-        if isinstance(d, int):
-            return "integer"
-
-        elif isinstance(d, float):
-            return "double"
-
-        elif isinstance(d, bytes):
-            return "binary"
-
-        elif isinstance(d, (list, tuple, set)):  # ASSUME IS STRINGS
-            return "stringlist"
-
-        elif isinstance(d, datetime.datetime):
-            return "datetime"
-
-        elif isinstance(d, datetime.date):
-            return "date"
-
-        elif isinstance(d, datetime.time):
-            return "time"
-
-        elif isinstance(d, str):
-            if False:
-                if ADD_STRING_LEN:
-                    return f"string({min(max(len(d) * 16, 255), NUM_MB16_CHARS)})"  # 16x buffer for large strings
-            else:
-                return "text"
-
-    if isinstance(d, bool):
-        if False:
-            if ADD_STRING_LEN:
-                return "string(255)"  # True, False (5)
-        else:
-            return "boolean"
-
-    return "string"
-
-
 def add_qgis_multi_feature_layer(
     qgis_instance_handle: Any,
     geoms: Iterable,  # [QgsGeometry]
@@ -407,8 +428,9 @@ def add_qgis_multi_feature_layer(
     num_cols = None
     attr_generator = None
     fields = None
+    field_type_configuration = None
 
-    if columns and len(columns):
+    if columns and len(columns):  # TODO: FIND MAX LENGTH STR
         if isinstance(columns, Mapping):
             sample_row = next(iter(columns.values()), None)
             # TODO: Might not be ordered correctly
@@ -426,6 +448,9 @@ def add_qgis_multi_feature_layer(
 
     if sample_row:
         fields = {k: solve_type(v) for k, v in sample_row.items()}
+        field_type_configuration = {
+            k: solve_type_configuration(v) for k, v in sample_row.items()
+        }
         num_cols = len(sample_row)
 
     if categorise_by_attribute and fields:
@@ -516,10 +541,8 @@ def add_qgis_multi_feature_layer(
     if crs:
         uri += f"crs={crs}"
 
-    if fields:
-        uri = str(uri).rstrip("&")
-        for k, v in fields.items():
-            uri += f"&field={k}:{v}"
+    if fields:  # field=name:type(length,precision)
+        uri = solve_field_uri(field_type_configuration, fields, uri)
 
     uri = str(uri).rstrip("&")
     uri += f'&index={"yes" if index else "no"}'
@@ -617,6 +640,17 @@ def add_qgis_multi_feature_layer(
     assert len(return_collection) > 0, f"Return collection was empty"
 
     return return_collection
+
+
+def solve_field_uri(field_type_configuration, fields, uri):
+    uri = str(uri).rstrip("&")
+    for k, v in fields.items():
+        uri += f"&field={k}:{v}"
+        if field_type_configuration is not None and k in field_type_configuration:
+            c = field_type_configuration[k]
+            if c:
+                uri += f"({c})"
+    return uri
 
 
 def to_string_if_not_of_exact_type(

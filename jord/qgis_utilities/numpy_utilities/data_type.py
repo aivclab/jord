@@ -4,6 +4,8 @@ from enum import Enum
 from typing import Any
 
 import numpy
+
+# noinspection PyUnresolvedReferences
 from qgis.core import Qgis
 
 
@@ -59,23 +61,29 @@ NUMPY_TO_QGIS_TYPE_MAPPING = {  # Numpy type         C type      Description
     numpy.uint64: QgisDataTypeEnum.unknown,
     numpy.ulonglong: QgisDataTypeEnum.unknown,  # unsigned long long Platform-defined
     numpy.half: QgisDataTypeEnum.unknown,  # Half precision float: sign bit, 5 bits exponent, 10 bits mantissa
-    numpy.float16: QgisDataTypeEnum.unknown,  # Half precision float: sign bit, 5 bits exponent, 10 bits mantissa
+    numpy.float16: QgisDataTypeEnum.unknown,
+    # Half precision float: sign bit, 5 bits exponent, 10 bits mantissa
     numpy.float32: QgisDataTypeEnum.float32,
     numpy.float64: QgisDataTypeEnum.float64,
-    numpy.single: QgisDataTypeEnum.float32,  # float Platform-defined single precision float: typically sign bit,
+    numpy.single: QgisDataTypeEnum.float32,
+    # float Platform-defined single precision float: typically sign bit,
     # 8 bits exponent,  # 23 bits mantissa
-    numpy.double: QgisDataTypeEnum.float64,  # double Platform-defined double precision float: typically sign bit,
+    numpy.double: QgisDataTypeEnum.float64,
+    # double Platform-defined double precision float: typically sign bit,
     # 11 bits exponent, 52 bits mantissa.
     numpy.longdouble: QgisDataTypeEnum.unknown,  # long double Platform-defined extended-precision float
-    numpy.csingle: QgisDataTypeEnum.cfloat32,  # float complex Complex number, represented by two single-precision
+    numpy.csingle: QgisDataTypeEnum.cfloat32,
+    # float complex Complex number, represented by two single-precision
     # floats (
     # real and imaginary components)
-    numpy.cdouble: QgisDataTypeEnum.cfloat64,  # double complex Complex number, represented by two double-precision
+    numpy.cdouble: QgisDataTypeEnum.cfloat64,
+    # double complex Complex number, represented by two double-precision
     # floats (
     # real and imaginary
     # components).
     numpy.clongdouble: QgisDataTypeEnum.unknown,
-    # long double complex  # Complex number, represented by two extended-precision floats (real and imaginary components).
+    # long double complex  # Complex number, represented by two extended-precision floats (real and
+    # imaginary components).
     numpy.complex64: QgisDataTypeEnum.unknown,
     numpy.complex128: QgisDataTypeEnum.unknown,
 }

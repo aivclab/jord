@@ -8,7 +8,7 @@ from warg import clean_string, get_version, package_is_editable
 
 __project__ = "Jord"
 __author__ = "Christian Heider Lindbjerg"
-__version__ = "0.7.9"
+__version__ = "0.8.0"
 __doc__ = r"""
 .. module:: jord
    :platform: Unix, Windows
@@ -28,7 +28,7 @@ PROJECT_NAME = clean_string(__project__)
 PROJECT_VERSION = __version__
 PROJECT_YEAR = 2018
 PROJECT_AUTHOR = clean_string(__author__)
-PROJECT_ORGANISATION = clean_string("Automaps")
+PROJECT_ORGANISATION = clean_string("MapsPeople")
 PROJECT_APP_PATH = AppPath(app_name=PROJECT_NAME, app_author=PROJECT_AUTHOR)
 INCLUDE_PROJECT_READMES = False
 VERBOSE = False
