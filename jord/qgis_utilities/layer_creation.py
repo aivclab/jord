@@ -112,11 +112,28 @@ def solve_type(d: Any) -> str:
     return "string"
 
 
-def solve_type_configuration(d: Any) -> Optional[str]:
+def solve_type_configuration(
+    d: Any,
+    k: Optional[str],
+    columns: Optional[List],
+    allocation_multiplier: Optional[int] = 2,
+) -> Optional[str]:
     if isinstance(d, str):
         a = len(d)
-        if True:
-            a *= 2
+
+        if k and columns:
+            max_len = a
+
+            if isinstance(columns, List):
+                for cols in columns:
+                    c = cols[k]
+                    if isinstance(c, str):
+                        max_len = max(max_len, len(c))
+
+            a = max_len
+
+        if allocation_multiplier:
+            a *= allocation_multiplier
 
         a = max(a, 255)
         return str(a)
@@ -199,7 +216,7 @@ def add_qgis_single_feature_layer(
     if columns:
         fields = {k: solve_type(v) for k, v in columns}
         field_type_configuration = {
-            k: solve_type_configuration(v) for k, v in columns.items()
+            k: solve_type_configuration(v, k, columns) for k, v in columns.items()
         }
     else:
         fields = None
@@ -449,7 +466,7 @@ def add_qgis_multi_feature_layer(
     if sample_row:
         fields = {k: solve_type(v) for k, v in sample_row.items()}
         field_type_configuration = {
-            k: solve_type_configuration(v) for k, v in sample_row.items()
+            k: solve_type_configuration(v, k, columns) for k, v in sample_row.items()
         }
         num_cols = len(sample_row)
 
