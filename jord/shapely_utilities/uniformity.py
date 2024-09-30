@@ -11,19 +11,33 @@ from .rings import ensure_ccw_ring, ensure_cw_ring
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["clean_shape", "ensure_cw_poly", "ensure_ccw_poly", "zero_buffer"]
+__all__ = [
+    "clean_shape",
+    "ensure_cw_poly",
+    "ensure_ccw_poly",
+    "zero_buffer",
+    "BecameEmptyException",
+]
+
+
+class BecameEmptyException(Exception): ...
 
 
 def clean_shape(
-    shape: shapely.geometry.base.BaseGeometry, grid_size: Optional[float] = None
+    shape: shapely.geometry.base.BaseGeometry,
+    grid_size: Optional[float] = None,
+    raise_on_becoming_empty: bool = False,
 ) -> shapely.geometry.base.BaseGeometry:
     """
     removes self-intersections and duplicate points
 
+    :param raise_on_becoming_empty:
     :param grid_size:
     :param shape: The shape to cleaned
     :return: the cleaned shape
     """
+
+    original_shape = shape
 
     if isinstance(shape, shapely.Polygon):
         shape = ensure_cw_poly(shape)
@@ -48,6 +62,19 @@ def clean_shape(
             shape = make_valid(shape)
         except shapely.errors.GEOSException as e:
             logger.error(e)
+
+    if not original_shape.is_empty:
+        if shape.is_empty:
+            if raise_on_becoming_empty:
+                raise BecameEmptyException(
+                    f"{original_shape=} was not empty, became {shape=}"
+                )
+            else:
+                shape = original_shape.representative_point()
+
+    if isinstance(shape, shapely.GeometryCollection):
+        if len(shape.geoms) == 1:
+            shape = shape.geoms[0]
 
     return shape
 
