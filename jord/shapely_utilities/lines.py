@@ -127,6 +127,10 @@ def to_lines(
                         lines.append(LineString(coordinates=boundary.geoms))
                     else:
                         lines.append(boundary)
+                elif g.is_empty:
+                    ...
+                elif isinstance(g, Point):
+                    ...
                 else:
                     raise NotImplementedError(f"{g, type(g)}")
             else:
@@ -144,6 +148,10 @@ def to_lines(
                 lines.append(LineString(coordinates=boundary.geoms))
             else:
                 lines.append(boundary)
+        elif geoms.is_empty:
+            ...
+        elif isinstance(geoms, Point):
+            ...
         else:
             raise NotImplementedError(f"{geoms, type(geoms)}")
     else:
@@ -339,7 +347,8 @@ def find_isolated_endpoints(
     isolated_endpoints = []
 
     if not isinstance(lines, MultiLineString):
-        lines = MultiLineString(lines)
+
+        lines = MultiLineString(to_lines(lines))
 
     for i, line in enumerate(lines.geoms):
         other_lines = lines.geoms[:i] | lines.geoms[i + 1 :]

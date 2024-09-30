@@ -45,7 +45,7 @@ def read_reqs(file: str, path: Path) -> List[str]:
     def unroll_nested_reqs(req_str: str, base_path: Path):
         """description"""
         if req_str.startswith("-r"):
-            with open(base_path / req_str.strip("-r").strip()) as f:
+            with open(base_path / req_str.replace("-r", "").strip()) as f:
                 return [
                     unroll_nested_reqs(req.strip(), base_path)
                     for req in readlines_ignore_comments(f)
@@ -221,7 +221,7 @@ class JordPackage:
 
         for file in path.iterdir():
             if file.name.startswith("requirements_"):
-                group_name_ = "_".join(file.name.strip(".txt").split("_")[1:])
+                group_name_ = "_".join(file.name.replace(".txt", "").split("_")[1:])
                 these_extras[group_name_] = read_reqs(file.name, path)
 
         all_dependencies = []
@@ -350,41 +350,41 @@ if __name__ == "__main__":
 
     """
 name: str = ...,
-      version: str = ...,
-      description: str = ...,
-      long_description: str = ...,
-      author: str = ...,
-      author_email: str = ...,
-      maintainer: str = ...,
-      maintainer_email: str = ...,
-      url: str = ...,
-      download_url: str = ...,
-      packages: list[str] = ...,
-      py_modules: list[str] = ...,
-      scripts: list[str] = ...,
-      ext_modules: list[Extension] = ...,
-      classifiers: list[str] = ...,
-      distclass: Type[Distribution] = ...,
-      script_name: str = ...,
-      script_args: list[str] = ...,
-      options: Mapping[str, Any] = ...,
-      license: str = ...,
-      keywords: list[str] | str = ...,
-      platforms: list[str] | str = ...,
-      cmdclass: Mapping[str, Type[Command]] = ...,
-      data_files: list[tuple[str, list[str]]] = ...,
-      package_dir: Mapping[str, str] = ...,
-      obsoletes: list[str] = ...,
-      provides: list[str] = ...,
-      requires: list[str] = ...,
-      command_packages: list[str] = ...,
-      command_options: Mapping[str, Mapping[str, tuple[Any, Any]]] = ...,
-      package_data: Mapping[str, list[str]] = ...,
-      include_package_data: bool = ...,
-      libraries: list[str] = ...,
-      headers: list[str] = ...,
-      ext_package: str = ...,
-      include_dirs: list[str] = ...,
-      password: str = ...,
-      fullname: str = ...,
+    version: str = ...,
+    description: str = ...,
+    long_description: str = ...,
+    author: str = ...,
+    author_email: str = ...,
+    maintainer: str = ...,
+    maintainer_email: str = ...,
+    url: str = ...,
+    download_url: str = ...,
+    packages: list[str] = ...,
+    py_modules: list[str] = ...,
+    scripts: list[str] = ...,
+    ext_modules: list[Extension] = ...,
+    classifiers: list[str] = ...,
+    distclass: Type[Distribution] = ...,
+    script_name: str = ...,
+    script_args: list[str] = ...,
+    options: Mapping[str, Any] = ...,
+    license: str = ...,
+    keywords: list[str] | str = ...,
+    platforms: list[str] | str = ...,
+    cmdclass: Mapping[str, Type[Command]] = ...,
+    data_files: list[tuple[str, list[str]]] = ...,
+    package_dir: Mapping[str, str] = ...,
+    obsoletes: list[str] = ...,
+    provides: list[str] = ...,
+    requires: list[str] = ...,
+    command_packages: list[str] = ...,
+    command_options: Mapping[str, Mapping[str, tuple[Any, Any]]] = ...,
+    package_data: Mapping[str, list[str]] = ...,
+    include_package_data: bool = ...,
+    libraries: list[str] = ...,
+    headers: list[str] = ...,
+    ext_package: str = ...,
+    include_dirs: list[str] = ...,
+    password: str = ...,
+    fullname: str = ...,
 """

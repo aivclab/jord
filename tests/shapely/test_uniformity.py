@@ -90,3 +90,50 @@ def test_clean_invalid_shape():
 def test_clean_empty_shape(p: shapely.geometry.base.BaseGeometry):
     assert p.is_empty
     assert clean_shape(p).is_empty
+
+
+@pytest.mark.parametrize(
+    "p,expected",
+    [
+        (shapely.MultiPoint([shapely.Point((-1, 1))]), shapely.Point((-1, 1))),
+        (shapely.LineString(((1, 1), (1, 1))), shapely.Point((1, 1))),
+        (shapely.Polygon(((1, 1), (1, 1), (1, 1), (1, 1))), shapely.Point((1, 1))),
+        (
+            shapely.MultiPolygon([shapely.Polygon(((1, 1), (1, 1), (1, 1), (1, 1)))]),
+            shapely.Point((1, 1)),
+        ),
+        (
+            shapely.MultiLineString([shapely.LineString(((1, 1), (1, 1)))]),
+            shapely.Point((1, 1)),
+        ),
+        (
+            shapely.GeometryCollection(
+                [shapely.MultiLineString([shapely.LineString(((1, 1), (1, 1)))])]
+            ),
+            shapely.Point((1, 1)),
+        ),
+        (
+            shapely.GeometryCollection(
+                [
+                    shapely.MultiPolygon(
+                        [shapely.Polygon(((1, 1), (1, 1), (1, 1), (1, 1)))]
+                    )
+                ]
+            ),
+            shapely.Point((1, 1)),
+        ),
+        (
+            shapely.GeometryCollection(
+                [
+                    shapely.MultiPolygon(
+                        [shapely.Polygon(((1, 1), (1, 1), (1, 1), (1, 1)))]
+                    ),
+                    shapely.MultiLineString([shapely.LineString(((1, 1), (1, 1)))]),
+                ]
+            ),
+            shapely.Point((1, 1)),
+        ),
+    ],
+)
+def test_clean_collapsing_cases(p: shapely.geometry.base.BaseGeometry, expected):
+    assert clean_shape(p) == expected
