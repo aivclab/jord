@@ -4,8 +4,7 @@ from typing import Any, Mapping, Optional
 from shapely import LineString, Point
 from shapely.geometry.base import BaseGeometry
 
-from .morphology import closing, opening
-from .uniformity import clean_shape, zero_buffer
+from .morphology import clean_shape, closing, opening, zero_buffer
 
 __all__ = [
     "deflimmer",
@@ -15,9 +14,10 @@ __all__ = [
 ]
 
 logger = logging.getLogger(__name__)
+DEFAULT_DISTANCE = 1e-7
 
 
-def deflimmer(geom: BaseGeometry, eps: float = 1e-7) -> BaseGeometry:
+def deflimmer(geom: BaseGeometry, eps: float = DEFAULT_DISTANCE) -> BaseGeometry:
     """
 
     :param geom:

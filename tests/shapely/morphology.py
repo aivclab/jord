@@ -1,7 +1,8 @@
 import pytest
 import shapely
 
-from jord.shapely_utilities import dilate, erode, opening, closing
+from jord.shapely_utilities import closing, dilate, erode, opening
+from jord.shapely_utilities.morphology import clean_shape
 
 
 @pytest.mark.parametrize(
@@ -38,3 +39,51 @@ from jord.shapely_utilities import dilate, erode, opening, closing
 )
 def test_operation_zero(operation, shape):
     shape.equals(operation(shape, distance=0))
+
+
+@pytest.mark.parametrize(
+    "p,expected",
+    [
+        (shapely.Polygon(((1, 1), (1, 1), (1, 1), (1, 1))), shapely.Point((1, 1))),
+        (
+            shapely.LineString(
+                (
+                    (0.8493828299972399, 0.6810102249463201),
+                    (0.8493828299972399, 0.68101022494632),
+                )
+            ),
+            None,
+        ),
+    ],
+)
+def test_dilate_no_area_shape(
+    p: shapely.geometry.base.BaseGeometry, expected: shapely.geometry.base.BaseGeometry
+):
+    a = dilate(p)
+    assert not a.is_empty, a
+    assert a.minimum_clearance > 0, a.minimum_clearance
+    assert a != p
+
+
+@pytest.mark.parametrize(
+    "p,expected",
+    [
+        (shapely.Polygon(((1, 1), (1, 1), (1, 1), (1, 1))), None),
+        (
+            shapely.LineString(
+                (
+                    (0.8493828299972399, 0.6810102249463201),
+                    (0.8493828299972399, 0.68101022494632),
+                )
+            ),
+            None,
+        ),
+    ],
+)
+def test_dilate_n_clean_no_area_shape(
+    p: shapely.geometry.base.BaseGeometry, expected: shapely.geometry.base.BaseGeometry
+):
+    a = clean_shape(dilate(p))
+    assert not a.is_empty, a
+    assert a.minimum_clearance > 0, a.minimum_clearance
+    assert a != p

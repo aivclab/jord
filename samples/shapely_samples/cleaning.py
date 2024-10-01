@@ -1,6 +1,6 @@
 from shapely import LineString
 
-from jord.shapely_utilities.uniformity import clean_shape
+from jord.shapely_utilities.morphology import clean_shape
 
 
 def ausdhasu2():

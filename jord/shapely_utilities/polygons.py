@@ -28,6 +28,8 @@ __all__ = [
     "is_polygonal",
 ]
 
+DEFAULT_DISTANCE = 1e-7
+
 
 def polygon_has_interior_rings(polygon: Polygon) -> bool:
     """
@@ -90,7 +92,7 @@ def mean_std_dev_area(geom: BaseGeometry) -> Tuple[float, float]:
     )
 
 
-def prune_area(geom: BaseGeometry, eps: float = 1e-7) -> BaseGeometry:
+def prune_area(geom: BaseGeometry, eps: float = DEFAULT_DISTANCE) -> BaseGeometry:
     """
 
     :param geom:
@@ -109,7 +111,7 @@ def prune_area(geom: BaseGeometry, eps: float = 1e-7) -> BaseGeometry:
     return poly_areas
 
 
-def prune_rings(geom: BaseGeometry, eps: float = 1e-7) -> BaseGeometry:
+def prune_rings(geom: BaseGeometry, eps: float = DEFAULT_DISTANCE) -> BaseGeometry:
     """
 
     :param geom:

@@ -1,25 +1,48 @@
 #!/usr/bin/env python3
+import logging
+from typing import Optional
 
 import shapely
-from shapely.geometry import LinearRing
 from shapely.geometry.base import BaseGeometry
 
-__all__ = ["closing", "opening", "erode", "erosion", "dilate", "dilation", "close"]
+__all__ = [
+    "closing",
+    "opening",
+    "erode",
+    "erosion",
+    "dilate",
+    "dilation",
+    "close",
+    "clean_shape",
+    "zero_buffer",
+    "BecameEmptyException",
+    "collapse_duplicate_vertices",
+]
+
+from shapely.validation import make_valid
 
 from warg import passes_kws_to
 
+from .uniformity import ensure_cw_poly
+
 FALLBACK_CAPSTYLE = shapely.BufferCapStyle.round  # CAN BE OVERRIDDEN
 FALLBACK_JOINSTYLE = shapely.BufferCapStyle.round  # CAN BE OVERRIDDEN
+DEFAULT_DISTANCE = 1e-7
+
+logger = logging.getLogger(__name__)
 
 
 @passes_kws_to(shapely.geometry.base.BaseGeometry.buffer)
 def morphology_buffer(
     geom: BaseGeometry,
-    distance: float = 1e-7,
+    distance: float = DEFAULT_DISTANCE,
     cap_style: shapely.BufferCapStyle = shapely.BufferCapStyle.flat,
     join_style: shapely.BufferJoinStyle = shapely.BufferJoinStyle.mitre,
-    **kwargs
+    **kwargs,
 ):
+    if geom.is_empty:
+        return geom
+
     if distance == 0:
         if isinstance(geom, shapely.GeometryCollection):
             return shapely.GeometryCollection(
@@ -29,7 +52,7 @@ def morphology_buffer(
                         distance=distance,
                         cap_style=cap_style,
                         join_style=join_style,
-                        **kwargs
+                        **kwargs,
                     )
                     for g in geom.geoms
                 ]
@@ -46,13 +69,26 @@ def morphology_buffer(
         cap_style = FALLBACK_CAPSTYLE
         join_style = FALLBACK_JOINSTYLE
 
-    return geom.buffer(
+    if geom.area == 0:
+        geom = geom.boundary
+
+    if geom.length == 0:
+        geom = geom.representative_point()
+
+    res = geom.buffer(
         distance=distance, cap_style=cap_style, join_style=join_style, **kwargs
     )
 
+    if res.is_empty:
+        return geom
+
+    return res
+
 
 @passes_kws_to(morphology_buffer)
-def erosion(geom: BaseGeometry, distance: float = 1e-7, **kwargs) -> BaseGeometry:
+def erosion(
+    geom: BaseGeometry, distance: float = DEFAULT_DISTANCE, **kwargs
+) -> BaseGeometry:
     """
 
     :param distance:
@@ -65,7 +101,9 @@ def erosion(geom: BaseGeometry, distance: float = 1e-7, **kwargs) -> BaseGeometr
 
 
 @passes_kws_to(morphology_buffer)
-def dilation(geom: BaseGeometry, distance: float = 1e-7, **kwargs) -> BaseGeometry:
+def dilation(
+    geom: BaseGeometry, distance: float = DEFAULT_DISTANCE, **kwargs
+) -> BaseGeometry:
     """
 
     :param cap_style:
@@ -104,7 +142,8 @@ def pro_closing(geom: BaseGeometry, **kwargs) -> BaseGeometry:
       Remove Salt and Pepper
 
       Common Variants
-    Opening and closing are themselves often used in combination to achieve more subtle results. If we represent the closing of an image f by C(f), and its opening by O(f), then some common combinations include:
+    Opening and closing are themselves often used in combination to achieve more subtle results. If we
+    represent the closing of an image f by C(f), and its opening by O(f), then some common combinations include:
 
     Proper Opening
     Min(f, /em{C}(O(C(f))))
@@ -119,12 +158,15 @@ def pro_closing(geom: BaseGeometry, **kwargs) -> BaseGeometry:
 
 
     Closing
-    Dilation means that the central pixel will be replaced by the brightest pixel in the vicinity (filter structural element).
+    Dilation means that the central pixel will be replaced by the brightest pixel in the vicinity (filter
+    structural element).
     Perfect for removing pepper noise and ensuring that the key features are relatively sharp.
 
     Opening
-    Erosion means is that if we have a structuring element that is a 3 X 3 matrix, the central pixel will be replaced by the darkest pixel in the 3 X 3 neighborhood.
-    Opening is erosion followed by dilation which makes it perfect for removing salt noise (white dots) and ensuring that the key features are relatively sharp.
+    Erosion means is that if we have a structuring element that is a 3 X 3 matrix, the central pixel will be
+    replaced by the darkest pixel in the 3 X 3 neighborhood.
+    Opening is erosion followed by dilation which makes it perfect for removing salt noise (white dots) and
+    ensuring that the key features are relatively sharp.
 
       :param geom:
       :param kwargs:
@@ -140,7 +182,8 @@ def pro_opening(geom: BaseGeometry, **kwargs) -> BaseGeometry:
       Remove Salt and Pepper
 
       Common Variants
-    Opening and closing are themselves often used in combination to achieve more subtle results. If we represent the closing of an image f by C(f), and its opening by O(f), then some common combinations include:
+    Opening and closing are themselves often used in combination to achieve more subtle results. If we
+    represent the closing of an image f by C(f), and its opening by O(f), then some common combinations include:
 
     Proper Opening
     Min(f, /em{C}(O(C(f))))
@@ -155,12 +198,15 @@ def pro_opening(geom: BaseGeometry, **kwargs) -> BaseGeometry:
 
 
     Closing
-    Dilation means that the central pixel will be replaced by the brightest pixel in the vicinity (filter structural element).
+    Dilation means that the central pixel will be replaced by the brightest pixel in the vicinity (filter
+    structural element).
     Perfect for removing pepper noise and ensuring that the key features are relatively sharp.
 
     Opening
-    Erosion means is that if we have a structuring element that is a 3 X 3 matrix, the central pixel will be replaced by the darkest pixel in the 3 X 3 neighborhood.
-    Opening is erosion followed by dilation which makes it perfect for removing salt noise (white dots) and ensuring that the key features are relatively sharp.
+    Erosion means is that if we have a structuring element that is a 3 X 3 matrix, the central pixel will be
+    replaced by the darkest pixel in the 3 X 3 neighborhood.
+    Opening is erosion followed by dilation which makes it perfect for removing salt noise (white dots) and
+    ensuring that the key features are relatively sharp.
 
       :param geom:
       :param kwargs:
@@ -175,135 +221,73 @@ erode = erosion
 dilate = dilation
 close = closing
 
-if __name__ == "__main__":
 
-    def aishdjauisd():
-        # Import constructors for creating geometry collections
-        from shapely.geometry import MultiPoint, MultiLineString
+def zero_buffer(
+    geom: BaseGeometry,
+) -> BaseGeometry:
+    return dilate(geom, distance=0)
 
-        # Import necessary geometric objects from shapely module
-        from shapely.geometry import Point, LineString, Polygon
 
-        # Create Point geometric object(s) with coordinates
-        point1 = Point(2.2, 4.2)
-        point2 = Point(7.2, -25.1)
-        point3 = Point(9.26, -2.456)
-        # point3D = Point(9.26, -2.456, 0.57)
+class BecameEmptyException(Exception): ...
 
-        # Create a MultiPoint object of our points 1,2 and 3
-        multi_point = MultiPoint([point1, point2, point3])
 
-        # It is also possible to pass coordinate tuples inside
-        multi_point2 = MultiPoint([(2.2, 4.2), (7.2, -25.1), (9.26, -2.456)])
+def clean_shape(
+    shape: shapely.geometry.base.BaseGeometry,
+    grid_size: Optional[float] = None,
+    raise_on_becoming_empty: bool = False,
+) -> shapely.geometry.base.BaseGeometry:
+    """
+    removes self-intersections and duplicate points
 
-        # We can also create a MultiLineString with two lines
-        line1 = LineString([point1, point2])
-        line2 = LineString([point2, point3])
-        multi_line = MultiLineString([line1, line2])
-        polygon = Polygon([point2, point1, point3])
+    :param raise_on_becoming_empty:
+    :param grid_size:
+    :param shape: The shape to cleaned
+    :return: the cleaned shape
+    """
 
-        from shapely.geometry import GeometryCollection
-        from matplotlib import pyplot
-        import geopandas
+    original_shape = shape
 
-        geoms = GeometryCollection([multi_point, multi_point2, multi_line, polygon])
+    if isinstance(shape, shapely.Polygon):
+        shape = ensure_cw_poly(shape)
 
-        # A positive distance produces a dilation, a negative distance an erosion. A very small or zero distance may sometimes be used to “tidy” a polygon.
-        geoms = opening(geoms)
-        geoms = dilate(geoms)
-        geoms = closing(geoms)
-        geoms = erode(geoms)
+    if grid_size is not None:
+        if not shape.is_valid:
+            try:
+                shape = make_valid(shape)
+            except shapely.errors.GEOSException as e:
+                logger.error(e)
 
-        p = geopandas.GeoSeries(geoms)
-        p.plot()
-        pyplot.show()
-
-    def ahfuashdu():
-        from random import random
-        import matplotlib.pyplot
-        import geopandas
-
-        circle_diameter = 100.0
-        ring_width = 6.0
-
-        circle = dilate(shapely.Point(0, 0), distance=circle_diameter)
-        ring = circle.difference(erode(circle, distance=ring_width))
-
-        noise_elements = []
-
-        num_noise_points = 1000
-        num_noise_lines = 100
-        noise_amplitude = 2.0
-
-        for i in range(num_noise_points):
-            noise_elements.append(
-                dilate(
-                    shapely.Point(
-                        -circle_diameter + random() * circle_diameter * 2,
-                        -circle_diameter + random() * circle_diameter * 2,
-                    ),
-                    distance=random() * noise_amplitude,
-                )
-            )
-
-        for i in range(num_noise_lines):
-            noise_elements.append(
-                dilate(
-                    shapely.LineString(
-                        [
-                            shapely.Point(
-                                -circle_diameter + random() * circle_diameter * 2,
-                                -circle_diameter + random() * circle_diameter * 2,
-                            )
-                            for _ in range(2)
-                        ]
-                    ),
-                    distance=random() * noise_amplitude,
-                )
-            )
-
-        noisy_ring = shapely.unary_union(noise_elements + [ring])
-
-        geopandas.GeoSeries(noisy_ring).plot()
-        matplotlib.pyplot.title("noisy_ring")
-        matplotlib.pyplot.show()
-
-        some_ring = opening(noisy_ring, distance=noise_amplitude)
-
-        geopandas.GeoSeries(some_ring).plot()
-        matplotlib.pyplot.title("opening_ring")
-        matplotlib.pyplot.show()
-
-        some_ring = closing(
-            opening(noisy_ring, distance=noise_amplitude), distance=noise_amplitude
+        shape = shapely.set_precision(
+            shape,
+            grid_size,
+            mode="keep_collapsed",
         )
 
-        geopandas.GeoSeries(some_ring).plot()
-        matplotlib.pyplot.title("some_ring")
-        matplotlib.pyplot.show()
+    shape = collapse_duplicate_vertices(shape)
 
-        pro_closing_ring = pro_closing(noisy_ring, distance=noise_amplitude)
+    if not shape.is_valid:
+        try:
+            shape = make_valid(shape)
+        except shapely.errors.GEOSException as e:
+            logger.error(e)
 
-        geopandas.GeoSeries(pro_closing_ring).plot()
-        matplotlib.pyplot.title("pro_closing_ring")
-        matplotlib.pyplot.show()
+    if not original_shape.is_empty:
+        if shape.is_empty:
+            if raise_on_becoming_empty:
+                raise BecameEmptyException(
+                    f"{original_shape=} was not empty, became {shape=}"
+                )
+            else:
+                shape = original_shape.representative_point()
 
-        pro_opening_ring = pro_opening(noisy_ring, distance=noise_amplitude)
+    if isinstance(shape, shapely.GeometryCollection):
+        if len(shape.geoms) == 1:
+            shape = shape.geoms[0]
 
-        geopandas.GeoSeries(pro_opening_ring).plot()
-        matplotlib.pyplot.title("pro_opening_ring")
-        matplotlib.pyplot.show()
+    return shape
 
-    def ahfuas3232hdu():
-        lr = LinearRing([(-1, -1), (1, 1), (1, 1), (1, -1), (-1, -1)])
-        print(dilate(lr))
-        print(lr.buffer(0))
 
-    def simple_dilate_example():
-        print(dilate(shapely.Point(0, 0)))
-        print(dilate(shapely.Point(0, 0), distance=0))
-
-    simple_dilate_example()
-    # ahfuas3232hdu()
-    # ahfuashdu()
-    # aishdjauisd()
+def collapse_duplicate_vertices(
+    shape: shapely.geometry.base.BaseGeometry,
+) -> shapely.geometry.base.BaseGeometry:
+    return zero_buffer(shape).simplify(0)
