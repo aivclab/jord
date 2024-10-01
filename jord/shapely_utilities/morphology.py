@@ -63,17 +63,17 @@ def morphology_buffer(
         ):  # So if line(s) or point(s)
             return geom
 
-    if (
-        isinstance(geom, shapely.Point) and cap_style == shapely.BufferCapStyle.flat
-    ):  # parameter NONSENSE, probably not what is intended
-        cap_style = FALLBACK_CAPSTYLE
-        join_style = FALLBACK_JOINSTYLE
-
     if geom.area == 0:
         geom = geom.boundary
 
     if geom.length == 0:
         geom = geom.representative_point()
+
+    if (
+        isinstance(geom, shapely.Point) and cap_style == shapely.BufferCapStyle.flat
+    ):  # parameter NONSENSE, probably not what is intended
+        cap_style = FALLBACK_CAPSTYLE
+        join_style = FALLBACK_JOINSTYLE
 
     res = geom.buffer(
         distance=distance, cap_style=cap_style, join_style=join_style, **kwargs
