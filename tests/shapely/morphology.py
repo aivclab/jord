@@ -61,6 +61,7 @@ def test_dilate_no_area_shape(
 ):
     a = dilate(p)
     assert not a.is_empty, a
+    assert a.area > 0
     assert a.minimum_clearance > 0, a.minimum_clearance
     assert a != p
 
@@ -85,5 +86,6 @@ def test_dilate_n_clean_no_area_shape(
 ):
     a = clean_shape(dilate(p))
     assert not a.is_empty, a
+    assert a.area > 0
     assert a.minimum_clearance > 0, a.minimum_clearance
     assert a != p
