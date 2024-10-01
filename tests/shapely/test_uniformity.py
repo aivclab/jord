@@ -2,7 +2,7 @@ import pytest
 import shapely
 
 from jord.shapely_utilities.base import sanitise
-from jord.shapely_utilities.morphology import clean_shape, zero_buffer
+from jord.shapely_utilities.morphology import clean_shape, dilate, zero_buffer
 
 
 def test_point_clean_shape():
@@ -131,9 +131,20 @@ def test_clean_empty_shape(p: shapely.geometry.base.BaseGeometry):
                     shapely.MultiLineString([shapely.LineString(((1, 1), (1, 1)))]),
                 ]
             ),
-            shapely.Point((1, 1)),
+            shapely.GeometryCollection(
+                [shapely.Point((1, 1)), shapely.Point((1, 1))],
+            ),
         ),
     ],
 )
 def test_clean_collapsing_cases(p: shapely.geometry.base.BaseGeometry, expected):
     assert clean_shape(p) == expected
+
+
+def test_null_point_become_poly_after_dilation():
+    NULL_POLYGON = dilate(shapely.Point([0, 0]), distance=1)
+
+    assert isinstance(NULL_POLYGON, shapely.Polygon)
+    assert NULL_POLYGON.area > 0
+    assert not NULL_POLYGON.is_empty
+    assert NULL_POLYGON.is_valid

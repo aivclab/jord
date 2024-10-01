@@ -63,11 +63,19 @@ def morphology_buffer(
         ):  # So if line(s) or point(s)
             return geom
 
-    if geom.area == 0:
-        geom = geom.boundary
+    if isinstance(
+        geom, (shapely.Polygon, shapely.MultiPolygon, shapely.GeometryCollection)
+    ):
+        if geom.area == 0:
+            geom_ = geom.boundary
+            if geom_:
+                geom = geom_
 
-    if geom.length == 0:
-        geom = geom.representative_point()
+    if isinstance(geom, (shapely.LineString, shapely.MultiLineString)):
+        if geom.length == 0:
+            geom_ = geom.representative_point()
+            if geom_:
+                geom = geom_
 
     if (
         isinstance(geom, shapely.Point) and cap_style == shapely.BufferCapStyle.flat
