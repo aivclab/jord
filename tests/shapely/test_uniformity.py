@@ -2,7 +2,7 @@ import pytest
 import shapely
 
 from jord.shapely_utilities.base import sanitise
-from jord.shapely_utilities.uniformity import clean_shape, zero_buffer
+from jord.shapely_utilities.morphology import clean_shape, zero_buffer
 
 
 def test_point_clean_shape():
