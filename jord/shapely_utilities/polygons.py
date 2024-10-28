@@ -316,6 +316,12 @@ def iter_polygons(
         return (polygon for polygon in _input_geometry.geoms)
     elif isinstance(_input_geometry, shapely.GeometryCollection):
         return (poly for poly in _input_geometry.geoms if is_polygonal(poly))
+    elif isinstance(_input_geometry, Iterable):
+        return (
+            poly.geoms if is_multi(poly) else poly
+            for poly in _input_geometry
+            if is_polygonal(poly)
+        )
 
     # assert isinstance(_input_geometry, Polygon)
 

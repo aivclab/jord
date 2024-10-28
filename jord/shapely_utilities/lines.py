@@ -34,6 +34,7 @@ __all__ = [
     "bend_towards",
     "remove_redundant_nodes",
     "split_line",
+    "internal_points",
 ]
 
 import collections
@@ -42,6 +43,7 @@ from enum import Enum
 from typing import Iterable, List, Sequence, Tuple, Union
 
 import numpy
+import shapely
 from shapely.geometry import (
     LineString,
     LinearRing,
@@ -50,7 +52,6 @@ from shapely.geometry import (
     Point,
     box,
 )
-import shapely
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import linemerge as shapely_linemerge
 
@@ -233,7 +234,33 @@ def line_endpoints(lines: Union[List[LineString], MultiLineString]) -> MultiPoin
         item for item, count in collections.Counter(all_points).items() if count < 2
     }  # Remove duplicates
 
-    return MultiPoint([Point(p) for p in endpoints])
+    return shapely.MultiPoint([Point(p) for p in endpoints])
+
+
+def internal_points(
+    lines: Union[List[LineString], MultiLineString]
+) -> shapely.MultiPoint:
+    """
+
+    :param lines:
+    :type: Union[List[LineString], MultiLineString]
+    :return: Returns a MultiPoint of terminal points from list of LineStrings.
+    :rtype: MultiPoint
+    """
+
+    all_points = []
+    if isinstance(lines, MultiLineString):
+        lines = lines.geoms
+
+    for line in lines:
+        for i in [0, -1]:  # start and end point
+            all_points.append(line.coords[i])
+
+    internal_points = {
+        item for item, count in collections.Counter(all_points).items() if count >= 2
+    }  # Remove duplicates
+
+    return shapely.MultiPoint([Point(p) for p in internal_points])
 
 
 def strip_multiline_dangles(
@@ -347,7 +374,6 @@ def find_isolated_endpoints(
     isolated_endpoints = []
 
     if not isinstance(lines, MultiLineString):
-
         lines = MultiLineString(to_lines(lines))
 
     for i, line in enumerate(lines.geoms):
