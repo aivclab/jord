@@ -77,6 +77,31 @@ def test_R():
     print(centerline.wkt)
 
 
+def test_H():
+    buffer_size = 0.5
+
+    polygon = dilate(
+        shapely.GeometryCollection(
+            (
+                shapely.MultiLineString(
+                    [
+                        [[0, 4], [0, 0]],
+                        [[0, 2], [2, 2]],
+                        [[2, 4], [2, 0]],
+                    ]
+                ),
+            )
+        ),
+        distance=buffer_size,
+    )
+
+    centerline = construct_centerline(
+        polygon, interpolation_distance=buffer_size, simplify_lines=True
+    )
+    print(polygon.wkt)
+    print(centerline.wkt)
+
+
 def test_blob():
     buffer_size = 0.5
 
