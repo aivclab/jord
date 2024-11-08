@@ -64,6 +64,108 @@ def test_desliver_intersection_center_distribute():
     print(shapely.GeometryCollection(list(res)).wkt)
 
 
+def test_desliver_intersection_center_distribute_9x9():
+    buffered_exterior = [
+        dilate(
+            shapely.Point((0, 0)), cap_style=shapely.BufferCapStyle.square, distance=0.9
+        ),
+        dilate(
+            shapely.Point((2, 0)), cap_style=shapely.BufferCapStyle.square, distance=0.9
+        ),
+        dilate(
+            shapely.Point((4, 0)), cap_style=shapely.BufferCapStyle.square, distance=0.9
+        ),
+        dilate(
+            shapely.Point((0, 2)), cap_style=shapely.BufferCapStyle.square, distance=0.9
+        ),
+        dilate(
+            shapely.Point((2, 2)), cap_style=shapely.BufferCapStyle.square, distance=0.9
+        ),
+        dilate(
+            shapely.Point((4, 2)), cap_style=shapely.BufferCapStyle.square, distance=0.9
+        ),
+        dilate(
+            shapely.Point((0, 4)), cap_style=shapely.BufferCapStyle.square, distance=0.9
+        ),
+        dilate(
+            shapely.Point((2, 4)), cap_style=shapely.BufferCapStyle.square, distance=0.9
+        ),
+        dilate(
+            shapely.Point((4, 4)), cap_style=shapely.BufferCapStyle.square, distance=0.9
+        ),
+    ]
+
+    res = desliver_center_divide(buffered_exterior, buffer_size=0.25)
+
+    print(shapely.GeometryCollection(list(res)).wkt)
+
+
+def test_desliver_intersection_center_distribute_hole():
+    buffered_exterior = [
+        dilate(
+            shapely.Point((0, 0)), cap_style=shapely.BufferCapStyle.square, distance=0.9
+        ),
+        dilate(
+            shapely.Point((2, 0)), cap_style=shapely.BufferCapStyle.square, distance=0.9
+        ),
+        dilate(
+            shapely.Point((4, 0)), cap_style=shapely.BufferCapStyle.square, distance=0.9
+        ),
+        dilate(
+            shapely.Point((0, 2)), cap_style=shapely.BufferCapStyle.square, distance=0.9
+        ),
+        dilate(
+            shapely.Point((4, 2)), cap_style=shapely.BufferCapStyle.square, distance=0.9
+        ),
+        dilate(
+            shapely.Point((0, 4)), cap_style=shapely.BufferCapStyle.square, distance=0.9
+        ),
+        dilate(
+            shapely.Point((2, 4)), cap_style=shapely.BufferCapStyle.square, distance=0.9
+        ),
+        dilate(
+            shapely.Point((4, 4)), cap_style=shapely.BufferCapStyle.square, distance=0.9
+        ),
+    ]
+
+    res = desliver_center_divide(buffered_exterior, buffer_size=0.25)
+
+    print(shapely.GeometryCollection(list(res)).wkt)
+
+
+def test_desliver_intersection_center_distribute_hole_round():
+    buffered_exterior = [
+        dilate(
+            shapely.Point((0, 0)), cap_style=shapely.BufferCapStyle.round, distance=0.9
+        ),
+        dilate(
+            shapely.Point((2, 0)), cap_style=shapely.BufferCapStyle.round, distance=0.9
+        ),
+        dilate(
+            shapely.Point((4, 0)), cap_style=shapely.BufferCapStyle.round, distance=0.9
+        ),
+        dilate(
+            shapely.Point((0, 2)), cap_style=shapely.BufferCapStyle.round, distance=0.9
+        ),
+        dilate(
+            shapely.Point((4, 2)), cap_style=shapely.BufferCapStyle.round, distance=0.9
+        ),
+        dilate(
+            shapely.Point((0, 4)), cap_style=shapely.BufferCapStyle.round, distance=0.9
+        ),
+        dilate(
+            shapely.Point((2, 4)), cap_style=shapely.BufferCapStyle.round, distance=0.9
+        ),
+        dilate(
+            shapely.Point((4, 4)), cap_style=shapely.BufferCapStyle.round, distance=0.9
+        ),
+    ]
+
+    res = desliver_center_divide(buffered_exterior, buffer_size=0.25)
+
+    print(shapely.GeometryCollection(list(res)).wkt)
+
+
 def test_desliver_intersection_center_distribute_circle():
     buffered_exterior = [
         dilate(

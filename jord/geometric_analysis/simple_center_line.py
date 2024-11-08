@@ -17,6 +17,11 @@ def construct_centerline(
     if interpolation_distance is None:
         interpolation_distance = input_geometry.minimum_clearance
 
+    if interpolation_distance < 1e-15:
+        if isinstance(input_geometry, shapely.MultiPolygon):
+            return shapely.MultiLineString([f.exterior for f in input_geometry.geoms])
+        return input_geometry.exterior
+
     densified_border = input_geometry.segmentize(interpolation_distance * 0.9)
 
     voronoi_polys = shapely.voronoi_polygons(

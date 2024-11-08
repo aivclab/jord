@@ -633,6 +633,8 @@ def linemerge(
                 lines.extend(a.geoms)
             else:
                 raise NotImplementedError(f"{type(a)} is not supported")
+
+        lines = [l for l in lines if not l.is_empty]
         return shapely.ops.linemerge(lines)
 
     for line in line_s.geoms:

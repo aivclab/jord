@@ -8,7 +8,7 @@ from shapely.geometry.base import GeometrySequence
 from tqdm import tqdm
 
 from jord.geometric_analysis import construct_centerline
-from jord.shapely_utilities import dilate, extend_line, is_multi, iter_polygons
+from jord.shapely_utilities import dilate, extend_line, is_multi, iter_polygons, opening
 from jord.shapely_utilities.desliver_wkt import a_wkt
 from jord.shapely_utilities.lines import (
     ExtensionDirectionEnum,
@@ -91,7 +91,10 @@ def multi_line_extend(
 
 
 def desliver_center_divide(
-    polygons: Collection[shapely.Polygon], buffer_size: float = 0.2
+    polygons: Collection[shapely.Polygon],
+    buffer_size: float = 0.2,
+    post_process: bool = True,
+    min_max_projection: bool = False,
 ) -> List[shapely.geometry.Polygon]:
     buffered_exterior = []
 
@@ -111,18 +114,18 @@ def desliver_center_divide(
         intersections.append(shapely.unary_union(a) & b)
 
     for ith, intersection in tqdm(enumerate(intersections)):
-        some_distance = intersection.minimum_clearance / 4.0
+        some_distance = intersection.minimum_clearance
 
         center_line = construct_centerline(
-            intersection, interpolation_distance=some_distance
+            intersection, interpolation_distance=some_distance / 2.0
         )
 
         center_line = simplify(
-            center_line, preserve_topology=False, tolerance=some_distance
+            center_line, preserve_topology=False, tolerance=some_distance / 2.0
         )
 
         center_line = simplify(
-            center_line, preserve_topology=True, tolerance=some_distance
+            center_line, preserve_topology=True, tolerance=some_distance * 2.0
         )
 
         center_line = multi_line_extend(center_line, distance=some_distance)
@@ -144,7 +147,7 @@ def desliver_center_divide(
 
         poly = polygons[ith]
 
-        if True:
+        if min_max_projection:
             for line in snapped_center_line.copy():
                 projected_line = get_min_max_projected_line(line, poly)
 
@@ -189,6 +192,136 @@ def desliver_center_divide(
 
         augmented = pro_opening(augmented, distance=some_distance)
         augmented_polygons.append(augmented)
+
+    if post_process:
+        post_processed = []
+
+        for ith in range(len(augmented_polygons)):
+            a = augmented_polygons.copy()
+            b = a.pop(ith)
+            post_processed.append(
+                opening(b - shapely.unary_union(a), distance=some_distance)
+            )
+
+        return post_processed
+
+    return augmented_polygons
+
+
+def desliver_center_divide_shared(
+    polygons: Collection[shapely.Polygon],
+    buffer_size: float = 0.2,
+    post_process: bool = True,
+    min_max_projection: bool = False,
+) -> List[shapely.geometry.Polygon]:
+    buffered_exterior = []
+
+    if isinstance(polygons, Sequence):
+        polygons = list(polygons)
+
+    for polygon in polygons:
+        polygon: shapely.Polygon
+        buffered_exterior.append(dilate(polygon, distance=buffer_size) - polygon)
+
+    augmented_polygons = []
+
+    intersections = []
+    for ith in range(len(buffered_exterior)):
+        a = buffered_exterior.copy()
+        b = a.pop(ith)
+        intersections.append(shapely.unary_union(a) & b)
+
+    for ith, intersection in tqdm(enumerate(intersections)):
+        some_distance = intersection.minimum_clearance
+
+        center_line = construct_centerline(
+            intersection, interpolation_distance=some_distance / 2.0
+        )
+
+        center_line = simplify(
+            center_line, preserve_topology=False, tolerance=some_distance / 2.0
+        )
+
+        center_line = simplify(
+            center_line, preserve_topology=True, tolerance=some_distance * 2.0
+        )
+
+        center_line = multi_line_extend(center_line, distance=some_distance)
+
+        if isinstance(intersection, shapely.Polygon):
+            snapping_points = [
+                shapely.Point(c) for c in subdivide(intersection).exterior.coords
+            ]
+        else:
+            snapping_points = [
+                shapely.Point(c)
+                for inter in intersection.geoms
+                for c in subdivide(inter).exterior.coords
+            ]
+
+        snapped_center_line = snap_endings_to_points(
+            center_line, snapping_points=snapping_points, max_distance=some_distance
+        )
+
+        poly = polygons[ith]
+
+        if min_max_projection:
+            for line in snapped_center_line.copy():
+                projected_line = get_min_max_projected_line(line, poly)
+
+                start, end = shapely.Point(projected_line.coords[0]), shapely.Point(
+                    projected_line.coords[-1]
+                )
+
+                start_line, end_line = (
+                    extend_line(
+                        shapely.LineString(
+                            (start, project_point_to_object(start, poly))
+                        ),
+                        offset=some_distance,
+                    ),
+                    extend_line(
+                        shapely.LineString((end, project_point_to_object(end, poly))),
+                        offset=some_distance,
+                    ),
+                )
+
+                snapped_center_line.extend((start_line, end_line))
+
+        res = cut_polygon(intersection, snapped_center_line)
+
+        augmented = copy(poly)
+        for r in res:
+            un = r | poly
+            re = erode(dilate(un, distance=1e-10), distance=1e-9)
+            if is_multi(re):
+                continue
+
+            f = closing(un)
+
+            if True:
+                augmented |= f
+            else:
+                k = r & poly
+                if k:
+                    if isinstance(k, shapely.LineString):
+                        if k.length >= some_distance:
+                            augmented |= r
+
+        augmented = pro_opening(augmented, distance=some_distance)
+        augmented_polygons.append(augmented)
+
+    if post_process:
+        post_processed = []
+
+        for ith in range(len(augmented_polygons)):
+            a = augmented_polygons.copy()
+            b = a.pop(ith)
+            post_processed.append(
+                opening(b - shapely.unary_union(a), distance=some_distance)
+            )
+
+        return post_processed
 
     return augmented_polygons
 
