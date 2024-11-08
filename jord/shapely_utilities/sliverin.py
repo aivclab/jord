@@ -104,6 +104,7 @@ def desliver_center_divide(
     post_process: bool = True,
     min_max_projection: bool = True,
     simplify_center_line: bool = False,
+    close_res: bool = False,
 ) -> List[shapely.geometry.Polygon]:
     buffered_exterior = []
 
@@ -126,7 +127,7 @@ def desliver_center_divide(
         minimum_clearance = intersection.minimum_clearance
 
         center_line = construct_centerline(
-            intersection, interpolation_distance=minimum_clearance / 2.0
+            intersection, interpolation_distance=minimum_clearance / 3.14
         )
 
         if simplify_center_line:
@@ -137,6 +138,8 @@ def desliver_center_divide(
             center_line = simplify_center_line(
                 center_line, preserve_topology=True, tolerance=minimum_clearance * 2.0
             )
+
+        # TODO FIT LINE TO JAGGED LINE
 
         center_line = multi_line_extend(center_line, distance=minimum_clearance)
 
@@ -212,7 +215,9 @@ def desliver_center_divide(
                 post_processed.append(
                     opening(
                         b - shapely.unary_union(a), distance=minimum_clearance / 2.0
-                    ).simplify(tolerance=minimum_clearance, preserve_topology=False)
+                    ).simplify(
+                        tolerance=minimum_clearance / 2.0, preserve_topology=False
+                    )
                 )
         else:
             post_processed = augmented_polygons
@@ -230,6 +235,7 @@ def desliver_center_divide(
         for _ in range(post_snaps):
             for ith in range(len(post_processed_list)):
                 a = post_processed_list.copy()
+
                 p = a.pop(ith)
 
                 if True:  # Union
@@ -246,10 +252,22 @@ def desliver_center_divide(
                 else:
                     s = a
 
-                post_processed_list[ith] = pro_closing(
-                    shapely.snap(p, s, tolerance=minimum_clearance),
-                    distance=minimum_clearance * 4.0,
-                )
+                if close_res:
+                    ll = polygons.copy()
+                    lp = ll.pop(ith)
+
+                    post_processed_list[ith] = (
+                        pro_closing(
+                            shapely.snap(p, s, tolerance=minimum_clearance),
+                            distance=minimum_clearance * 2.0,
+                        )
+                        | lp
+                    ) - shapely.unary_union(ll)
+                else:
+                    post_processed_list[ith] = opening(
+                        shapely.snap(p, s, tolerance=minimum_clearance),
+                        distance=minimum_clearance * 2.0,
+                    )
 
         return post_processed_list
 
