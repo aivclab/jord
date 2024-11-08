@@ -452,5 +452,5 @@ if __name__ == "__main__":
         p.plot()
         pyplot.show()
 
-    ahsudh()
+    # ahsudh()
     # aishdjauisd()

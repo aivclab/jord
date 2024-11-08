@@ -194,10 +194,15 @@ def get_min_max_projected_line(
     if not isinstance(geom, shapely.LineString):
         geom = geom.boundary
 
+    if isinstance(other, shapely.MultiLineString):
+        geom = geom.boundary
+
     min_v = max_v = 0.5
 
+    other_coords = other.boundary.coords
+
     # Find limits
-    for point_coords in other.boundary.coords:
+    for point_coords in other_coords:
         v = geom.project(Point(point_coords), normalized=True)
         if v < min_v:
             min_v = v
