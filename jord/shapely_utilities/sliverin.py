@@ -8,7 +8,15 @@ from shapely.geometry.base import GeometrySequence
 from tqdm import tqdm
 
 from jord.geometric_analysis import construct_centerline
-from jord.shapely_utilities import dilate, extend_line, is_multi, iter_polygons, opening
+from jord.shapely_utilities import (
+    clean_shape,
+    dilate,
+    extend_line,
+    is_multi,
+    iter_polygons,
+    opening,
+    pro_closing,
+)
 from jord.shapely_utilities.desliver_wkt import a_wkt
 from jord.shapely_utilities.lines import (
     ExtensionDirectionEnum,
@@ -94,7 +102,8 @@ def desliver_center_divide(
     polygons: Collection[shapely.Polygon],
     buffer_size: float = 0.2,
     post_process: bool = True,
-    min_max_projection: bool = False,
+    min_max_projection: bool = True,
+    simplify_center_line: bool = False,
 ) -> List[shapely.geometry.Polygon]:
     buffered_exterior = []
 
@@ -114,21 +123,22 @@ def desliver_center_divide(
         intersections.append(shapely.unary_union(a) & b)
 
     for ith, intersection in tqdm(enumerate(intersections)):
-        some_distance = intersection.minimum_clearance
+        minimum_clearance = intersection.minimum_clearance
 
         center_line = construct_centerline(
-            intersection, interpolation_distance=some_distance / 2.0
+            intersection, interpolation_distance=minimum_clearance / 2.0
         )
 
-        center_line = simplify(
-            center_line, preserve_topology=False, tolerance=some_distance / 2.0
-        )
+        if simplify_center_line:
+            center_line = simplify_center_line(
+                center_line, preserve_topology=False, tolerance=minimum_clearance / 2.0
+            )
 
-        center_line = simplify(
-            center_line, preserve_topology=True, tolerance=some_distance * 2.0
-        )
+            center_line = simplify_center_line(
+                center_line, preserve_topology=True, tolerance=minimum_clearance * 2.0
+            )
 
-        center_line = multi_line_extend(center_line, distance=some_distance)
+        center_line = multi_line_extend(center_line, distance=minimum_clearance)
 
         if isinstance(intersection, shapely.Polygon):
             snapping_points = [
@@ -142,7 +152,7 @@ def desliver_center_divide(
             ]
 
         snapped_center_line = snap_endings_to_points(
-            center_line, snapping_points=snapping_points, max_distance=some_distance
+            center_line, snapping_points=snapping_points, max_distance=minimum_clearance
         )
 
         poly = polygons[ith]
@@ -160,11 +170,11 @@ def desliver_center_divide(
                         shapely.LineString(
                             (start, project_point_to_object(start, poly))
                         ),
-                        offset=some_distance,
+                        offset=minimum_clearance,
                     ),
                     extend_line(
                         shapely.LineString((end, project_point_to_object(end, poly))),
-                        offset=some_distance,
+                        offset=minimum_clearance,
                     ),
                 )
 
@@ -187,23 +197,61 @@ def desliver_center_divide(
                 k = r & poly
                 if k:
                     if isinstance(k, shapely.LineString):
-                        if k.length >= some_distance:
+                        if k.length >= minimum_clearance:
                             augmented |= r
 
-        augmented = pro_opening(augmented, distance=some_distance)
+        augmented = pro_opening(augmented, distance=minimum_clearance / 2.0)
         augmented_polygons.append(augmented)
 
     if post_process:
-        post_processed = []
+        if True:
+            post_processed = []
+            for ith in range(len(augmented_polygons)):
+                a = augmented_polygons.copy()
+                b = a.pop(ith)
+                post_processed.append(
+                    opening(
+                        b - shapely.unary_union(a), distance=minimum_clearance / 2.0
+                    ).simplify(tolerance=minimum_clearance, preserve_topology=False)
+                )
+        else:
+            post_processed = augmented_polygons
 
-        for ith in range(len(augmented_polygons)):
-            a = augmented_polygons.copy()
-            b = a.pop(ith)
-            post_processed.append(
-                opening(b - shapely.unary_union(a), distance=some_distance)
+        if True:
+            post_processed = shapely.MultiPolygon(post_processed).simplify(
+                tolerance=minimum_clearance / 2.0, preserve_topology=True
             )
 
-        return post_processed
+            post_processed_list = list(post_processed.geoms)
+        else:
+            post_processed_list = post_processed
+
+        post_snaps = 2
+        for _ in range(post_snaps):
+            for ith in range(len(post_processed_list)):
+                a = post_processed_list.copy()
+                p = a.pop(ith)
+
+                if True:  # Union
+                    s = shapely.unary_union([clean_shape(l) for l in a])
+                elif False:  # Deconstruct
+                    if isinstance(s, shapely.geometry.Polygon):
+                        coords = s.exterior.coords
+                    else:
+                        coords = []
+                        for g in s.geoms:
+                            coords.extend(g.exterior.coords)
+
+                    s = [shapely.Point(c) for c in coords]
+                else:
+                    s = a
+
+                post_processed_list[ith] = pro_closing(
+                    shapely.snap(p, s, tolerance=minimum_clearance),
+                    distance=minimum_clearance * 4.0,
+                )
+
+        return post_processed_list
 
     return augmented_polygons
 
@@ -232,21 +280,21 @@ def desliver_center_divide_shared(
         intersections.append(shapely.unary_union(a) & b)
 
     for ith, intersection in tqdm(enumerate(intersections)):
-        some_distance = intersection.minimum_clearance
+        minimum_clearance = intersection.minimum_clearance
 
         center_line = construct_centerline(
-            intersection, interpolation_distance=some_distance / 2.0
+            intersection, interpolation_distance=minimum_clearance / 2.0
         )
 
         center_line = simplify(
-            center_line, preserve_topology=False, tolerance=some_distance / 2.0
+            center_line, preserve_topology=False, tolerance=minimum_clearance / 2.0
         )
 
         center_line = simplify(
-            center_line, preserve_topology=True, tolerance=some_distance * 2.0
+            center_line, preserve_topology=True, tolerance=minimum_clearance * 2.0
         )
 
-        center_line = multi_line_extend(center_line, distance=some_distance)
+        center_line = multi_line_extend(center_line, distance=minimum_clearance)
 
         if isinstance(intersection, shapely.Polygon):
             snapping_points = [
@@ -260,7 +308,7 @@ def desliver_center_divide_shared(
             ]
 
         snapped_center_line = snap_endings_to_points(
-            center_line, snapping_points=snapping_points, max_distance=some_distance
+            center_line, snapping_points=snapping_points, max_distance=minimum_clearance
         )
 
         poly = polygons[ith]
@@ -278,11 +326,11 @@ def desliver_center_divide_shared(
                         shapely.LineString(
                             (start, project_point_to_object(start, poly))
                         ),
-                        offset=some_distance,
+                        offset=minimum_clearance,
                     ),
                     extend_line(
                         shapely.LineString((end, project_point_to_object(end, poly))),
-                        offset=some_distance,
+                        offset=minimum_clearance,
                     ),
                 )
 
@@ -305,10 +353,10 @@ def desliver_center_divide_shared(
                 k = r & poly
                 if k:
                     if isinstance(k, shapely.LineString):
-                        if k.length >= some_distance:
+                        if k.length >= minimum_clearance:
                             augmented |= r
 
-        augmented = pro_opening(augmented, distance=some_distance)
+        augmented = pro_opening(augmented, distance=minimum_clearance / 2.0)
         augmented_polygons.append(augmented)
 
     if post_process:
@@ -318,8 +366,17 @@ def desliver_center_divide_shared(
             a = augmented_polygons.copy()
             b = a.pop(ith)
             post_processed.append(
-                opening(b - shapely.unary_union(a), distance=some_distance)
+                opening(b - shapely.unary_union(a), distance=minimum_clearance / 2.0)
             )
+
+        # for p in post_processed:
+        #  ...
+
+        post_processed = list(
+            shapely.MultiPolygon(post_processed)
+            .simplify(tolerance=minimum_clearance / 2.0)
+            .geoms
+        )
 
         return post_processed
 
