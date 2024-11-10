@@ -496,6 +496,7 @@ def snap_endings_to_points(
     Snap endpoints of lines together if they are at most max_length apart.
 
 
+    :param snapping_points:
     :param lines: A list of LineStrings or a MultiLineString
     :param max_distance: maximum distance two endpoints may be joined together
     :return:
