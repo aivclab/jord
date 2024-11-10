@@ -17,6 +17,7 @@ __all__ = [
     "nearest_geometry",
     "make_projected_ring",
     "make_extruded_ring",
+    "get_min_max_projected_line",
     "line_line_intersection",
     "SingularExtentGeometry",
 ]
