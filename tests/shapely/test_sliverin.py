@@ -1,6 +1,6 @@
 import shapely
 
-from jord.shapely_utilities import dilate
+from jord.shapely_utilities import dilate, iter_polygons
 from jord.shapely_utilities.sliverin import (
     desliver_center_divide,
     desliver_least_intersectors_first,
@@ -114,6 +114,36 @@ def test_desliver_intersection_center_distribute_mixed():
     ]
 
     res = desliver_center_divide(buffered_exterior, buffer_size=0.2)
+
+    print(shapely.GeometryCollection(list(res)).wkt)
+
+
+def test_desliver_intersection_center_distribute_mixed_overlap():
+    buffered_exterior = [
+        dilate(
+            shapely.Point((0, 0)), cap_style=shapely.BufferCapStyle.square, distance=0.9
+        ),
+        dilate(
+            shapely.Point((2, 0)), cap_style=shapely.BufferCapStyle.round, distance=1.0
+        ),
+        dilate(
+            shapely.Point((2, 1.5)),
+            cap_style=shapely.BufferCapStyle.round,
+            distance=1.0,
+        ),
+        dilate(
+            shapely.Point((2, -1.5)),
+            cap_style=shapely.BufferCapStyle.square,
+            distance=1.0,
+        ),
+        dilate(
+            shapely.Point((4, 0)), cap_style=shapely.BufferCapStyle.square, distance=0.9
+        ),
+    ]
+
+    res = desliver_center_divide(buffered_exterior, buffer_size=0.2)
+    res = iter_polygons(res)
+    res = desliver_center_divide(res, buffer_size=0.2)
 
     print(shapely.GeometryCollection(list(res)).wkt)
 

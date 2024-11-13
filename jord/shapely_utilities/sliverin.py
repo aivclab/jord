@@ -108,7 +108,7 @@ def desliver_center_divide(
 ) -> List[shapely.geometry.Polygon]:
     buffered_exterior = []
 
-    if isinstance(polygons, Sequence):
+    if not isinstance(polygons, Sequence):
         polygons = list(polygons)
 
     for polygon in polygons:
@@ -125,6 +125,8 @@ def desliver_center_divide(
 
     for ith, intersection in tqdm(enumerate(intersections)):
         minimum_clearance = intersection.minimum_clearance
+
+        intersection = shapely.unary_union(list(iter_polygons(intersection)))
 
         center_line = construct_centerline(
             intersection, interpolation_distance=minimum_clearance / 3.14
