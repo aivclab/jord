@@ -4,7 +4,7 @@ import shapely
 from shapely import unary_union
 
 from .geometry_types import is_multi
-from .morphology import closing
+from .morphology import clean_shape, closing
 
 __all__ = ["overlap_groups"]
 
@@ -20,9 +20,11 @@ def overlap_groups(
     """
 
     Given a sequence of geometries `to_be_grouped`, this function will group
-    the geometries based on a `group_test` function. `group_test` must return a bool indicating whether to group any two geometries
+    the geometries based on a `group_test` function. `group_test` must return a bool indicating whether to
+    group any two geometries
 
-    `must_be_unique` allows us to assert whether all geometries will be possible grouped uniquely, e.g. if in `to_be_grouped` a multi shape could end up in 2 groups, we can disallow that.
+    `must_be_unique` allows us to assert whether all geometries will be possible grouped uniquely, e.g. if in
+    `to_be_grouped` a multi shape could end up in 2 groups, we can disallow that.
 
     :param to_be_grouped:
     :param must_be_unique:
@@ -36,9 +38,9 @@ def overlap_groups(
     if must_be_unique:
         assert not any(is_multi(p) for p in to_be_grouped.values()), to_be_grouped
 
-    unions = closing(
-        unary_union(list(unary_union(v) for v in to_be_grouped.values()))
-    ).buffer(0)
+    unions = clean_shape(
+        closing(unary_union(list(unary_union(v) for v in to_be_grouped.values())))
+    )
 
     groups = []
     already_grouped = []
@@ -49,6 +51,7 @@ def overlap_groups(
         for union_part in unions.geoms:
             incidentee = {}
             for k, v in to_be_grouped.items():
+                v = clean_shape(v)
                 if group_test(v, union_part):
                     if must_be_unique:
                         assert k not in already_grouped, f"{k, already_grouped, v}"
