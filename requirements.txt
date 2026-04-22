@@ -1,5 +1,5 @@
 numpy>=1.20.2
-warg>=1.1.6
+warg>=1.5.3
 apppath>=1.0.2
 sorcery
 pyzmq
